@@ -152,6 +152,9 @@
     <ClCompile Include="engine\Console.cpp" />
     <ClCompile Include="engine\Cursor.cpp" />
     <ClCompile Include="engine\Framebuffer.cpp" />
+    <ClCompile Include="engine\ImGuiDebugger.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="engine\InputsMap.cpp" />
     <ClCompile Include="engine\JsonPatch.cpp" />
     <ClCompile Include="engine\JsonUtils.cpp" />
@@ -171,6 +174,24 @@
     <ClCompile Include="GameConsole.cpp" />
     <ClCompile Include="support\format.cc" />
     <ClCompile Include="support\glad\glad.c" />
+    <ClCompile Include="support\ImGUI\imgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_draw.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_impl_glfw.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_impl_opengl3.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_tables.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_widgets.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="support\miniz.c" />
     <ClCompile Include="support\stb_image.cpp" />
     <ClCompile Include="support\stb_image_write.cpp" />

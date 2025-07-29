@@ -91,6 +91,27 @@
     <ClCompile Include="engine\VFS.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="engine\ImGuiDebugger.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_impl_glfw.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_draw.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_tables.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_widgets.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\ImGUI\imgui_impl_opengl3.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">

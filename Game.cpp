@@ -16,8 +16,6 @@ extern "C" {
 constexpr int ScreenWidth = SCREENWIDTH;
 constexpr int ScreenHeight = SCREENHEIGHT;
 
-bool debuggerEnabled;
-
 class TestScreen : public Tickable
 {
 	Texture sprite{ "succfarm.png" };
@@ -31,7 +29,7 @@ class TestScreen : public Tickable
 	void Draw(float dt)
 	{
 		DrawAllTickables(tickables, dt);
-		
+
 		Sprite::DrawSprite(sprite, glm::vec2(80) * scale, glm::vec2(16, 32) * scale, sprite[1]);
 		Sprite::DrawText(1,
 			PreprocessBJTS("Hello, Beckett Engine!"),
@@ -145,10 +143,11 @@ namespace UI
 	}
 };
 
-bool IsImGuiHovered() { return false; }
-void SetupImGui() {}
-void DoImGui() {}
-void RunTests() {}
+void GameImGui()
+{
+	//Put this function in its own module and #include <ImGUI/imgui.h>.
+	//Rendering is handled by the engine, just handle windows here.
+}
 
 void GameInit()
 {
