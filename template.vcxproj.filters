@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="engine\Audio.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\BigTables.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Console.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Cursor.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Framebuffer.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\InputsMap.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="BJTS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="support\format.cc">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\glad\glad.c">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\miniz.c">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Model.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\JsonUtils.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Mesh.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Shader.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\SpriteRenderer.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Text.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\TextField.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Texture.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\TextUtils.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="support\ufbx.c">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\stb_truetype.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\stb_image.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="support\stb_image_write.cpp">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\JsonPatch.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\main.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\MeshBucket.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="GameConsole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Utilities.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\VFS.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="engine\Audio.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Console.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Cursor.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\InputsMap.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BJTS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputsMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Framebuffer.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Shader.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Types.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\TextUtils.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Tickable.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\SpriteRenderer.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\TextField.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Text.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Texture.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\JsonUtils.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Utilities.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\VFS.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Model.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\shaders\common.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\font.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\scroller.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\shaders.json">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\sprite.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\sprite.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\ui\ui.json">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{9fa0d9b7-2e5f-4924-8d0a-6e9f2ff9f832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Header Files">
+      <UniqueIdentifier>{0a0e33c4-1e4a-4c10-9b03-6939bb9dbd78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{199b9045-263f-4282-93d8-183009437c99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{59ed962b-9cda-45c5-9de7-30ae24cb9e51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Third-party">
+      <UniqueIdentifier>{2e21df08-6490-4f4b-aba5-4c6aba474e2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{f7aaa17a-bec1-4c36-8f2d-6216a79bedfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{63151d74-3275-45f8-a0b1-5d85c8e4ae57}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

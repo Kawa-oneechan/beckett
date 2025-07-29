@@ -1,0 +1,49 @@
+{
+	"colors": {
+		"theme": {
+			//basic colors, EGA order
+			"black":    "#000000",
+			"navy":     "#000080",
+			"green":    "#008000",
+			"teal":     "#008080",
+			"darkred":  "#800000",
+			"purple":   "#800080",
+			"brown":    "#804000",
+			"silver":   "#C0C0C0",
+			"gray":     "#808080",
+			"blue":     "#0000FF",
+			"lime":     "#00FF00",
+			"cyan":     "#00FFFF",
+			"red":      "#FF0000",
+			"magenta":  "#FF00FF",
+			"yellow":   "#FFFF00",
+			"white":    "#FFFFFF",
+
+			//same but numbered
+			"ega0":  "#000000",
+			"ega1":  "#000080",
+			"ega2":  "#008000",
+			"ega3":  "#008080",
+			"ega4":  "#800000",
+			"ega5":  "#800080",
+			"ega6":  "#804000",
+			"ega7":  "#C0C0C0",
+			"ega8":  "#808080",
+			"ega9":  "#0000FF",
+			"ega10": "#00FF00",
+			"ega11": "#00FFFF",
+			"ega12": "#FF0000",
+			"ega13": "#FF00FF",
+			"ega14": "#FFFF00",
+			"ega15": "#FFFFFF"
+		},
+		"text": [
+			//Used by BJST color tag.
+			"#FFFFFF",
+			"#FFFF00",
+			"#FF0000"
+		]
+	},
+	"metrics": {
+	}
+}

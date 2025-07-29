@@ -1,0 +1,37 @@
+#include <windows.h>
+#pragma code_page(1252)
+
+GLFW_ICON	ICON ".\\app.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1,0,0,1
+PRODUCTVERSION 1,0,0,1
+FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+FILEFLAGS 0x1L
+#else
+FILEFLAGS 0x0L
+#endif
+FILEOS 0x40004L
+FILETYPE 0x0L
+FILESUBTYPE 0x0L
+BEGIN
+	BLOCK "StringFileInfo"
+		BEGIN
+		BLOCK "040004b0"
+		BEGIN
+			VALUE "CompanyName", "Kafuka Productions"
+			VALUE "FileDescription", "Beckett Engine template game"
+			VALUE "FileVersion", "1.0.0.1"
+			VALUE "InternalName", "beckett.exe"
+			VALUE "LegalCopyright", "© 2025 Kafuka Productions"
+			VALUE "OriginalFilename", "beckett.exe"
+			VALUE "ProductName", "Beckett Engine tempalte game"
+			VALUE "ProductVersion", "1.0.0.0"
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x400, 1200
+	END
+END

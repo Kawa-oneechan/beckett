@@ -1,0 +1,8 @@
+{
+	//Keys are used in matmap files and C++ code alike.
+	"sprite.vs": {
+		"sprite": "sprite.fs",
+		"font": "font.fs",
+		"scroller": "scroller.fs"
+	}
+}

@@ -1,0 +1,12 @@
+[
+	{	//0 - System
+		"file": "fixedsex.ttf",
+		"size": 16,
+		"grid": true
+	},
+	{	//1 - Dialogue
+		"file": "pixelmix_bold.ttf",
+		"size": 16,
+		"grid": true
+	}
+]
