@@ -30,62 +30,8 @@ struct CVar
 	int min, max;
 	std::string description;
 
-	bool Set(const std::string& value)
-	{
-		if (type == Type::String && value[0] != '\"')
-			return Set(fmt::format("\"{}\"", value));
-
-		auto json = json5pp::parse5(value);
-		switch (type)
-		{
-		case Type::Bool:
-			if (json.is_number())
-				*asBool = json.as_integer() != 0;
-			else if (json.is_boolean())
-				*asBool = json.as_boolean();
-			return true;
-		case Type::Int:
-			if (json.is_integer())
-			{
-				auto i = json.as_integer();
-				if (!(min == -1 && max == -1))
-					i = glm::clamp(i, min, max);
-				*asInt = i;
-			}
-			return true;
-		case Type::Float:
-			if (json.is_number())
-			{
-				auto i = (float)json.as_number();
-				if (!(min == -1 && max == -1))
-					i = glm::clamp(i, (float)min, (float)max);
-				*asFloat = i;
-			}
-			return true;
-		case Type::String:
-			if (json.is_number())
-				*asString = fmt::format("{}", json.as_number());
-			else if (json.is_string())
-				*asString = json.as_string();
-			return true;
-		case Type::Vec2:
-			if (json.is_array())
-				*asVec2 = GetJSONVec2(json);
-			return true;
-		case Type::Vec3:
-			if (json.is_array())
-				*asVec3 = GetJSONVec3(json);
-			return true;
-		case Type::Vec4:
-			if (json.is_array())
-				*asVec4 = GetJSONVec4(json);
-			return true;
-		case Type::Color:
-			*asVec4 = GetJSONColor(json);
-			return true;
-		}
-		return false;
-	}
+	bool Set(const std::string& value);
+	std::string ToString();
 };
 
 struct CCmd

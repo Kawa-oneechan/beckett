@@ -107,17 +107,8 @@ bool Console::Execute(const std::string& str)
 		{
 			if (!haveArgs)
 			{
-				switch (cv.type)
-				{
-				case CVar::Type::Bool: Print(0, fmt::format("{} is {}", cv.name, *cv.asBool)); return true;
-				case CVar::Type::Int: Print(0, fmt::format("{} is {}", cv.name, *cv.asInt)); return true;
-				case CVar::Type::Float: Print(0, fmt::format("{} is {}", cv.name, *cv.asFloat)); return true;
-				case CVar::Type::String: Print(0, fmt::format("{} is \"{}\"", cv.name, *cv.asString)); return true;
-				case CVar::Type::Vec2: Print(0, fmt::format("{} is [{}, {}]", cv.name, cv.asVec2->x, cv.asVec2->y)); return true;
-				case CVar::Type::Vec3: Print(0, fmt::format("{} is [{}, {}, {}]", cv.name, cv.asVec3->x, cv.asVec3->y, cv.asVec3->z)); return true;
-				case CVar::Type::Color:
-				case CVar::Type::Vec4: Print(0, fmt::format("{} is [{}, {}, {}, {}]", cv.name, cv.asVec4->x, cv.asVec4->y, cv.asVec4->z, cv.asVec4->w)); return true;
-				}
+				Print(0, fmt::format("{} is {}", cv.name, cv.ToString()));
+				return true;
 			}
 			else
 			{
@@ -128,17 +119,8 @@ bool Console::Execute(const std::string& str)
 				}
 				if (cv.Set(second))
 				{
-					switch (cv.type)
-					{
-					case CVar::Type::Bool: Print(0, fmt::format("{} set to {}", cv.name, *cv.asBool)); return true;
-					case CVar::Type::Int: Print(0, fmt::format("{} set to {}", cv.name, *cv.asInt)); return true;
-					case CVar::Type::Float: Print(0, fmt::format("{} set to {}", cv.name, *cv.asFloat)); return true;
-					case CVar::Type::String: Print(0, fmt::format("{} set to \"{}\"", cv.name, *cv.asString)); return true;
-					case CVar::Type::Vec2: Print(0, fmt::format("{} set to [{}, {}]", cv.name, cv.asVec2->x, cv.asVec2->y)); return true;
-					case CVar::Type::Vec3: Print(0, fmt::format("{} set to [{}, {}, {}]", cv.name, cv.asVec3->x, cv.asVec3->y, cv.asVec3->z)); return true;
-					case CVar::Type::Color:
-					case CVar::Type::Vec4: Print(0, fmt::format("{} set to [{}, {}, {}, {}]", cv.name, cv.asVec4->x, cv.asVec4->y, cv.asVec4->z, cv.asVec4->w)); return true;
-					}
+					Print(0, fmt::format("{} set to {}", cv.name, cv.ToString()));
+					return true;
 				}
 				else
 				{
@@ -388,6 +370,90 @@ bool Console::CheckSplat(const std::string& pattern, const std::string& text)
 		return (*p | *t) == 0;
 	};
 	return splat(pattern.c_str(), text.c_str());
+}
+
+bool CVar::Set(const std::string& value)
+{
+	{
+		if (type == Type::String && value[0] != '\"')
+			return Set(fmt::format("\"{}\"", value));
+		if ((type == Type::Vec2 || type == Type::Vec3 || type == Type::Vec4) && value[0] != '[')
+			return Set(fmt::format("[{}]", value));
+		if (type == Type::Color)
+		{
+			if (value[0] == '#')
+				return Set(fmt::format("\"{}\"", value));
+			if (value[0] != '[')
+				return Set(fmt::format("[{}]", value));
+		}
+
+		auto json = json5pp::parse5(value);
+		switch (type)
+		{
+		case Type::Bool:
+			if (json.is_number())
+				*asBool = json.as_integer() != 0;
+			else if (json.is_boolean())
+				*asBool = json.as_boolean();
+			return true;
+		case Type::Int:
+			if (json.is_integer())
+			{
+				auto i = json.as_integer();
+				if (!(min == -1 && max == -1))
+					i = glm::clamp(i, min, max);
+				*asInt = i;
+			}
+			return true;
+		case Type::Float:
+			if (json.is_number())
+			{
+				auto i = (float)json.as_number();
+				if (!(min == -1 && max == -1))
+					i = glm::clamp(i, (float)min, (float)max);
+				*asFloat = i;
+			}
+			return true;
+		case Type::String:
+			if (json.is_number())
+				*asString = fmt::format("{}", json.as_number());
+			else if (json.is_string())
+				*asString = json.as_string();
+			return true;
+		case Type::Vec2:
+			if (json.is_array())
+				*asVec2 = GetJSONVec2(json);
+			return true;
+		case Type::Vec3:
+			if (json.is_array())
+				*asVec3 = GetJSONVec3(json);
+			return true;
+		case Type::Vec4:
+			if (json.is_array())
+				*asVec4 = GetJSONVec4(json);
+			return true;
+		case Type::Color:
+			*asVec4 = GetJSONColor(json);
+			return true;
+		}
+		return false;
+	}
+}
+
+std::string CVar::ToString()
+{
+	switch (type)
+	{
+	case CVar::Type::Bool: return fmt::format("{}", *asBool);
+	case CVar::Type::Int: return fmt::format("{}", *asInt);
+	case CVar::Type::Float: return fmt::format("{}", *asFloat);
+	case CVar::Type::String: return fmt::format("\"{}\"", *asString);
+	case CVar::Type::Vec2: return fmt::format("[{}, {}]", asVec2->x, asVec2->y);
+	case CVar::Type::Vec3: return fmt::format("[{}, {}, {}]", asVec3->x, asVec3->y, asVec3->z);
+	case CVar::Type::Color:
+	case CVar::Type::Vec4: return fmt::format("[{}, {}, {}, {}]", asVec4->x, asVec4->y, asVec4->z, asVec4->w);
+	}
+	return "something";
 }
 
 static void CCmdVersion(jsonArray& args)
