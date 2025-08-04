@@ -144,7 +144,7 @@ bool Console::Execute(const std::string& str)
 				cc.act(json5pp::parse5(fmt::format("[ {} ]", second)).as_array());
 				return true;
 			}
-			catch (json5pp::syntax_error(x))
+			catch (json5pp::syntax_error& x)
 			{
 				/*
 				std::string what = x.what();
