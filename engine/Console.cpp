@@ -18,7 +18,6 @@
 #include <ufbx.h>
 extern "C" { const char* glfwGetVersionString(void); }
 
-
 extern sol::state Sol;
 extern Texture* whiteRect;
 
@@ -89,8 +88,6 @@ void Console::Flush()
 
 bool Console::Execute(const std::string& str)
 {
-	Print(8, fmt::format("]{}", str));
-
 	auto first = std::string(str);
 	auto second = std::string("");
 	auto haveArgs = false;
@@ -99,7 +96,7 @@ bool Console::Execute(const std::string& str)
 		if (space != std::string::npos)
 		{
 			first = first.substr(0, space);
-			second = str.substr(space);
+			second = str.substr(space + 1);
 			haveArgs = true;
 		}
 	}
@@ -155,8 +152,23 @@ bool Console::Execute(const std::string& str)
 	{
 		if (cc.name == first)
 		{
-			cc.act(json5pp::parse5(fmt::format("[ {} ]", second)).as_array());
-			return true;
+			try
+			{
+				cc.act(json5pp::parse5(fmt::format("[ {} ]", second)).as_array());
+				return true;
+			}
+			catch (json5pp::syntax_error(x))
+			{
+				std::string what = x.what();
+				if (what.find("illegal character") != -1 && what.find("in array") != -1)
+				{
+					//Print(5, "Did you mean to put that in quotes?");
+					Execute(fmt::format("{} \"{}\"", first, second));
+				}
+				else
+					Print(1, x.what());
+				return false;
+			}
 		}
 	}
 
@@ -187,6 +199,7 @@ bool Console::Scancode(unsigned int scancode)
 		if (history.size() == 0 || history.back() != inputLine->value)
 			history.emplace_back(inputLine->value);
 		historyCursor = 0;
+		Print(8, fmt::format("]{}", inputLine->value));
 		Execute(inputLine->value);
 		inputLine->Clear();
 		return true;
@@ -346,6 +359,37 @@ void Console::RegisterCCmd(const std::string& name, std::function<void(jsonArray
 	ccmds.push_back(cc);
 }
 
+bool Console::CheckSplat(const std::string& pattern, const std::string& text)
+{
+	if (pattern.empty() || text.empty())
+		return true;
+	std::function<bool(const char*, const char*)> splat;
+	splat = [&](const char* p, const char* t) -> bool
+	{
+		while (*p)
+		{
+			if (*p == '*')
+			{
+				char s = *++p;
+				while (*t && *t != s) t++;
+				if (*t && *t == s)
+				{
+					if (splat(p, t++)) return true;
+					p--;
+				}
+			}
+			else if (*p == '?' || *p == *t)
+			{
+				p++; t++;
+			}
+			else
+				return false;
+		}
+		return (*p | *t) == 0;
+	};
+	return splat(pattern.c_str(), text.c_str());
+}
+
 static void CCmdVersion(jsonArray& args)
 {
 	args;
@@ -375,31 +419,38 @@ static void CCmdVersion(jsonArray& args)
 static void CCmdCVarList(jsonArray& args)
 {
 	args;
-
+	size_t results = 0;
 	for (auto& cv : console->cvars)
 	{
-		switch (cv.type)
+		if (args.size() == 0 || Console::CheckSplat(args[0].as_string(), cv.name))
 		{
-		case CVar::Type::Bool: conprint(0, "{} : {}", cv.name, *cv.asBool); break;
-		case CVar::Type::Int: conprint(0, "{} : {}", cv.name, *cv.asInt); break;
-		case CVar::Type::Float: conprint(0, "{} : {}", cv.name, *cv.asFloat); break;
-		case CVar::Type::String: conprint(0, "{} : \"{}\"", cv.name, *cv.asString); break;
-		case CVar::Type::Vec2: conprint(0, "{} : [{}, {}]", cv.name, cv.asVec2->x, cv.asVec2->y); break;
-		case CVar::Type::Vec3: conprint(0, "{} : [{}, {}, {}]", cv.name, cv.asVec3->x, cv.asVec3->y, cv.asVec3->z); break;
-		case CVar::Type::Color:
-		case CVar::Type::Vec4: conprint(0, "{} : [{}, {}, {}, {}]", cv.name, cv.asVec4->x, cv.asVec4->y, cv.asVec4->z, cv.asVec4->w); break;
+			switch (cv.type)
+			{
+			case CVar::Type::Bool: conprint(0, "{} : {}", cv.name, *cv.asBool); break;
+			case CVar::Type::Int: conprint(0, "{} : {}", cv.name, *cv.asInt); break;
+			case CVar::Type::Float: conprint(0, "{} : {}", cv.name, *cv.asFloat); break;
+			case CVar::Type::String: conprint(0, "{} : \"{}\"", cv.name, *cv.asString); break;
+			case CVar::Type::Vec2: conprint(0, "{} : [{}, {}]", cv.name, cv.asVec2->x, cv.asVec2->y); break;
+			case CVar::Type::Vec3: conprint(0, "{} : [{}, {}, {}]", cv.name, cv.asVec3->x, cv.asVec3->y, cv.asVec3->z); break;
+			case CVar::Type::Color:
+			case CVar::Type::Vec4: conprint(0, "{} : [{}, {}, {}, {}]", cv.name, cv.asVec4->x, cv.asVec4->y, cv.asVec4->z, cv.asVec4->w); break;
+			}
+			results++;
 		}
 	}
-	conprint(0, "{} cvars", console->cvars.size());
+	conprint(0, "{} cvars", results);
 }
 
 static void CCmdCCmdList(jsonArray& args)
 {
-	args;
-
+	size_t results = 0;
 	for (auto& cc : console->ccmds)
 	{
-		conprint(0, "{}", cc.name);
+		if (args.size() == 0 || Console::CheckSplat(args[0].as_string(), cc.name))
+		{
+			conprint(0, "{}", cc.name);
+			results++;
+		}
 	}
-	conprint(0, "{} cvars", console->ccmds.size());
+	conprint(0, "{} ccmds", results);
 }

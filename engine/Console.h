@@ -28,9 +28,13 @@ struct CVar
 	};
 	bool cheat;
 	int min, max;
+	std::string description;
 
 	bool Set(const std::string& value)
 	{
+		if (type == Type::String && value[0] != '\"')
+			return Set(fmt::format("\"{}\"", value));
+
 		auto json = json5pp::parse5(value);
 		switch (type)
 		{
@@ -88,6 +92,7 @@ struct CCmd
 {
 	std::string name;
 	std::function<void(jsonArray& args)> act;
+	std::string description;
 };
 
 class Console : public Tickable
@@ -121,6 +126,8 @@ public:
 	void Draw(float dt);
 	void RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat = false, int min = -1, int max = -1);
 	void RegisterCCmd(const std::string& name, std::function<void(jsonArray& args)> act);
+
+	static bool CheckSplat(const std::string& pattern, const std::string& text);
 };
 
 extern Console* console;
