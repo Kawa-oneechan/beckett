@@ -65,11 +65,7 @@ bool wireframe = false;
 
 float DeltaTime = 0.0f;
 float lastFrame = 0.0f;
-
 float timeScale = 1.0f;
-
-int articlePlease;
-
 bool cheatsEnabled;
 
 #ifdef DEBUG

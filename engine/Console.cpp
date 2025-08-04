@@ -24,10 +24,12 @@ extern Texture* whiteRect;
 extern void ConsoleRegister(Console* console);
 
 extern bool cheatsEnabled;
+extern float timeScale;
 
 static void CCmdVersion(jsonArray& args);
 static void CCmdCVarList(jsonArray& args);
-static void CCmdCCmdList(jsonArray& args);
+static void CCmdCmdList(jsonArray& args);
+static void CCmdCRC32(jsonArray& args);
 
 Console::Console()
 {
@@ -53,7 +55,10 @@ Console::Console()
 	RegisterCCmd("clear", [&](jsonArray&) { buffer.clear(); });
 	RegisterCCmd("version", CCmdVersion);
 	RegisterCCmd("cvarlist", CCmdCVarList);
-	RegisterCCmd("ccmdlist", CCmdCCmdList);
+	RegisterCCmd("cmdlist", CCmdCmdList);
+	RegisterCCmd("crc32", CCmdCRC32);
+	RegisterCVar("sv_cheats", CVar::Type::Bool, &cheatsEnabled);
+	RegisterCVar("timescale", CVar::Type::Float, &timeScale, true);
 	ConsoleRegister(this);
 }
 
@@ -141,6 +146,7 @@ bool Console::Execute(const std::string& str)
 			}
 			catch (json5pp::syntax_error(x))
 			{
+				/*
 				std::string what = x.what();
 				if (what.find("illegal character") != -1 && what.find("in array") != -1)
 				{
@@ -148,7 +154,9 @@ bool Console::Execute(const std::string& str)
 					Execute(fmt::format("{} \"{}\"", first, second));
 				}
 				else
-					Print(1, x.what());
+					Print(1, what);
+				*/
+				Print(1, x.what());
 				return false;
 			}
 		}
@@ -484,8 +492,13 @@ static void CCmdVersion(jsonArray& args)
 
 static void CCmdCVarList(jsonArray& args)
 {
-	args;
+	if (args.size() != 0 && !args[0].is_string())
+	{
+		conprint(0, "Pattern must be a string.");
+		return;
+	}
 	size_t results = 0;
+
 	for (auto& cv : console->cvars)
 	{
 		if (args.size() == 0 || Console::CheckSplat(args[0].as_string(), cv.name))
@@ -507,8 +520,13 @@ static void CCmdCVarList(jsonArray& args)
 	conprint(0, "{} cvars", results);
 }
 
-static void CCmdCCmdList(jsonArray& args)
+static void CCmdCmdList(jsonArray& args)
 {
+	if (args.size() != 0 && !args[0].is_string())
+	{
+		conprint(0, "Pattern must be a string.");
+		return;
+	}
 	size_t results = 0;
 	for (auto& cc : console->ccmds)
 	{
@@ -519,4 +537,14 @@ static void CCmdCCmdList(jsonArray& args)
 		}
 	}
 	conprint(0, "{} ccmds", results);
+}
+
+static void CCmdCRC32(jsonArray& args)
+{
+	if (args.size() == 0 || !args[0].is_string())
+	{
+		conprint(0, "Input value must be a string.");
+		return;
+	}
+	conprint(0, "{:X}", GetCRC(args[0].as_string()));
 }
