@@ -17,6 +17,14 @@ extern int width, height;
 
 #define DEFAULTFILTER GL_NEAREST
 
+constexpr int MaxLights = 3;
+
+struct Light
+{
+	glm::vec4 pos;
+	glm::vec4 color;
+};
+
 struct CommonUniforms
 {
 	//Must match shaders/common.fs
@@ -26,5 +34,6 @@ struct CommonUniforms
 	glm::mat4 View; //32
 	glm::mat4 Projection; //96
 	glm::mat4 InvView; //160
+	Light Lights[MaxLights]; //224
 };
 extern CommonUniforms commonUniforms;

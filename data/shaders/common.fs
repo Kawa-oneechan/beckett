@@ -1,5 +1,13 @@
 //---Common---
 
+#define NUMLIGHTS 3
+
+struct light
+{
+	vec4 pos;
+	vec4 color;
+};
+
 layout (std140) uniform CommonData
 {
 	float TotalTime; //0
@@ -8,6 +16,7 @@ layout (std140) uniform CommonData
 	mat4 View; //16
 	mat4 Projection; //?
 	mat4 InvView; //?
+	light Lights[NUMLIGHTS]; //224
 };
 
 //------------

@@ -4,21 +4,26 @@
 #include "engine/Text.h"
 #include "engine/JsonUtils.h"
 #include "engine/InputsMap.h"
+#include "engine/Model.h"
+
+//Wouldn't need this here if the camera were a proper
+//class in its own file like in PSK.
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/matrix_inverse.hpp>
 
 __declspec(noreturn)
 extern void FatalError(const std::string& message);
 
-extern "C" {
-	const char* glfwGetKeyName(int key, int scancode);
-	int glfwGetKeyScancode(int key);
-}
+extern "C" int glfwGetKeyScancode(int key);
 
 constexpr int ScreenWidth = SCREENWIDTH;
 constexpr int ScreenHeight = SCREENHEIGHT;
 
 class TestScreen : public Tickable
 {
-	Texture sprite{ "succfarm.png" };
+	Texture sprite{ "example/farrah.png" };
+	Texture stage{ "example/stage.png" };
+	Model model{ "example/teapot.fbx" };
 
 	bool Tick(float dt)
 	{
@@ -30,7 +35,34 @@ class TestScreen : public Tickable
 	{
 		DrawAllTickables(tickables, dt);
 
-		Sprite::DrawSprite(sprite, glm::vec2(80) * scale, glm::vec2(16, 32) * scale, sprite[1]);
+		auto time = commonUniforms.TotalTime * 10.0f;
+
+		//--------------------
+		// 3D integration
+		//--------------------
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+
+		model.Draw(glm::vec3(0), time);
+		MeshBucket::Flush();
+
+		glDisable(GL_DEPTH_TEST);
+		//--------------------
+
+		auto& frame = stage[0];
+		Sprite::DrawSprite(stage,
+			glm::vec2(((width / scale) - frame.z) * 0.5f, ((height / scale) + (frame.w * 0.5)) * 0.5f) * scale,
+			glm::vec2(frame.z, frame.w) * scale,
+			frame,
+			0.0f,
+			glm::vec4(glm::vec3(0.5f + glm::abs(glm::sin(time * 0.1f) * 0.5f)), 1.0f));
+
+		frame = sprite[(int)time / 2 % sprite.Frames()];
+		Sprite::DrawSprite(sprite,
+			glm::vec2(((width / scale) - frame.z) * 0.5f, ((height / scale) - (frame.w * 0.5)) * 0.5f) * scale,
+			glm::vec2(frame.z, frame.w) * scale,
+			frame);
+
 		Sprite::DrawText(1,
 			PreprocessBJTS("Hello, Beckett Engine!"),
 			glm::vec2(16), glm::vec4(1));
@@ -80,7 +112,6 @@ namespace UI
 #define DA(K, V) if (!settings[K]) settings[K] = json5pp::array(V)
 		DS("screenWidth", ScreenWidth);
 		DS("screenHeight", ScreenHeight);
-		DS("language", "USen");
 		DA("keyBinds", {});
 		DA("gamepadBinds", {});
 #undef DA
@@ -88,10 +119,6 @@ namespace UI
 
 		width = settings["screenWidth"].as_integer();
 		height = settings["screenHeight"].as_integer();
-
-		//constexpr Language opt2lan[] = { Language::USen, Language::JPja, Language::EUde, Language::EUes, Language::EUfr, Language::EUit, Language::EUhu, Language::EUnl, Language::EUen };
-		//gameLang = opt2lan[settings["language"]->AsInteger()];
-		gameLang = Text::GetLangCode(settings["language"].as_string());
 
 		auto keyBinds = settings["keyBinds"].as_array();
 		if (keyBinds.size() != NumKeyBinds)
@@ -152,6 +179,17 @@ void GameImGui()
 void GameInit()
 {
 	//Add extra loading steps here
+
+	//Set up a camera and lights for the 3D example
+	auto cameraPos = glm::vec3(0.0f, 5.0f, 15.0f);
+	auto cameraTarget = glm::vec3(0.0f, 2.0f, 0.0f);
+	commonUniforms.View = glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+	commonUniforms.InvView = glm::affineInverse(commonUniforms.View);
+
+	commonUniforms.Lights[0].color = glm::vec4(0.5);
+	commonUniforms.Lights[0].pos = glm::vec4(0, 15, 20, 0);
+	commonUniforms.Lights[1].color = glm::vec4(1, 0, 0, 0.25);
+	commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
 }
 
 void GameStart(std::vector<TickableP>& tickables)

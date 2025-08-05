@@ -4,5 +4,8 @@
 		"sprite": "sprite.fs",
 		"font": "font.fs",
 		"scroller": "scroller.fs"
+	},
+	"model.vs": {
+		"model": "model.fs"
 	}
 }
