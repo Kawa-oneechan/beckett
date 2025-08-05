@@ -1,7 +1,7 @@
 {
-	"id": "projectspecialk",
-	"friendlyName": "Project Special K base data",
+	"id": "templategame",
+	"friendlyName": "Beckett Template Game base data",
 	"author": "Kawa",
 	"priority": -9999,
-	"namespaces": [ "psk" ]
+	"namespaces": [ "bkt" ]
 }

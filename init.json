@@ -11,7 +11,7 @@ the game to find and use the data folder.
 		"mods"
 	],
 	"saves": {
-		"win32": "$(SavedGames)\\Succubus Farming",
-		"linux": "~/.local/share/succfarm"
+		"win32": "$(SavedGames)\\Beckett Engine",
+		"linux": "~/.local/share/beckett"
 	}
 }
