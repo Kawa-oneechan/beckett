@@ -218,6 +218,11 @@ void GamePreDraw(float dt)
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
+void GamePostDraw(float dt)
+{
+	dt;
+}
+
 void GameQuit()
 {
 }
