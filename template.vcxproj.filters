@@ -112,6 +112,9 @@
     <ClCompile Include="support\ImGUI\imgui_impl_opengl3.cpp">
       <Filter>Engine\Third-party</Filter>
     </ClCompile>
+    <ClCompile Include="engine\TilemapLayer.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">
@@ -172,6 +175,9 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\Model.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\TilemapLayer.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
