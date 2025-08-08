@@ -20,6 +20,7 @@ public:
 	TilemapLayer() = default;
 	TilemapLayer(jsonValue& doc, const std::string& source, const std::string& layer);
 	void Draw(float dt);
+	void SetTile(int row, int col, int tile);
 
 	float Scale{ -1.0f };
 };
@@ -43,4 +44,6 @@ public:
 	bool Tick(float);
 	
 	TilemapLayer& operator[](size_t i);
+	void TilemapManager::SetTile(int row, int col, int tile);
+	void TilemapManager::SetTile(int row, int col, std::initializer_list<int> tiles);
 };

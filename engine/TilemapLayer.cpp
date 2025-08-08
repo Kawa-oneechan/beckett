@@ -24,7 +24,7 @@ TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std:
 			int i = 0;
 			for (auto& di : lo["data"].as_array())
 			{
-				data[i++] = di.as_integer();
+				data[i++] = di.as_integer() - 1;
 			}
 			break;
 		}
@@ -69,9 +69,8 @@ void TilemapLayer::Draw(float dt)
 		for (auto col = 0; col < width; col++)
 		{
 			auto tile = data[i++];
-			if (tile == 0)
+			if (tile == -1)
 				continue;
-			tile--;
 
 			auto srcX = (tile % tilesPerLine) * tileWidth;
 			auto srcY = (tile / tilesPerLine) * tileHeight;
@@ -80,6 +79,13 @@ void TilemapLayer::Draw(float dt)
 			Sprite::DrawSprite(*tilesetTexture, glm::vec2(col * tileWidth, row * tileHeight) * s, tileSize, srcRect);
 		}
 	}
+}
+
+void TilemapLayer::SetTile(int row, int col, int tile)
+{
+	col = glm::clamp(col, 0, width - 1);
+	row = glm::clamp(row, 0, height - 1);
+	data[(row * width) + col] = tile;
 }
 
 TilemapManager::TilemapManager(const std::string& source)
@@ -109,4 +115,21 @@ TilemapLayer& TilemapManager::operator[](size_t i)
 {
 	if (i < layers.size()) return layers[i];
 	return layers[0];
+}
+
+void TilemapManager::SetTile(int row, int col, int tile)
+{
+	for (auto& l : layers)
+		l.SetTile(row, col, tile);
+}
+
+void TilemapManager::SetTile(int row, int col, std::initializer_list<int> tiles)
+{
+	for (int i = 0; i < layers.size() && i < tiles.size(); i++)
+	{
+		auto t = *(tiles.begin() + i);
+		if (t == -2)
+			continue;
+		layers[i].SetTile(row, col, t);
+	}
 }
