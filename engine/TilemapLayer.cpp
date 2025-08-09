@@ -19,7 +19,7 @@ TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std:
 		{
 			layerName = layer;
 			width = lo["width"].as_integer();
-			height = lo["width"].as_integer();
+			height = lo["height"].as_integer();
 			
 			auto totalSize = this->width * this->height;
 
@@ -44,7 +44,10 @@ TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std:
 		tileWidth = ts["tilewidth"].as_integer();
 		tileHeight= ts["tileheight"].as_integer();
 
-		auto src = ts["image"].as_string();
+		tileGridWidth = tileWidth;
+		tileGridHeight = tileHeight;
+
+		auto& src = ts["image"].as_string();
 		std::string here;
 		auto slashPos = source.rfind('/');
 		if (slashPos != std::string::npos)
@@ -61,8 +64,7 @@ TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std:
 			tileGridWidth = grid["width"].as_integer();
 			tileGridHeight = grid["height"].as_integer();
 			auto offset = ts["tileoffset"].as_object();
-			tileOffsetX = offset["x"].as_integer();
-			tileOffsetY = offset["y"].as_integer();
+			tileOffset = glm::vec2(offset["x"].as_integer(), offset["y"].as_integer());
 		}
 	}
 }
@@ -89,23 +91,14 @@ void TilemapLayer::Draw(float dt)
 			auto srcY = (tile / tilesPerLine) * tileHeight;
 			auto srcRect = glm::vec4(srcX, srcY, tileWidth, tileHeight);
 
-			if (!isometric)
-			{
-				Sprite::DrawSprite(*tilesetTexture, glm::vec2(col * tileWidth, row * tileHeight) * s, tileSize, srcRect);
-			}
-			else
-			{
-				//TODO: use tileOffsetX/Y.
-				const auto tgw2 = tileGridWidth / 2;
-				const auto tgh2 = tileGridHeight / 2;
+			auto dest = !isometric ?
+				glm::vec2(col * tileWidth, row * tileHeight) :
+				glm::vec2(
+					((col - row) * (tileGridWidth / 2)) - (tileWidth / 2),
+					((row + col) * (tileGridHeight / 2))
+				);
 
-				Sprite::DrawSprite(*tilesetTexture,
-					glm::vec2(
-						((col - row) * tgw2) - (tileWidth / 2),
-						(row + col) * tgh2
-					) * s,
-					tileSize, srcRect);
-			}
+			Sprite::DrawSprite(*tilesetTexture, (dest - Camera - tileOffset) * s, tileSize, srcRect);
 		}
 	}
 }
@@ -115,6 +108,25 @@ void TilemapLayer::SetTile(int row, int col, int tile)
 	col = glm::clamp(col, 0, width - 1);
 	row = glm::clamp(row, 0, height - 1);
 	data[(row * width) + col] = tile;
+}
+
+const int TilemapLayer::GetTile(int row, int col) const
+{
+	col = glm::clamp(col, 0, width - 1);
+	row = glm::clamp(row, 0, height - 1);
+	return data[(row * width) + col];
+}
+
+glm::vec2 TilemapLayer::GetPixelSize()
+{
+	auto ret = glm::vec2(width * tileGridWidth, height * tileGridHeight);
+	return ret;
+}
+
+glm::vec2 TilemapLayer::GetTileSize()
+{
+	auto ret = glm::vec2(width, height);
+	return ret;
 }
 
 TilemapManager::TilemapManager(const std::string& source)
@@ -135,7 +147,7 @@ bool TilemapManager::Tick(float dt)
 	for (auto& l : layers)
 	{
 		l.Scale = Scale;
-		//l.Camera = Camera;
+		l.Camera = Camera;
 	}
 	return true;
 }
@@ -161,4 +173,21 @@ void TilemapManager::SetTile(int row, int col, std::initializer_list<int> tiles)
 			continue;
 		layers[i].SetTile(row, col, t);
 	}
+}
+
+const int TilemapManager::GetTile(int layer, int row, int col) const
+{
+	return layers[layer].GetTile(row, col);
+}
+
+glm::vec2 TilemapManager::GetPixelSize()
+{
+	auto ret = layers[0].GetPixelSize();
+	return ret;
+}
+
+glm::vec2 TilemapManager::GetTileSize()
+{
+	auto ret = layers[0].GetTileSize();
+	return ret;
 }

@@ -14,8 +14,7 @@ private:
 	int tileHeight{ 0 };
 	int tileGridWidth{ 0 };
 	int tileGridHeight{ 0 };
-	int tileOffsetX{ 0 };
-	int tileOffsetY{ 0 };
+	glm::vec2 tileOffset{ 0 };
 	int tilesPerLine{ 0 };
 	bool isometric{ false };
 	std::string layerName;
@@ -26,7 +25,11 @@ public:
 	TilemapLayer(jsonValue& doc, const std::string& source, const std::string& layer);
 	void Draw(float dt);
 	void SetTile(int row, int col, int tile);
+	const int GetTile(int row, int col) const;
+	glm::vec2 GetPixelSize();
+	glm::vec2 GetTileSize();
 
+	glm::vec2 Camera;
 	float Scale{ -1.0f };
 };
 
@@ -51,4 +54,7 @@ public:
 	TilemapLayer& operator[](size_t i);
 	void TilemapManager::SetTile(int row, int col, int tile);
 	void TilemapManager::SetTile(int row, int col, std::initializer_list<int> tiles);
+	const int GetTile(int layer, int row, int col) const;
+	glm::vec2 GetPixelSize();
+	glm::vec2 GetTileSize();
 };
