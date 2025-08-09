@@ -139,6 +139,8 @@ TilemapManager::TilemapManager(const std::string& source)
 		auto ln = lo["name"].as_string();
 		layers.emplace_back(doc, source, ln);
 	}
+
+	Camera = glm::vec2(0);
 }
 
 bool TilemapManager::Tick(float dt)
