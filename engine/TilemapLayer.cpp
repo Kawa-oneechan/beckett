@@ -9,6 +9,9 @@ extern float scale;
 TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std::string& layer)
 {
 	auto obj = doc.as_object();
+
+	isometric = obj["orientation"].as_string() == "isometric";
+
 	for (auto& l : obj["layers"].as_array())
 	{
 		auto lo = l.as_object();
@@ -51,6 +54,16 @@ TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std:
 		tilesetTexture = std::make_shared<Texture>(tsp);
 
 		tilesPerLine = tilesetTexture->width / tileWidth;
+
+		if (isometric)
+		{
+			auto grid = ts["grid"].as_object();
+			tileGridWidth = grid["width"].as_integer();
+			tileGridHeight = grid["height"].as_integer();
+			auto offset = ts["tileoffset"].as_object();
+			tileOffsetX = offset["x"].as_integer();
+			tileOffsetY = offset["y"].as_integer();
+		}
 	}
 }
 
@@ -76,7 +89,23 @@ void TilemapLayer::Draw(float dt)
 			auto srcY = (tile / tilesPerLine) * tileHeight;
 			auto srcRect = glm::vec4(srcX, srcY, tileWidth, tileHeight);
 
-			Sprite::DrawSprite(*tilesetTexture, glm::vec2(col * tileWidth, row * tileHeight) * s, tileSize, srcRect);
+			if (!isometric)
+			{
+				Sprite::DrawSprite(*tilesetTexture, glm::vec2(col * tileWidth, row * tileHeight) * s, tileSize, srcRect);
+			}
+			else
+			{
+				//TODO: use tileOffsetX/Y.
+				const auto tgw2 = tileGridWidth / 2;
+				const auto tgh2 = tileGridHeight / 2;
+
+				Sprite::DrawSprite(*tilesetTexture,
+					glm::vec2(
+						((col - row) * tgw2) - (tileWidth / 2),
+						(row + col) * tgh2
+					) * s,
+					tileSize, srcRect);
+			}
 		}
 	}
 }

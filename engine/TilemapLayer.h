@@ -12,7 +12,12 @@ private:
 	int height{ 0 };
 	int tileWidth{ 0 };
 	int tileHeight{ 0 };
+	int tileGridWidth{ 0 };
+	int tileGridHeight{ 0 };
+	int tileOffsetX{ 0 };
+	int tileOffsetY{ 0 };
 	int tilesPerLine{ 0 };
+	bool isometric{ false };
 	std::string layerName;
 	std::unique_ptr<int[]> data{ nullptr };
 
