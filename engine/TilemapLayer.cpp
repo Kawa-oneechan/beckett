@@ -38,8 +38,22 @@ TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std:
 
 	//Now handle the tileset.
 	//We only support the one, and it has to be "from sheet".
-	//TODO: support external tileset files.
+	std::string here;
+	{
+		auto slashPos = source.rfind('/');
+		if (slashPos != std::string::npos)
+			here = source.substr(0, slashPos + 1);
+	}
 	auto ts = obj["tilesets"].as_array()[0].as_object();
+	if (ts["source"].is_string())
+	{
+		auto tsp = here + ts["source"].as_string();
+		tsp = ResolvePath(tsp);
+		ts = VFS::ReadJSON(tsp).as_object();
+		auto slashPos = tsp.rfind('/');
+		if (slashPos != std::string::npos)
+			here = tsp.substr(0, slashPos + 1);
+	}
 	{
 		tileWidth = ts["tilewidth"].as_integer();
 		tileHeight= ts["tileheight"].as_integer();
@@ -48,13 +62,9 @@ TilemapLayer::TilemapLayer(jsonValue& doc, const std::string& source, const std:
 		tileGridHeight = tileHeight;
 
 		auto& src = ts["image"].as_string();
-		std::string here;
-		auto slashPos = source.rfind('/');
-		if (slashPos != std::string::npos)
-			here = source.substr(0, slashPos + 1);
 		auto tsp = here + src;
 		tsp = ResolvePath(tsp);
-		tilesetTexture = std::make_shared<Texture>(tsp);
+		tilesetTexture = std::make_shared<Texture>(tsp, GL_CLAMP, 0, true);
 
 		tilesPerLine = tilesetTexture->width / tileWidth;
 
@@ -75,15 +85,24 @@ void TilemapLayer::Draw(float dt)
 	if (!data)
 		return;
 
-	int i = 0;
 	float s = Scale > 0 ? Scale : scale;
 	
+	auto top = (int)(Camera.y / tileGridHeight);
+	if (top < 0) top = 0;
+	auto bottom = top + (int)((SCREENHEIGHT / tileGridHeight) / s) + 1;
+	if (bottom > height) bottom = height;
+	auto left = (int)(Camera.x / tileGridWidth);
+	if (left < 0) left = 0;
+	auto right = left + (int)((SCREENWIDTH / tileGridWidth) / s) + 1;
+	if (right > width) right = width;
+
+
 	const auto tileSize = glm::vec2(tileWidth, tileHeight) * s;
-	for (auto row = 0; row < height; row++)
+	for (auto row = top; row < bottom; row++)
 	{
-		for (auto col = 0; col < width; col++)
+		for (auto col = left; col < right; col++)
 		{
-			auto tile = data[i++];
+			auto tile = data[row * width + col];
 			if (tile == -1)
 				continue;
 
@@ -136,8 +155,10 @@ TilemapManager::TilemapManager(const std::string& source)
 	for (auto& l : obj["layers"].as_array())
 	{
 		auto lo = l.as_object();
+		if (lo["type"].as_string() != "tilelayer")
+			continue;
 		auto ln = lo["name"].as_string();
-		layers.emplace_back(doc, source, ln);
+		layers.push_back(std::make_shared<TilemapLayer>(doc, source, ln));
 	}
 
 	Camera = glm::vec2(0);
@@ -148,13 +169,19 @@ bool TilemapManager::Tick(float dt)
 	dt;
 	for (auto& l : layers)
 	{
-		l.Scale = Scale;
-		l.Camera = Camera;
+		l->Scale = Scale;
+		l->Camera = Camera;
 	}
 	return true;
 }
 
-TilemapLayer& TilemapManager::operator[](size_t i)
+TilemapLayerP TilemapManager::operator[](size_t i)
+{
+	if (i < layers.size()) return layers[i];
+	return layers[0];
+}
+
+TilemapLayerP TilemapManager::GetLayer(size_t i)
 {
 	if (i < layers.size()) return layers[i];
 	return layers[0];
@@ -163,7 +190,7 @@ TilemapLayer& TilemapManager::operator[](size_t i)
 void TilemapManager::SetTile(int row, int col, int tile)
 {
 	for (auto& l : layers)
-		l.SetTile(row, col, tile);
+		l->SetTile(row, col, tile);
 }
 
 void TilemapManager::SetTile(int row, int col, std::initializer_list<int> tiles)
@@ -173,23 +200,23 @@ void TilemapManager::SetTile(int row, int col, std::initializer_list<int> tiles)
 		auto t = *(tiles.begin() + i);
 		if (t == -2)
 			continue;
-		layers[i].SetTile(row, col, t);
+		layers[i]->SetTile(row, col, t);
 	}
 }
 
 const int TilemapManager::GetTile(int layer, int row, int col) const
 {
-	return layers[layer].GetTile(row, col);
+	return layers[layer]->GetTile(row, col);
 }
 
 glm::vec2 TilemapManager::GetPixelSize()
 {
-	auto ret = layers[0].GetPixelSize();
+	auto ret = layers[0]->GetPixelSize();
 	return ret;
 }
 
 glm::vec2 TilemapManager::GetTileSize()
 {
-	auto ret = layers[0].GetTileSize();
+	auto ret = layers[0]->GetTileSize();
 	return ret;
 }

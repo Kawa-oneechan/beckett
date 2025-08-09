@@ -41,7 +41,7 @@ using TilemapLayerP = std::shared_ptr<TilemapLayer>;
 class TilemapManager : public Tickable
 {
 private:
-	std::vector<TilemapLayer> layers;
+	std::vector<TilemapLayerP> layers;
 
 public:
 	glm::vec2 Camera;
@@ -51,10 +51,13 @@ public:
 	void Draw(float dt) {}
 	bool Tick(float);
 	
-	TilemapLayer& operator[](size_t i);
+	TilemapLayerP operator[](size_t i);
+	TilemapLayerP GetLayer(size_t i);
 	void TilemapManager::SetTile(int row, int col, int tile);
 	void TilemapManager::SetTile(int row, int col, std::initializer_list<int> tiles);
 	const int GetTile(int layer, int row, int col) const;
 	glm::vec2 GetPixelSize();
 	glm::vec2 GetTileSize();
 };
+
+using TilemapManagerP = std::shared_ptr<TilemapManager>;
