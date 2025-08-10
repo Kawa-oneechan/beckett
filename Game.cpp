@@ -19,11 +19,94 @@ extern "C" int glfwGetKeyScancode(int key);
 constexpr int ScreenWidth = SCREENWIDTH;
 constexpr int ScreenHeight = SCREENHEIGHT;
 
-class TestScreen : public Tickable
+extern Texture* whiteRect;
+
+class Background : public Tickable
 {
+public:
+	void Draw(float dt)
+	{
+		dt;
+		Sprite::DrawSprite(Shaders["background"], *whiteRect, glm::vec2(0), glm::vec2(width, height), glm::vec4(0, 0, width, height));
+	}
+};
+
+class BoingBall : public Tickable
+{
+public:
+	void Draw(float dt)
+	{
+		dt;
+		Sprite::DrawSprite(Shaders["boingball"], *whiteRect, glm::vec2(0), glm::vec2(width, height), glm::vec4(0, 0, width, height));
+	}
+};
+
+class Farrah : public Tickable
+{
+private:
 	Texture sprite{ "example/farrah.png" };
 	Texture stage{ "example/stage.png" };
+
+public:
+	void Draw(float dt)
+	{
+		dt;
+		auto time = commonUniforms.TotalTime * 10.0f;
+
+		auto& frame = stage[0];
+		Sprite::DrawSprite(stage,
+			glm::vec2(ScreenWidth - frame.z, ScreenHeight + (frame.w * 0.5)) / 2.0f,
+			glm::vec2(frame.z, frame.w),
+			frame,
+			0.0f,
+			glm::vec4(glm::vec3(0.5f + glm::abs(glm::sin(time * 0.1f) * 0.5f)), 1.0f));
+
+		frame = sprite[(int)time / 2 % sprite.Frames()];
+		Sprite::DrawSprite(sprite,
+			glm::vec2(ScreenWidth - frame.z, ScreenHeight - (frame.w * 0.5)) / 2.0f,
+			glm::vec2(frame.z, frame.w),
+			frame,
+			0.0f,
+			glm::vec4(1.0f));
+
+	}
+};
+
+class Teapot : public Tickable
+{
+private:
 	Model model{ "example/teapot.fbx" };
+
+public:
+	void Draw(float dt)
+	{
+		dt;
+		auto time = commonUniforms.TotalTime * 10.0f;
+
+		//Have to flush here so the draw order becomes boingball, teapot, stage.
+		Sprite::FlushBatch();
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+
+		model.Draw(glm::vec3(0), time);
+		MeshBucket::Flush();
+
+		glDisable(GL_DEPTH_TEST);
+	}
+};
+
+class TestScreen : public Tickable
+{
+private:
+
+public:
+	TestScreen()
+	{
+		tickables.push_back(std::make_shared<Background>());
+		tickables.push_back(std::make_shared<Teapot>());
+		tickables.push_back(std::make_shared<BoingBall>());
+		tickables.push_back(std::make_shared<Farrah>());
+	}
 
 	bool Tick(float dt)
 	{
@@ -35,37 +118,10 @@ class TestScreen : public Tickable
 	{
 		DrawAllTickables(tickables, dt);
 
-		auto time = commonUniforms.TotalTime * 10.0f;
 
-		//--------------------
-		// 3D integration
-		//--------------------
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-
-		model.Draw(glm::vec3(0), time);
-		MeshBucket::Flush();
-
-		glDisable(GL_DEPTH_TEST);
-		//--------------------
-
-		auto& frame = stage[0];
-		Sprite::DrawSprite(stage,
-			glm::vec2(((width / scale) - frame.z) * 0.5f, ((height / scale) + (frame.w * 0.5)) * 0.5f) * scale,
-			glm::vec2(frame.z, frame.w) * scale,
-			frame,
-			0.0f,
-			glm::vec4(glm::vec3(0.5f + glm::abs(glm::sin(time * 0.1f) * 0.5f)), 1.0f));
-
-		frame = sprite[(int)time / 2 % sprite.Frames()];
-		Sprite::DrawSprite(sprite,
-			glm::vec2(((width / scale) - frame.z) * 0.5f, ((height / scale) - (frame.w * 0.5)) * 0.5f) * scale,
-			glm::vec2(frame.z, frame.w) * scale,
-			frame);
-
-		Sprite::DrawText(1,
+		Sprite::DrawText(2,
 			PreprocessBJTS("Hello, Beckett Engine!"),
-			glm::vec2(16), glm::vec4(1));
+			glm::vec2(16), glm::vec4(1), 50.0f);
 	}
 };
 
@@ -117,6 +173,7 @@ namespace UI
 #undef DA
 #undef DS
 
+		auto bluh = &width;
 		width = settings["screenWidth"].as_integer();
 		height = settings["screenHeight"].as_integer();
 
@@ -204,18 +261,19 @@ void GameMouse(double xPosIn, double yPosIn, float xoffset, float yoffset)
 
 void GameResize()
 {
+	scale = 1.0f;
 }
 
 void GameLoopStart()
 {
-	cursor->SetScale((int)(scale * 100));
+	//cursor->SetScale(scale);
 }
 
 void GamePreDraw(float dt)
 {
 	dt;
-	glClearColor(0.0f, 0.1f, 0.2f, 1.0f);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void GamePostDraw(float dt)

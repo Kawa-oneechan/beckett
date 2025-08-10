@@ -12,8 +12,8 @@ extern int width, height;
 
 #define GAMENAME "Beckett Engine Template"
 #define VERSIONJOKE "Insert Funny Here"
-#define SCREENWIDTH 320
-#define SCREENHEIGHT 240
+#define SCREENWIDTH 640
+#define SCREENHEIGHT 480
 
 #define DEFAULTFILTER GL_NEAREST
 
