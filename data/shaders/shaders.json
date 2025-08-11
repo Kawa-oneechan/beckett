@@ -3,7 +3,9 @@
 	"sprite.vs": {
 		"sprite": "sprite.fs",
 		"font": "font.fs",
-		"scroller": "scroller.fs"
+		"scroller": "scroller.fs",
+		"boingball": "boingball.fs",
+		"background": "background.fs"
 	},
 	"model.vs": {
 		"model": "model.fs"
