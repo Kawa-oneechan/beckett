@@ -25,5 +25,5 @@ extern jsonValue GetJSONVec(const glm::vec2& vec, bool asInt = false);
 extern jsonValue GetJSONVec(const glm::vec3& vec, bool asInt = false);
 //Returns a JSON array initialized from a vec4, optionally casting to int.
 extern jsonValue GetJSONVec(const glm::vec4& vec, bool asInt = false);
-
+//Creates a sprite atlas from a JSON file.
 extern void GetAtlas(std::vector<glm::vec4> &ret, const std::string& jsonFile);

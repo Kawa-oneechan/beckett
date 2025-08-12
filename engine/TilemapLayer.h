@@ -4,6 +4,17 @@
 #include "Texture.h"
 #include "JsonUtils.h"
 
+class TilemapTileset
+{
+	std::shared_ptr<Texture> texture{ nullptr };
+	int tileWidth{ 0 };
+	int tileHeight{ 0 };
+	int tileGridWidth{ 0 };
+	int tileGridHeight{ 0 };
+	glm::vec2 tileOffset{ 0 };
+	int tilesPerLine{ 0 };
+};
+
 class TilemapLayer : public Tickable
 {
 private:

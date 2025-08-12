@@ -9,6 +9,7 @@
 
 namespace Sprite
 {
+	//Number of sprites to queue up at once.
 	constexpr int BatchSize = 200;
 
 	enum SpriteFlags
