@@ -95,6 +95,83 @@ public:
 	}
 };
 
+class NineSlicer : public Tickable
+{
+private:
+	Texture panel{ "example/panel1.png" };
+	int left, top, width, height;
+
+public:
+
+	NineSlicer(int left, int top, int width, int height) : left(left), top(top), width(width), height(height)
+	{
+	}
+
+	void Draw(float dt)
+	{
+		dt;
+		auto size = glm::vec2(panel[0].z, panel[0].w);
+		auto right = left + width - size.x;
+		auto bottom = top + height - size.y;
+		auto edgeWidth = width - size.x - size.x;
+		auto edgeHeight = height - size.y - size.y;
+
+		//Top left
+		Sprite::DrawSprite(panel,
+			glm::vec2(left, top),
+			size, panel[0]
+		);
+
+		//Top
+		Sprite::DrawSprite(panel,
+			glm::vec2(left + size.x, top),
+			glm::vec2(edgeWidth, size.y), panel[1]
+		);
+
+		//Top right
+		Sprite::DrawSprite(panel,
+			glm::vec2(right, top),
+			size, panel[2]
+		);
+
+		//Left
+		Sprite::DrawSprite(panel,
+			glm::vec2(left, top + size.y),
+			glm::vec2(size.x, edgeHeight), panel[3]
+		);
+
+		//Fill
+		Sprite::DrawSprite(panel,
+			glm::vec2(left + size.x, top + size.y),
+			glm::vec2(edgeWidth, edgeHeight), panel[4]
+		);
+
+		//Right
+		Sprite::DrawSprite(panel,
+			glm::vec2(right, top + size.y),
+			glm::vec2(size.x, edgeHeight), panel[5]
+		);
+
+		//Bottom left
+		Sprite::DrawSprite(panel,
+			glm::vec2(left, bottom),
+			size, panel[6]
+		);
+
+		//Bottom
+		Sprite::DrawSprite(panel,
+			glm::vec2(left + size.x, bottom),
+			glm::vec2(edgeWidth, size.y), panel[7]
+		);
+
+		//Bottom right
+		Sprite::DrawSprite(panel,
+			glm::vec2(right, bottom),
+			size, panel[8]
+		);
+	}
+};
+
 class TestScreen : public Tickable
 {
 private:
@@ -106,6 +183,7 @@ public:
 		tickables.push_back(std::make_shared<Teapot>());
 		tickables.push_back(std::make_shared<BoingBall>());
 		tickables.push_back(std::make_shared<Farrah>());
+		tickables.push_back(std::make_shared<NineSlicer>(8, 8, 240, 64));
 	}
 
 	bool Tick(float dt)
@@ -121,7 +199,7 @@ public:
 
 		Sprite::DrawText(2,
 			PreprocessBJTS("Hello, Beckett Engine!"),
-			glm::vec2(16), glm::vec4(1), 50.0f);
+			glm::vec2(24), glm::vec4(1), 50.0f);
 	}
 };
 
