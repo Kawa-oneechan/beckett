@@ -32,7 +32,7 @@ static bool load(const unsigned char* data, unsigned int *id, int width, int hei
 	return true;
 }
 
-Texture::Texture(const std::string& texturePath, int repeat, int filter, bool skipAtlas) : file(texturePath), repeat(repeat)
+Texture::Texture(const std::string& texturePath, int repeat, int filter, bool skipAtlas, ColorMap* colors, int colorIndex) : file(texturePath), repeat(repeat)
 {
 	ID = 0;
 	width = height = channels = 0;
@@ -80,6 +80,19 @@ Texture::Texture(const std::string& texturePath, int repeat, int filter, bool sk
 
 	if (data)
 	{
+		if (colors && colorIndex > 0 && colorIndex < colors->numRows)
+		{
+			unsigned int* d = (unsigned int*)data;
+			for (int i = 0; i < width * height; i++)
+			{
+				for (int key = 0; key < colors->numCols; key++)
+				{
+					if (d[i] == colors->values[key])
+						d[i] = colors->values[(colorIndex * ColorMap::Cols) + key];
+				}
+			}
+		}
+
 		if (!load(data, &ID, width, height, channels, repeat, this->filter))
 		{
 			debprint(3, "glGenTextures indicates we're threading. Delaying \"{}\"...", texturePath);
