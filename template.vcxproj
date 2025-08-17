@@ -125,7 +125,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BJTS.h" />
     <ClInclude Include="engine\Audio.h" />
     <ClInclude Include="engine\Console.h" />
     <ClInclude Include="engine\Cursor.h" />
@@ -174,7 +173,6 @@
     <ClCompile Include="engine\Utilities.cpp" />
     <ClCompile Include="engine\VFS.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GameConsole.cpp" />
     <ClCompile Include="support\format.cc" />
     <ClCompile Include="support\glad\glad.c" />
     <ClCompile Include="support\ImGUI\imgui.cpp">

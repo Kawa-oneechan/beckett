@@ -14,9 +14,9 @@ layout (std140) uniform CommonData
 	float DeltaTime; //4
 	uvec2 ScreenRes; //8
 	mat4 View; //16
-	mat4 Projection; //?
-	mat4 InvView; //?
-	light Lights[NUMLIGHTS]; //224
+	mat4 Projection; //80
+	mat4 InvView; //144
+	light Lights[NUMLIGHTS]; //208
 };
 
 //------------

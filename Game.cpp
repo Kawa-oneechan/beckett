@@ -1,4 +1,3 @@
-#include <filesystem>
 #include "Game.h"
 #include "engine/Console.h"
 #include "engine/Cursor.h"
@@ -12,10 +11,13 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_inverse.hpp>
 
+#ifdef BECKETT_EXTRASAVEDIRS
+#include <filesystem>
 #ifdef _MSC_VER
 namespace fs = std::experimental::filesystem;
 #else
 namespace fs = std::filesystem;
+#endif
 #endif
 
 __declspec(noreturn)
@@ -210,6 +212,32 @@ public:
 	}
 };
 
+std::string testString;
+glm::vec2 testVector;
+glm::vec4 testColor;
+
+void ConsoleRegister(Console* console)
+{
+#define RV console->RegisterCVar
+
+	//RV("ai_disable", CVar::Type::Bool, &);
+	//RV("cl_showpos", CVar::Type::Bool, &);
+	//RV("noclip", CVar::Type::Bool, &, true);
+	//RV("r_acredistance", CVar::Type::Int, &, false, 1, 6);
+	//RV("r_drawgui", CVar::Type::Bool, &, true);
+	//RV("r_drum", CVar::Type::Bool, &);
+	//RV("r_drumexp", CVar::Type::Float, &);
+	//RV("r_farz", CVar::Type::float, &, yes);
+
+	RV("teststr", CVar::Type::String, &testString);
+	RV("testvec", CVar::Type::Vec2, &testVector);
+	RV("testcol", CVar::Type::Color, &testColor);
+
+#undef RV
+
+	//console->RegisterCCmd("reshade", CCmdReshade);
+}
+
 namespace UI
 {
 	std::map<std::string, glm::vec4> themeColors;
@@ -312,11 +340,13 @@ namespace UI
 	}
 };
 
+#ifdef DEBUG
 void GameImGui()
 {
 	//Put this function in its own module and #include <ImGUI/imgui.h>.
 	//Rendering is handled by the engine, just handle windows here.
 }
+#endif
 
 void GameInit()
 {
@@ -334,11 +364,12 @@ void GameInit()
 	commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
 }
 
+#ifdef BECKETT_EXTRASAVEDIRS
 void GamePrepSaveDirs(const fs::path& savePath)
 {
-	fs::create_directory(savePath / "villagers");
-	fs::create_directory(savePath / "map");
+//	fs::create_directory(savePath / "map");
 }
+#endif
 
 void GameStart(std::vector<TickableP>& tickables)
 {

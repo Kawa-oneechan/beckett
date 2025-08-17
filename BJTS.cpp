@@ -1,7 +1,7 @@
-#include "BJTS.h"
 #include "engine/Console.h"
 #include "engine/InputsMap.h"
 #include "engine/Text.h"
+#include "Game.h"
 
 static const char* bindingNames[] = {
 	"up", "down", "left", "right",
