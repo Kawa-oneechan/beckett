@@ -10,6 +10,8 @@ Not a whole lot just yet lol
 ## Usage
 
 ## Acknowledgements
+The logo was created by [twocatsinatrenchcoat](https://twocatsinatrenchcoat.tumblr.com/).
+
 The Beckett Engine uses several third-party libraries:
 * [Dear ImGUI](https://github.com/ocornut/imgui)
 * FMOD Ex (an older, free version that you can't get from them anymore)
