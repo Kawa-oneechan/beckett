@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "Game.h"
 #include "engine/Console.h"
 #include "engine/Cursor.h"
@@ -10,6 +11,12 @@
 //class in its own file like in PSK.
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_inverse.hpp>
+
+#ifdef _MSC_VER
+namespace fs = std::experimental::filesystem;
+#else
+namespace fs = std::filesystem;
+#endif
 
 __declspec(noreturn)
 extern void FatalError(const std::string& message);
@@ -325,6 +332,12 @@ void GameInit()
 	commonUniforms.Lights[0].pos = glm::vec4(0, 15, 20, 0);
 	commonUniforms.Lights[1].color = glm::vec4(1, 0, 0, 0.25);
 	commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
+}
+
+void GamePrepSaveDirs(const fs::path& savePath)
+{
+	fs::create_directory(savePath / "villagers");
+	fs::create_directory(savePath / "map");
 }
 
 void GameStart(std::vector<TickableP>& tickables)
