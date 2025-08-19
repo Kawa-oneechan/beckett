@@ -48,6 +48,18 @@
                  "width":32,
                  "x":96,
                  "y":96
+                }, 
+                {
+                 "height":0,
+                 "id":4,
+                 "name":"Player start",
+                 "point":true,
+                 "rotation":0,
+                 "type":"spawn",
+                 "visible":true,
+                 "width":0,
+                 "x":48,
+                 "y":96
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -67,7 +79,7 @@
          "height":8,
          "id":2,
          "name":"Detail",
-         "opacity":1,
+         "opacity":0.75,
          "type":"tilelayer",
          "visible":true,
          "width":8,
@@ -75,7 +87,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":3,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.8.6",

@@ -20,6 +20,14 @@ class Tilemap : public Tickable
 		int durationLeft{ 0 };
 	};
 
+	struct Shape
+	{
+		glm::vec4 rectP;
+		glm::vec4 rectT;
+		std::string type;
+		std::string name;
+	};
+
 	struct Tileset
 	{
 		std::shared_ptr<Texture> texture{ nullptr };
@@ -38,7 +46,8 @@ class Tilemap : public Tickable
 	private:
 		int width{ 0 };
 		int height{ 0 };
-		glm::vec2 Parallax{ 0 };
+		glm::vec2 Parallax{ 1, 1 };
+		glm::vec4 Tint{ 1, 1, 1, 1 };
 		std::string layerName;
 		std::unique_ptr<int[]> data{ nullptr };
 		Tilemap* owner{ nullptr };
@@ -58,6 +67,7 @@ class Tilemap : public Tickable
 
 private:
 	std::vector<std::shared_ptr<MapLayer>> layers;
+	std::vector<Shape> shapes;
 	Tileset tileset;
 	bool isometric{ false };
 

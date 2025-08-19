@@ -9,7 +9,7 @@ Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
 {
 	auto lo = doc.as_object();
 
-	layerName = lo["name"];
+	layerName = lo["name"].as_string();
 	width = lo["width"].as_integer();
 	height = lo["height"].as_integer();
 
@@ -18,6 +18,11 @@ Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
 	Parallax.x = lo["parallaxx"].as_number();
 	if (lo["parallaxy"].is_number())
 	Parallax.y = lo["parallaxy"].as_number();
+
+	if (lo["tintcolor"].is_string())
+		Tint = GetJSONColor(lo["tintcolor"]);
+	if (lo["opacity"].is_number())
+		Tint.a *= lo["opacity"].as_number();
 
 	auto totalSize = this->width * this->height;
 
@@ -74,7 +79,7 @@ void Tilemap::MapLayer::Draw(float dt)
 					((row + col) * (tileset.tileGridHeight / 2))
 				);
 
-			Sprite::DrawSprite(*tileset.texture, (dest - cam - tileset.tileOffset) * s, tileSize, srcRect);
+			Sprite::DrawSprite(*tileset.texture, (dest - cam - tileset.tileOffset) * s, tileSize, srcRect, 0.0, Tint);
 		}
 	}
 }
@@ -109,13 +114,6 @@ Tilemap::Tilemap(const std::string& source)
 {
 	auto doc = VFS::ReadJSON(source);
 	auto obj = doc.as_object();
-	for (auto& l : obj["layers"].as_array())
-	{
-		auto lo = l.as_object();
-		if (lo["type"].as_string() != "tilelayer")
-			continue;
-		layers.push_back(std::make_shared<MapLayer>(l, this));
-	}
 
 	std::string here;
 	{
@@ -173,6 +171,31 @@ Tilemap::Tilemap(const std::string& source)
 					}
 					newAnim.durationLeft = newAnim.duration[0];
 				}
+			}
+		}
+	}
+	
+	for (auto& l : obj["layers"].as_array())
+	{
+		auto lo = l.as_object();
+		if (lo["type"].as_string() == "tilelayer")
+			layers.push_back(std::make_shared<MapLayer>(l, this));
+		if (lo["type"].as_string() == "objectgroup")
+		{
+			for (auto obj : lo["objects"].as_array())
+			{
+				auto o = obj.as_object();
+				auto pos = glm::vec2(o["x"].as_number(), o["y"].as_number());
+				auto size = glm::vec2(o["width"].as_number(), o["height"].as_number());
+				Shape shp = {
+					glm::vec4(pos, pos + size),
+					glm::vec4(
+						pos / glm::vec2(tileset.tileWidth, tileset.tileHeight),
+						(pos + size) / glm::vec2(tileset.tileWidth, tileset.tileHeight)),
+					o["name"].as_string(),
+					o["type"].as_string()
+				};
+				shapes.push_back(shp);
 			}
 		}
 	}
