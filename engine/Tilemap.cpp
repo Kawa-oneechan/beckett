@@ -1,0 +1,249 @@
+#include "Tilemap.h"
+#include "TextUtils.h"
+#include "SpriteRenderer.h"
+#include "../Game.h"
+
+extern float scale;
+
+Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
+{
+	auto lo = doc.as_object();
+
+	layerName = lo["name"];
+	width = lo["width"].as_integer();
+	height = lo["height"].as_integer();
+
+	Parallax = glm::vec2(1);
+	if (lo["parallaxx"].is_number())
+	Parallax.x = lo["parallaxx"].as_number();
+	if (lo["parallaxy"].is_number())
+	Parallax.y = lo["parallaxy"].as_number();
+
+	auto totalSize = this->width * this->height;
+
+	data = std::make_unique<int[]>(totalSize);
+	int i = 0;
+	for (auto& di : lo["data"].as_array())
+	{
+		data[i++] = di.as_integer() - 1;
+	}
+}
+
+void Tilemap::MapLayer::Draw(float dt)
+{
+	dt;
+	if (!data)
+		return;
+
+	float s = Scale > 0 ? Scale : scale;
+	
+	auto cam = Camera * Parallax;
+
+	const auto& tileset = owner->tileset;
+
+	auto top = (int)(cam.y / tileset.tileGridHeight);
+	if (top < 0) top = 0;
+	auto bottom = top + (int)((SCREENHEIGHT / tileset.tileGridHeight) / s) + 1;
+	if (bottom > height) bottom = height;
+	auto left = (int)(cam.x / tileset.tileGridWidth);
+	if (left < 0) left = 0;
+	auto right = left + (int)((SCREENWIDTH / tileset.tileGridWidth) / s) + 1;
+	if (right > width) right = width;
+
+	const auto tileSize = glm::vec2(tileset.tileWidth, tileset.tileHeight) * s;
+	for (auto row = top; row < bottom; row++)
+	{
+		for (auto col = left; col < right; col++)
+		{
+			auto tile = data[row * width + col];
+			if (tile == -1)
+				continue;
+
+			auto anim = tileset.animations.find(tile);
+			if (anim != tileset.animations.end())
+				tile = anim->second.tile[anim->second.currentFrame];
+
+			auto srcX = (tile % tileset.tilesPerLine) * tileset.tileWidth;
+			auto srcY = (tile / tileset.tilesPerLine) * tileset.tileHeight;
+			auto srcRect = glm::vec4(srcX, srcY, tileset.tileWidth, tileset.tileHeight);
+
+			auto dest = !owner->isometric ?
+				glm::vec2(col * tileset.tileWidth, row * tileset.tileHeight) :
+				glm::vec2(
+					((col - row) * (tileset.tileGridWidth / 2)) - (tileset.tileWidth / 2),
+					((row + col) * (tileset.tileGridHeight / 2))
+				);
+
+			Sprite::DrawSprite(*tileset.texture, (dest - cam - tileset.tileOffset) * s, tileSize, srcRect);
+		}
+	}
+}
+
+void Tilemap::MapLayer::SetTile(int row, int col, int tile)
+{
+	col = glm::clamp(col, 0, width - 1);
+	row = glm::clamp(row, 0, height - 1);
+	data[(row * width) + col] = tile;
+}
+
+const int Tilemap::MapLayer::GetTile(int row, int col) const
+{
+	col = glm::clamp(col, 0, width - 1);
+	row = glm::clamp(row, 0, height - 1);
+	return data[(row * width) + col];
+}
+
+glm::vec2 Tilemap::MapLayer::GetPixelSize()
+{
+	auto ret = glm::vec2(width * owner->tileset.tileGridWidth, height * owner->tileset.tileGridHeight);
+	return ret;
+}
+
+glm::vec2 Tilemap::MapLayer::GetTileSize()
+{
+	auto ret = glm::vec2(width, height);
+	return ret;
+}
+
+Tilemap::Tilemap(const std::string& source)
+{
+	auto doc = VFS::ReadJSON(source);
+	auto obj = doc.as_object();
+	for (auto& l : obj["layers"].as_array())
+	{
+		auto lo = l.as_object();
+		if (lo["type"].as_string() != "tilelayer")
+			continue;
+		layers.push_back(std::make_shared<MapLayer>(l, this));
+	}
+
+	std::string here;
+	{
+		auto slashPos = source.rfind('/');
+		if (slashPos != std::string::npos)
+			here = source.substr(0, slashPos + 1);
+	}
+	auto ts = obj["tilesets"].as_array()[0].as_object();
+	if (ts["source"].is_string())
+	{
+		auto tsp = here + ts["source"].as_string();
+		tsp = ResolvePath(tsp);
+		ts = VFS::ReadJSON(tsp).as_object();
+		auto slashPos = tsp.rfind('/');
+		if (slashPos != std::string::npos)
+			here = tsp.substr(0, slashPos + 1);
+	}
+	{
+		tileset.tileWidth = ts["tilewidth"].as_integer();
+		tileset.tileHeight = ts["tileheight"].as_integer();
+
+		tileset.tileGridWidth = tileset.tileWidth;
+		tileset.tileGridHeight = tileset.tileHeight;
+
+		auto& src = ts["image"].as_string();
+		auto tsp = here + src;
+		tsp = ResolvePath(tsp);
+		tileset.texture = std::make_shared<Texture>(tsp, GL_CLAMP, 0, true);
+
+		tileset.tilesPerLine = tileset.texture->width / tileset.tileWidth;
+
+		if (isometric)
+		{
+			auto grid = ts["grid"].as_object();
+			tileset.tileGridWidth = grid["width"].as_integer();
+			tileset.tileGridHeight = grid["height"].as_integer();
+			auto offset = ts["tileoffset"].as_object();
+			tileset.tileOffset = glm::vec2(offset["x"].as_integer(), offset["y"].as_integer());
+		}
+
+		if (ts["tiles"].is_array())
+		{
+			for (auto t : ts["tiles"].as_array())
+			{
+				auto id = t.as_object()["id"].as_integer();
+				if (t.as_object()["animation"].is_array())
+				{
+					auto anim = t.as_object()["animation"].as_array();
+					auto& newAnim = tileset.animations[id];
+					newAnim.frameCt = glm::clamp((int)anim.size(), 0, MaxAnimFrames);
+					for (int f = 0; f < newAnim.frameCt; f++)
+					{
+						newAnim.tile[f] = anim[f].as_object()["tileid"].as_integer();
+						newAnim.duration[f] = anim[f].as_object()["duration"].as_integer();
+					}
+					newAnim.durationLeft = newAnim.duration[0];
+				}
+			}
+		}
+	}
+
+	Camera = glm::vec2(0);
+}
+
+bool Tilemap::Tick(float dt)
+{
+	for (auto& a : tileset.animations)
+	{
+		a.second.durationLeft -= (int)(dt * 1000);
+		if (a.second.durationLeft <= 0)
+		{
+			a.second.currentFrame++;
+			if (a.second.currentFrame >= a.second.frameCt)
+				a.second.currentFrame = 0;
+			a.second.durationLeft = a.second.duration[a.second.currentFrame];
+		}
+	}
+
+	for (auto& l : layers)
+	{
+		l->Scale = Scale;
+		l->Camera = Camera;
+	}
+	return true;
+}
+
+std::shared_ptr<Tilemap::MapLayer> Tilemap::operator[](size_t i)
+{
+	if (i < layers.size()) return layers[i];
+	return layers[0];
+}
+
+std::shared_ptr<Tilemap::MapLayer> Tilemap::GetLayer(size_t i)
+{
+	if (i < layers.size()) return layers[i];
+	return layers[0];
+}
+
+void Tilemap::SetTile(int row, int col, int tile)
+{
+	for (auto& l : layers)
+		l->SetTile(row, col, tile);
+}
+
+void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles)
+{
+	for (int i = 0; i < layers.size() && i < tiles.size(); i++)
+	{
+		auto t = *(tiles.begin() + i);
+		if (t == -2)
+			continue;
+		layers[i]->SetTile(row, col, t);
+	}
+}
+
+const int Tilemap::GetTile(int layer, int row, int col) const
+{
+	return layers[layer]->GetTile(row, col);
+}
+
+glm::vec2 Tilemap::GetPixelSize()
+{
+	auto ret = layers[0]->GetPixelSize();
+	return ret;
+}
+
+glm::vec2 Tilemap::GetTileSize()
+{
+	auto ret = layers[0]->GetTileSize();
+	return ret;
+}

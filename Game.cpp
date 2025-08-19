@@ -5,6 +5,7 @@
 #include "engine/JsonUtils.h"
 #include "engine/InputsMap.h"
 #include "engine/Model.h"
+#include "engine/Tilemap.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
@@ -184,19 +185,34 @@ public:
 class TestScreen : public Tickable
 {
 private:
+	TilemapP tilemapMgr;
 
 public:
 	TestScreen()
 	{
-		tickables.push_back(std::make_shared<Background>());
-		tickables.push_back(std::make_shared<Teapot>());
-		tickables.push_back(std::make_shared<BoingBall>());
-		tickables.push_back(std::make_shared<Farrah>());
+		//tickables.push_back(std::make_shared<Background>());
+		//tickables.push_back(std::make_shared<Teapot>());
+		//tickables.push_back(std::make_shared<BoingBall>());
+		//tickables.push_back(std::make_shared<Farrah>());
+
+		tilemapMgr = std::make_shared<Tilemap>("maps/test3.json");
+		tilemapMgr->Scale = 3.0f;
+		//tilemapMgr->Camera = glm::vec2(-(tilemapMgr->GetPixelSize().x / 5), 0);
+		//tilemapMgr->SetTile(0, 1, { -2, 118 });
+		tickables.push_back(tilemapMgr);
+		tickables.push_back(tilemapMgr->GetLayer(0));
+		//tickables.push_back(std::make_shared<BoingBall>());
+		//tickables.push_back(std::make_shared<Teapot>());
+		//tickables.push_back(std::make_shared<Farrah>());
+		tickables.push_back(tilemapMgr->GetLayer(1));
+
 		tickables.push_back(std::make_shared<NineSlicer>(8, 8, 240, 64));
 	}
 
 	bool Tick(float dt)
 	{
+		//tilemapMgr->Camera = glm::vec2(glm::sin(commonUniforms.TotalTime * 10.0f) * 5, 0);
+
 		RevAllTickables(tickables, dt);
 		return true;
 	}

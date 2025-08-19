@@ -139,7 +139,7 @@
     <ClInclude Include="engine\Texture.h" />
     <ClInclude Include="engine\TextUtils.h" />
     <ClInclude Include="engine\Tickable.h" />
-    <ClInclude Include="engine\TilemapLayer.h" />
+    <ClInclude Include="engine\Tilemap.h" />
     <ClInclude Include="engine\Types.h" />
     <ClInclude Include="engine\Utilities.h" />
     <ClInclude Include="engine\VFS.h" />
@@ -169,7 +169,7 @@
     <ClCompile Include="engine\TextField.cpp" />
     <ClCompile Include="engine\Texture.cpp" />
     <ClCompile Include="engine\TextUtils.cpp" />
-    <ClCompile Include="engine\TilemapLayer.cpp" />
+    <ClCompile Include="engine\Tilemap.cpp" />
     <ClCompile Include="engine\Utilities.cpp" />
     <ClCompile Include="engine\VFS.cpp" />
     <ClCompile Include="Game.cpp" />

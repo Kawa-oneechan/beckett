@@ -109,7 +109,7 @@
     <ClCompile Include="support\ImGUI\imgui_impl_opengl3.cpp">
       <Filter>Engine\Third-party</Filter>
     </ClCompile>
-    <ClCompile Include="engine\TilemapLayer.cpp">
+    <ClCompile Include="engine\Tilemap.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -171,7 +171,7 @@
     <ClInclude Include="engine\Model.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="engine\TilemapLayer.h">
+    <ClInclude Include="engine\Tilemap.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
