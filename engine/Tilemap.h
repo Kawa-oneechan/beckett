@@ -39,6 +39,7 @@ class Tilemap : public Tickable
 		int tilesPerLine{ 0 };
 
 		std::map<int, Animation> animations;
+		std::map<int, Shape> collisions;
 	};
 
 	class MapLayer : public Tickable
@@ -60,6 +61,7 @@ class Tilemap : public Tickable
 		const int GetTile(int row, int col) const;
 		glm::vec2 GetPixelSize();
 		glm::vec2 GetTileSize();
+		glm::vec4 GetCollision(int row, int col);
 
 		glm::vec2 Camera;
 		float Scale{ -1.0f };
@@ -86,6 +88,7 @@ public:
 	const int GetTile(int layer, int row, int col) const;
 	glm::vec2 GetPixelSize();
 	glm::vec2 GetTileSize();
+	glm::vec4 GetCollision(int layer, int row, int col);
 };
 
 using TilemapP = std::shared_ptr<Tilemap>;

@@ -110,10 +110,22 @@ glm::vec2 Tilemap::MapLayer::GetTileSize()
 	return ret;
 }
 
+glm::vec4 Tilemap::MapLayer::GetCollision(int row, int col)
+{
+	col = glm::clamp(col, 0, width - 1);
+	row = glm::clamp(row, 0, height - 1);
+	auto tile = owner->tileset.collisions.find(data[(row * width) + col]);
+	if (tile != owner->tileset.collisions.end())
+		return tile->second.rectP;
+	return glm::vec4(-1);
+}
+
 Tilemap::Tilemap(const std::string& source)
 {
 	auto doc = VFS::ReadJSON(source);
 	auto obj = doc.as_object();
+
+	glm::vec2 tileSize;
 
 	std::string here;
 	{
@@ -137,6 +149,8 @@ Tilemap::Tilemap(const std::string& source)
 
 		tileset.tileGridWidth = tileset.tileWidth;
 		tileset.tileGridHeight = tileset.tileHeight;
+
+		tileSize = glm::vec2(tileset.tileWidth, tileset.tileHeight);
 
 		auto& src = ts["image"].as_string();
 		auto tsp = here + src;
@@ -171,6 +185,18 @@ Tilemap::Tilemap(const std::string& source)
 					}
 					newAnim.durationLeft = newAnim.duration[0];
 				}
+				if (t.as_object()["objectgroup"].is_object())
+				{
+					//only one object per tile for now please
+					auto obj = t.as_object()["objectgroup"].as_object()["objects"].as_array()[0].as_object();
+					auto& newObj = tileset.collisions[id];
+					newObj.name = obj["name"].as_string();
+					newObj.type = obj["type"].as_string();
+					auto pos = glm::vec2(obj["x"].as_number(), obj["y"].as_number());
+					auto size = glm::vec2(obj["width"].as_number(), obj["height"].as_number());
+					newObj.rectP = glm::vec4(pos, pos + size);
+					newObj.rectT = glm::vec4(pos / tileSize, (pos + size) / tileSize);
+				}
 			}
 		}
 	}
@@ -189,9 +215,7 @@ Tilemap::Tilemap(const std::string& source)
 				auto size = glm::vec2(o["width"].as_number(), o["height"].as_number());
 				Shape shp = {
 					glm::vec4(pos, pos + size),
-					glm::vec4(
-						pos / glm::vec2(tileset.tileWidth, tileset.tileHeight),
-						(pos + size) / glm::vec2(tileset.tileWidth, tileset.tileHeight)),
+					glm::vec4(pos / tileSize, (pos + size) / tileSize),
 					o["name"].as_string(),
 					o["type"].as_string()
 				};
@@ -269,4 +293,9 @@ glm::vec2 Tilemap::GetTileSize()
 {
 	auto ret = layers[0]->GetTileSize();
 	return ret;
+}
+
+glm::vec4 Tilemap::GetCollision(int layer, int row, int col)
+{
+	return layers[layer]->GetCollision(row, col);
 }
