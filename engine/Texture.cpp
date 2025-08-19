@@ -1,3 +1,4 @@
+#include <glad/glad.h>
 #include <stb_image.h>
 #include "JsonUtils.h"
 #include "TextUtils.h"

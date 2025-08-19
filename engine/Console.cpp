@@ -1,8 +1,5 @@
-#include <regex>
+#include <glad/glad.h>
 #include <sol.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/easing.hpp>
 
 #include "Console.h"
 #include "TextField.h"
@@ -329,7 +326,7 @@ void Console::Draw(float dt)
 	auto h = (float)height / 3;
 	glm::vec2 offset{ 0 };
 	if (appearState != 0)
-		offset.y += glm::mix(-h, 0.0f, glm::linearInterpolation(timer));
+		offset.y += glm::mix(-h, 0.0f, timer);
 
 	Sprite::DrawSprite(*whiteRect, offset, glm::vec2(width, h), glm::vec4(0), 0, glm::vec4(0, 0, 0, 0.8));
 
