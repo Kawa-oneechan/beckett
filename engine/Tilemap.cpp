@@ -98,6 +98,15 @@ const int Tilemap::MapLayer::GetTile(int row, int col) const
 	return data[(row * width) + col];
 }
 
+const int Tilemap::MapLayer::GetTile(glm::vec2 position) const
+{
+	position /= Scale;
+	position += Camera;
+	position.x /= owner->tileset.tileWidth;
+	position.y /= owner->tileset.tileHeight;
+	return GetTile((int)position.y, (int)position.x);
+}
+
 glm::vec2 Tilemap::MapLayer::GetPixelSize()
 {
 	auto ret = glm::vec2(width * owner->tileset.tileGridWidth, height * owner->tileset.tileGridHeight);
@@ -281,6 +290,11 @@ void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles)
 const int Tilemap::GetTile(int layer, int row, int col) const
 {
 	return layers[layer]->GetTile(row, col);
+}
+
+const int Tilemap::GetTile(int layer, glm::vec2 position) const
+{
+	return layers[layer]->GetTile(position);
 }
 
 glm::vec2 Tilemap::GetPixelSize()
