@@ -234,7 +234,7 @@
   <ItemGroup>
     <Natvis Include="glm.natvis" />
     <Natvis Include="imgui.natvis" />
-    <Natvis Include="NatvisFile.natvis" />
     <Natvis Include="ufbx.natvis" />
+    <Natvis Include="beckett.natvis" />
   </ItemGroup>
 </Project>

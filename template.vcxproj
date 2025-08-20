@@ -216,7 +216,9 @@
   <ItemGroup>
     <Natvis Include="glm.natvis" />
     <Natvis Include="imgui.natvis" />
-    <Natvis Include="NatvisFile.natvis" />
+    <Natvis Include="beckett.natvis">
+      <SubType>Designer</SubType>
+    </Natvis>
     <Natvis Include="ufbx.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
