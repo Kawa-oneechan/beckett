@@ -132,6 +132,7 @@
     <ClInclude Include="engine\InputsMap.h" />
     <ClInclude Include="engine\JsonUtils.h" />
     <ClInclude Include="engine\Model.h" />
+    <ClInclude Include="engine\NineSlicer.h" />
     <ClInclude Include="engine\Shader.h" />
     <ClInclude Include="engine\SpriteRenderer.h" />
     <ClInclude Include="engine\Text.h" />
@@ -164,6 +165,7 @@
     <ClCompile Include="engine\Mesh.cpp" />
     <ClCompile Include="engine\MeshBucket.cpp" />
     <ClCompile Include="engine\Model.cpp" />
+    <ClCompile Include="engine\NineSlicer.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
     <ClCompile Include="engine\SpriteRenderer.cpp" />
     <ClCompile Include="engine\Text.cpp" />
