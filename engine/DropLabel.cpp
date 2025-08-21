@@ -4,6 +4,26 @@
 
 extern int width, height;
 
+static void createAndBindBuffer(unsigned int* tid, unsigned int* fbo, int width, int height)
+{
+	glGenTextures(1, tid);
+
+	glGenFramebuffers(1, fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, *fbo);
+
+	glBindTexture(GL_TEXTURE_2D, *tid);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *tid, 0);
+
+	glViewport(0, 0, width, height);
+
+	glColorMask(true, true, true, true);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void DropLabel::update()
 {
 	if (canvas.ID != 0)
@@ -11,69 +31,35 @@ void DropLabel::update()
 
 	Sprite::FlushBatch();
 
-	size = Sprite::MeasureText(2, text, 100.0);
+	size = Sprite::MeasureText(font, text, textSize);
 	size += glm::vec2(16);
 
 	int width = (int)size.x, height = (int)size.y;
 	unsigned int finalTID;
 
 	unsigned int tempFBO, tempTID, blurFBO, blurTID, finalFBO;
-
-	glGenTextures(1, &finalTID);
-	canvas.ID = finalTID;
-	canvas.width = width;
-	canvas.height = height;
-	canvas.channels = 4;
-	canvas.SetFilter(GL_NEAREST);
+	blurTID = -1;
+	blurFBO = -1;
 
 	//Step 1 - Draw text to TEMP
 	{
-		glGenTextures(1, &tempTID);
-
-		glGenFramebuffers(1, &tempFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, tempFBO);
-
-		glBindTexture(GL_TEXTURE_2D, tempTID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tempTID, 0);
-
-		glViewport(0, 0, width, height);
-
-		glColorMask(true, true, true, true);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		Sprite::DrawText(2, text, glm::vec2(8), glm::vec4(1), 100.0f);
+		createAndBindBuffer(&tempTID, &tempFBO, width, height);
+		Sprite::DrawText(font, text, glm::vec2(8), glm::vec4(1), textSize);
 		Sprite::FlushBatch();
 	}
 
 	::Texture tempTexture(tempTID, width, height, 4);
 
-	const int blurDiv = 2;
-
 	//Step 2 - Draw TEMP to BLUR
+	if (style == Style::Blur)
 	{
-
-		glGenTextures(1, &blurTID);
-
-		glGenFramebuffers(1, &blurFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, blurFBO);
-
-		glBindTexture(GL_TEXTURE_2D, blurTID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width / blurDiv, height / blurDiv, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurTID, 0);
-
-		glViewport(0, 0, width / blurDiv, height / blurDiv);
-
-		glColorMask(true, true, true, true);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		Sprite::DrawSprite(tempTexture, glm::vec2(0), glm::vec2(width / blurDiv, height / blurDiv), glm::vec4(0, 0, width, height), 0.0f, glm::vec4(0, 0, 0, 1));
+		const int div = 2;
+		createAndBindBuffer(&blurTID, &blurFBO, width / div, height / div);
+		Sprite::DrawSprite(tempTexture,
+			glm::vec2(0),
+			glm::vec2(width / div, height / div),
+			glm::vec4(0, 0, width, height),
+			0.0f, glm::vec4(0, 0, 0, 1));
 		Sprite::FlushBatch();
 	}
 
@@ -81,42 +67,39 @@ void DropLabel::update()
 
 	//Step 3 - Draw BLUR and TEMP to FINAL
 	{
-
-		glGenFramebuffers(1, &finalFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, finalFBO);
-
-		glBindTexture(GL_TEXTURE_2D, finalTID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, finalTID, 0);
-
-		glViewport(0, 0, width, height);
-
-		glColorMask(true, true, true, true);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		const float disp = 2.0f;
-
-		for (int i = -disp; i < disp; i++)
-			for (int j = -disp; j < disp; j++)
-				Sprite::DrawSprite(blurTexture, glm::vec2(i, j), glm::vec2(width, height));
+		createAndBindBuffer(&finalTID, &finalFBO, width, height);
+		const int disp = 2;
+		if (style == Style::Blur)
+		{
+			for (int i = -disp; i <= disp; i++)
+				for (int j = -disp; j <= disp; j++)
+					Sprite::DrawSprite(blurTexture, glm::vec2(i, j), glm::vec2(width, height));
+			//Sprite::DrawSprite(blurTexture, glm::vec2(0), glm::vec2(width, height));
+		}
+		else if (style == Style::Drop)
+		{
+			Sprite::DrawSprite(tempTexture, glm::vec2((float)disp), glm::vec2(width, height), glm::vec4(0), 0.0, glm::vec4(0, 0, 0, 1));
+		}
 		Sprite::DrawSprite(tempTexture, glm::vec2(0), glm::vec2(width, height));
 		Sprite::FlushBatch();
+
+		canvas.ID = finalTID;
+		canvas.width = width;
+		canvas.height = height;
+		canvas.channels = 4;
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, ::width, ::height);
 
 	glDeleteTextures(1, &tempTID);
-	glDeleteTextures(1, &blurTID);
+	if (blurTID != 1) glDeleteTextures(1, &blurTID);
 	glDeleteFramebuffers(1, &tempFBO);
-	glDeleteFramebuffers(1, &blurFBO);
+	if (blurFBO != 1) glDeleteFramebuffers(1, &blurFBO);
 	glDeleteFramebuffers(1, &finalFBO);
 }
 
-DropLabel::DropLabel(const std::string& text) : text(text)
+DropLabel::DropLabel(const std::string& text, int font, float size, Style style) : text(text), textSize(size), font(font), style(style)
 {
 	update();
 }

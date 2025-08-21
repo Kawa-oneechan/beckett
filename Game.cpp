@@ -135,7 +135,7 @@ public:
 
 		tickables.push_back(std::make_shared<NineSlicer>("example/panel1.png", 8, 8, 240, 64));
 		
-		labelTest = new DropLabel("Does this have a blurry\noutline?\n    ... yes yes it do");
+		labelTest = new DropLabel("Does this have a blurry\noutline?\n    ... yes yes it do", 2, 100, DropLabel::Style::Blur);
 	}
 
 	bool Tick(float dt)
