@@ -112,6 +112,9 @@
     <ClCompile Include="engine\Tilemap.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="engine\DropLabel.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">
@@ -172,6 +175,9 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\Tilemap.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\DropLabel.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
