@@ -6,6 +6,8 @@
 #include "engine/InputsMap.h"
 #include "engine/Model.h"
 #include "engine/Tilemap.h"
+#include "engine/DropLabel.h"
+#include "engine/NineSlicer.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
@@ -105,87 +107,12 @@ public:
 	}
 };
 
-class NineSlicer : public Tickable
-{
-private:
-	Texture panel{ "example/panel1.png" };
-	int left, top, width, height;
-
-public:
-
-	NineSlicer(int left, int top, int width, int height) : left(left), top(top), width(width), height(height)
-	{
-	}
-
-	void Draw(float dt)
-	{
-		dt;
-		auto size = glm::vec2(panel[0].z, panel[0].w);
-		auto right = left + width - size.x;
-		auto bottom = top + height - size.y;
-		auto edgeWidth = width - size.x - size.x;
-		auto edgeHeight = height - size.y - size.y;
-
-		//Top left
-		Sprite::DrawSprite(panel,
-			glm::vec2(left, top),
-			size, panel[0]
-		);
-
-		//Top
-		Sprite::DrawSprite(panel,
-			glm::vec2(left + size.x, top),
-			glm::vec2(edgeWidth, size.y), panel[1]
-		);
-
-		//Top right
-		Sprite::DrawSprite(panel,
-			glm::vec2(right, top),
-			size, panel[2]
-		);
-
-		//Left
-		Sprite::DrawSprite(panel,
-			glm::vec2(left, top + size.y),
-			glm::vec2(size.x, edgeHeight), panel[3]
-		);
-
-		//Fill
-		Sprite::DrawSprite(panel,
-			glm::vec2(left + size.x, top + size.y),
-			glm::vec2(edgeWidth, edgeHeight), panel[4]
-		);
-
-		//Right
-		Sprite::DrawSprite(panel,
-			glm::vec2(right, top + size.y),
-			glm::vec2(size.x, edgeHeight), panel[5]
-		);
-
-		//Bottom left
-		Sprite::DrawSprite(panel,
-			glm::vec2(left, bottom),
-			size, panel[6]
-		);
-
-		//Bottom
-		Sprite::DrawSprite(panel,
-			glm::vec2(left + size.x, bottom),
-			glm::vec2(edgeWidth, size.y), panel[7]
-		);
-
-		//Bottom right
-		Sprite::DrawSprite(panel,
-			glm::vec2(right, bottom),
-			size, panel[8]
-		);
-	}
-};
-
 class TestScreen : public Tickable
 {
 private:
 	TilemapP tilemapMgr;
+	std::string text;
+	DropLabel* labelTest;
 
 public:
 	TestScreen()
@@ -206,12 +133,19 @@ public:
 		//tickables.push_back(std::make_shared<Farrah>());
 		tickables.push_back(tilemapMgr->GetLayer(1));
 
-		tickables.push_back(std::make_shared<NineSlicer>(8, 8, 240, 64));
+		tickables.push_back(std::make_shared<NineSlicer>("example/panel1.png", 8, 8, 240, 64));
+		
+		labelTest = new DropLabel("Does this have a blurry\noutline?\n    ... yes yes it do");
 	}
 
 	bool Tick(float dt)
 	{
 		//tilemapMgr->Camera = glm::vec2(glm::sin(commonUniforms.TotalTime * 10.0f) * 5, 0);
+
+		text = fmt::format("{}x{} --> tile {}",
+			Inputs.MousePosition.x, Inputs.MousePosition.y,
+			tilemapMgr->GetTile(0, Inputs.MousePosition)
+		);
 
 		RevAllTickables(tickables, dt);
 		return true;
@@ -223,8 +157,18 @@ public:
 
 
 		Sprite::DrawText(2,
-			PreprocessBJTS("Hello, Beckett Engine!"),
+			text, //"Hello, Beckett Engine!",
 			glm::vec2(24), glm::vec4(1), 50.0f);
+
+		Sprite::DrawSprite(labelTest->Texture(), glm::vec2(32));
+
+		//Sprite::DrawText(2, "Is this red?\nRenderDoc HELP!", glm::vec2(32 + 8), glm::vec4(1, 1, 1, 0.5));
+	}
+
+	bool Character(unsigned int ch)
+	{
+		labelTest->SetText(fmt::format("Ah! '{}'!", (char)ch));
+		return false;
 	}
 };
 
