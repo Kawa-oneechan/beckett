@@ -73,8 +73,7 @@ Texture::Texture(const std::string& texturePath, int repeat, int filter, bool sk
 
 	if (!skipAtlas)
 	{
-		auto atlasPath = texturePath.substr(0, texturePath.find_last_of('.')) + ".json";
-		GetAtlas(atlas, atlasPath);
+		GetAtlas(atlas, VFS::ClimbDown(VFS::ChangeExtension(texturePath, "json"), "atlas.json"));
 	}
 	if (atlas.empty())
 		atlas.push_back(glm::vec4(0, 0, width, height));
