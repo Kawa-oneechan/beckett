@@ -117,23 +117,24 @@ private:
 public:
 	TestScreen()
 	{
-		//tickables.push_back(std::make_shared<Background>());
-		//tickables.push_back(std::make_shared<Teapot>());
-		//tickables.push_back(std::make_shared<BoingBall>());
-		//tickables.push_back(std::make_shared<Farrah>());
+		//ChildTickables.push_back(std::make_shared<Background>());
+		//ChildTickables.push_back(std::make_shared<Teapot>());
+		//ChildTickables.push_back(std::make_shared<Farrah>());
 
 		tilemapMgr = std::make_shared<Tilemap>("maps/test3.json");
 		tilemapMgr->Scale = 3.0f;
 		//tilemapMgr->Camera = glm::vec2(-(tilemapMgr->GetPixelSize().x / 5), 0);
 		//tilemapMgr->SetTile(0, 1, { -2, 118 });
-		tickables.push_back(tilemapMgr);
-		tickables.push_back(tilemapMgr->GetLayer(0));
-		//tickables.push_back(std::make_shared<BoingBall>());
-		//tickables.push_back(std::make_shared<Teapot>());
-		//tickables.push_back(std::make_shared<Farrah>());
-		tickables.push_back(tilemapMgr->GetLayer(1));
+		ChildTickables.push_back(tilemapMgr);
+		ChildTickables.push_back(tilemapMgr->GetLayer(0));
+		//ChildTickables.push_back(std::make_shared<BoingBall>());
+		//ChildTickables.push_back(std::make_shared<Teapot>());
+		//ChildTickables.push_back(std::make_shared<Farrah>());
+		ChildTickables.push_back(tilemapMgr->GetLayer(1));
 
-		tickables.push_back(std::make_shared<NineSlicer>("example/panel1.png", 8, 8, 240, 64));
+		ChildTickables.push_back(std::make_shared<BoingBall>());
+
+		ChildTickables.push_back(std::make_shared<NineSlicer>("example/panel1.png", 8, 8, 240, 64));
 		
 		labelTest = new DropLabel("Does this have a blurry\noutline?\n    ... yes yes it do", 2, 100, DropLabel::Style::Blur);
 	}
@@ -147,13 +148,13 @@ public:
 			tilemapMgr->GetTile(0, Inputs.MousePosition)
 		);
 
-		RevAllTickables(tickables, dt);
+		RevAllTickables(ChildTickables, dt);
 		return true;
 	}
 
 	void Draw(float dt)
 	{
-		DrawAllTickables(tickables, dt);
+		DrawAllTickables(ChildTickables, dt);
 
 
 		Sprite::DrawText(2,
