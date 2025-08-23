@@ -59,7 +59,7 @@ class Tilemap : public Tickable
 		void Draw(float dt);
 		void SetTile(int row, int col, int tile);
 		const int GetTile(int row, int col) const;
-		const int GetTile(glm::vec2 position) const;
+		const int GetTile(glm::vec2& position) const;
 		glm::vec2 GetPixelSize();
 		glm::vec2 GetTileSize();
 		glm::vec4 GetCollision(int row, int col);
@@ -87,7 +87,7 @@ public:
 	void Tilemap::SetTile(int row, int col, int tile);
 	void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles);
 	const int GetTile(int layer, int row, int col) const;
-	const int GetTile(int layer, glm::vec2 position) const;
+	const int GetTile(int layer, glm::vec2& position) const;
 	glm::vec2 GetPixelSize();
 	glm::vec2 GetTileSize();
 	glm::vec4 GetCollision(int layer, int row, int col);

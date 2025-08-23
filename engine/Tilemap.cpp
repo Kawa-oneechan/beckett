@@ -98,7 +98,7 @@ const int Tilemap::MapLayer::GetTile(int row, int col) const
 	return data[(row * width) + col];
 }
 
-const int Tilemap::MapLayer::GetTile(glm::vec2 position) const
+const int Tilemap::MapLayer::GetTile(glm::vec2& position) const
 {
 	position /= Scale;
 	position += Camera;
@@ -292,7 +292,7 @@ const int Tilemap::GetTile(int layer, int row, int col) const
 	return layers[layer]->GetTile(row, col);
 }
 
-const int Tilemap::GetTile(int layer, glm::vec2 position) const
+const int Tilemap::GetTile(int layer, glm::vec2& position) const
 {
 	return layers[layer]->GetTile(position);
 }
