@@ -100,11 +100,11 @@ const int Tilemap::MapLayer::GetTile(int row, int col) const
 
 const int Tilemap::MapLayer::GetTile(glm::vec2& position) const
 {
-	position /= Scale;
-	position += Camera;
-	position.x /= owner->tileset.tileWidth;
-	position.y /= owner->tileset.tileHeight;
-	return GetTile((int)position.y, (int)position.x);
+	auto pos = position / Scale;
+	pos += Camera;
+	pos.x /= owner->tileset.tileWidth;
+	pos.y /= owner->tileset.tileHeight;
+	return GetTile((int)pos.y, (int)pos.x);
 }
 
 glm::vec2 Tilemap::MapLayer::GetPixelSize()

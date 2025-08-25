@@ -68,7 +68,6 @@ public:
 		auto& frame = stage[0];
 		Sprite::DrawSprite(stage,
 			glm::vec2(ScreenWidth - frame.z, ScreenHeight + (frame.w * 0.5)) / 2.0f,
-			glm::vec2(frame.z, frame.w),
 			frame,
 			0.0f,
 			glm::vec4(glm::vec3(0.5f + glm::abs(glm::sin(time * 0.1f) * 0.5f)), 1.0f));
@@ -76,7 +75,6 @@ public:
 		frame = sprite[(int)time / 2 % sprite.Frames()];
 		Sprite::DrawSprite(sprite,
 			glm::vec2(ScreenWidth - frame.z, ScreenHeight - (frame.w * 0.5)) / 2.0f,
-			glm::vec2(frame.z, frame.w),
 			frame,
 			0.0f,
 			glm::vec4(1.0f));
@@ -129,7 +127,7 @@ public:
 		ChildTickables.push_back(tilemapMgr->GetLayer(0));
 		//ChildTickables.push_back(std::make_shared<BoingBall>());
 		//ChildTickables.push_back(std::make_shared<Teapot>());
-		//ChildTickables.push_back(std::make_shared<Farrah>());
+		ChildTickables.push_back(std::make_shared<Farrah>());
 		ChildTickables.push_back(tilemapMgr->GetLayer(1));
 
 		ChildTickables.push_back(std::make_shared<BoingBall>());
