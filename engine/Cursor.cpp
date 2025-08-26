@@ -28,6 +28,16 @@ void Cursor::Select(int style)
 		penFrame = hand[style + PenOffset];
 }
 
+void Cursor::Select(const std::string& style)
+{
+	auto& atlas = hand.Atlas();
+	auto it = atlas.names.find(style);
+	if (it == atlas.names.cend())
+		Select(0);
+	else
+		Select(it->second);
+}
+
 void Cursor::SetScale(float newScale)
 {
 	scale = glm::clamp(newScale, 0.2f, 10.f);

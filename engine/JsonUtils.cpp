@@ -175,13 +175,14 @@ jsonValue GetJSONVec(const glm::vec4& vec, bool asInt)
 	}
 }
 
-void GetAtlas(std::vector<glm::vec4> &ret, const std::string& jsonFile)
+void GetAtlas(SpriteAtlas &ret, const std::string& jsonFile)
 {
 	auto rjs = VFS::ReadJSON(jsonFile);
 	if (!rjs)
 		return;
 	auto doc = rjs.as_object();
-	ret.clear();
+	ret.frames.clear();
+	ret.names.clear();
 	if (!doc["type"].is_string())
 		return;
 
@@ -193,7 +194,7 @@ void GetAtlas(std::vector<glm::vec4> &ret, const std::string& jsonFile)
 		{
 			for (int x = 0; x < (int)dims[0]; x++)
 			{
-				ret.push_back(glm::vec4(x * size[0], y * size[1], size[0], size[1]));
+				ret.frames.push_back(glm::vec4(x * size[0], y * size[1], size[0], size[1]));
 			}
 		}
 	}
@@ -202,11 +203,40 @@ void GetAtlas(std::vector<glm::vec4> &ret, const std::string& jsonFile)
 		auto rects = doc["rects"].as_array();
 		for (const auto& rect : rects)
 		{
-			ret.push_back(GetJSONVec4(rect));
+			ret.frames.push_back(GetJSONVec4(rect));
 		}
 	}
 	else
 		throw std::runtime_error(fmt::format("GetAtlas: file {} has an unknown type \"{}\".", jsonFile, doc["type"].as_string()));
+
+	if (doc["names"].is_array())
+	{
+		auto names = doc["names"].as_array();
+		if (names.size() != ret.frames.size())
+			throw std::runtime_error(fmt::format("GetAtlas: file {} has a mismatched number of names ({}) to frames ({}).", jsonFile, names.size(), ret.frames.size()));
+		int i = 0;
+		for (auto& n : names)
+		{
+			if (n.is_string())
+				ret.names[n.as_string()] = i;
+			i++;
+		}
+	}
+	if (doc["aliases"].is_object())
+	{
+		if (doc["names"].is_null())
+			throw std::runtime_error(fmt::format("GetAtlas: file {} has aliases but no names.", jsonFile));
+		for (auto& a : doc["aliases"].as_object())
+		{
+			if (!a.second.is_string())
+				throw std::runtime_error(fmt::format("GetAtlas: file {} has a non-string alias ({}).", jsonFile, a.first));
+			auto from = a.first;
+			auto to = a.second.as_string();
+			if (ret.names.find(a.second.as_string()) == ret.names.cend())
+				continue; //throw error
+			ret.names[from] = ret.names[to];
+		}
+	}
 }
 
 void GetColorMap(ColorMap& ret, const std::string& jsonFile)
