@@ -2,6 +2,7 @@
 	"type": "simple",
 	"size": [ 37, 56 ],
 	"dims": [ 4, 2 ],
+	"padding": 1,
 	"names": [
 		"left", null, null, null,
 		"right", null, null, null

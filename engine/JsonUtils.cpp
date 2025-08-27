@@ -190,11 +190,21 @@ void GetAtlas(SpriteAtlas &ret, const std::string& jsonFile)
 	{
 		auto size = GetJSONVec2(doc["size"]);
 		auto dims = GetJSONVec2(doc["dims"]);
+		auto padd = doc["padding"].is_integer() ? doc["padding"].as_integer() : 0;
+		//TODO: also check size and dims
+		if (padd < 0)
+			throw std::runtime_error(fmt::format("GetAtlas: file {} has negative padding???", jsonFile));
+
 		for (int y = 0; y < (int)dims[1]; y++)
 		{
 			for (int x = 0; x < (int)dims[0]; x++)
 			{
-				ret.frames.push_back(glm::vec4(x * size[0], y * size[1], size[0], size[1]));
+				ret.frames.push_back(glm::vec4(
+					padd + (x * (size[0] + padd)),
+					padd + (y * (size[1] + padd)),
+					size[0],
+					size[1]
+				));
 			}
 		}
 	}
