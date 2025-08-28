@@ -42,7 +42,7 @@ struct SpriteAtlas
 	inline glm::vec4 operator[](size_t i) const { return frames[i]; }
 	inline glm::vec4 operator[](const std::string& s) const
 	{
-		auto& it = names.find(s);
+		auto it = names.find(s);
 		if (it != names.cend())
 			return frames[it->second];
 		return frames[0];
