@@ -8,5 +8,9 @@
 		"file": "pixelmix_bold.ttf",
 		"size": 16,
 		"grid": true
+	},
+	{	//2 - Test
+		"file": "backissues.otf",
+		"size": 32
 	}
 ]

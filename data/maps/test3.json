@@ -79,7 +79,7 @@
          "height":8,
          "id":2,
          "name":"Detail",
-         "opacity":0.75,
+         "opacity":1,
          "type":"tilelayer",
          "visible":true,
          "width":8,
