@@ -35,6 +35,8 @@ Provide the following in `Game.h`:
 ## Usage
 
 ## Acknowledgements
+Script support would not be possible without [Siapran](https://siapran.tumblr.com).
+Also massive props to [Vaartis of the Ratular Bells](https://vaartis.tumblr.com) for their help.
 The logo was created by [twocatsinatrenchcoat](https://twocatsinatrenchcoat.tumblr.com/).
 
 The Beckett Engine uses several third-party libraries:
