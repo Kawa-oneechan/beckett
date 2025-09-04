@@ -197,107 +197,18 @@ void ConsoleRegister(Console* console)
 	//console->RegisterCCmd("reshade", CCmdReshade);
 }
 
-namespace UI
+void SettingsLoad(jsonObject& settings)
 {
-	std::map<std::string, glm::vec4> themeColors;
-	std::vector<glm::vec4> textColors;
-
-	std::shared_ptr<Texture> controls{ nullptr };
-
-	jsonValue json;
-	jsonValue settings;
-
-	std::string initFile = "init.json";
-
-	void Load()
-	{
-		UI::json = VFS::ReadJSON("ui/ui.json");
-		if (!UI::json)
-			FatalError("Could not read ui/ui.json. Something is very wrong.");
-		auto json = UI::json.as_object();
-		auto colors = json["colors"].as_object();
-		for (auto& ink : colors["theme"].as_object())
-		{
-			themeColors[ink.first] = GetJSONColor(ink.second);
-		}
-		for (auto& ink : colors["text"].as_array())
-		{
-			textColors.push_back(GetJSONColor(ink));
-		}
-
-		try
-		{
-			UI::settings = VFS::ReadSaveJSON("options.json");
-		}
-		catch (std::runtime_error&)
-		{
-			UI::settings = json5pp::parse5("{}");
-		}
-
-		auto settings = UI::settings.as_object();
-
 #define DS(K, V) if (!settings[K]) settings[K] = jsonValue(V)
 #define DA(K, V) if (!settings[K]) settings[K] = json5pp::array(V)
-		DS("screenWidth", ScreenWidth);
-		DS("screenHeight", ScreenHeight);
-		DA("keyBinds", {});
-		DA("gamepadBinds", {});
+//...
 #undef DA
 #undef DS
+}
 
-		auto bluh = &width;
-		width = settings["screenWidth"].as_integer();
-		height = settings["screenHeight"].as_integer();
-
-		auto keyBinds = settings["keyBinds"].as_array();
-		if (keyBinds.size() != NumKeyBinds)
-		{
-			keyBinds.reserve(NumKeyBinds);
-			for (auto &k : DefaultInputBindings)
-				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k)));
-		}
-
-		auto padBinds = settings["gamepadBinds"].as_array();
-		if (padBinds.size() != NumKeyBinds)
-		{
-			padBinds.reserve(NumKeyBinds);
-			for (auto &k : DefaultInputGamepadBindings)
-				padBinds.emplace_back(jsonValue(k));
-		}
-
-		for (int i = 0; i < NumKeyBinds; i++)
-		{
-			Inputs.Keys[i].ScanCode = keyBinds[i].as_integer();
-			Inputs.Keys[i].GamepadButton = padBinds[i].as_integer();
-		}
-	}
-
-	void Save()
-	{
-		auto settings = UI::settings.as_object();
-		settings["screenWidth"] = width;
-		settings["screenHeight"] = height;
-
-		auto binds = json5pp::array({});
-		for (auto& k : Inputs.Keys)
-			binds.as_array().push_back(k.ScanCode);
-		settings["keyBinds"] = std::move(binds);
-
-		auto binds2 = json5pp::array({});
-		for (auto& k : Inputs.Keys)
-			binds2.as_array().push_back(k.GamepadButton);
-		settings["gamepadBinds"] = std::move(binds2);
-
-		try
-		{
-			VFS::WriteSaveJSON("options.json", UI::settings);
-		}
-		catch (std::exception&)
-		{
-			conprint(2, "Couldn't save settings.");
-		}
-	}
-};
+void SettingsSave(jsonObject& settings)
+{
+}
 
 #ifdef DEBUG
 void GameImGui()
