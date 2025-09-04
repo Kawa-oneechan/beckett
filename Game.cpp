@@ -199,11 +199,16 @@ void ConsoleRegister(Console* console)
 
 void SettingsLoad(jsonObject& settings)
 {
+	//Ensure all settings you need exist with a proper default.
 #define DS(K, V) if (!settings[K]) settings[K] = jsonValue(V)
 #define DA(K, V) if (!settings[K]) settings[K] = json5pp::array(V)
-//...
+#define DO(K, V) if (!settings[K]) settings[K] = json5pp::object(V)
+	//...
+#undef DO
 #undef DA
 #undef DS
+
+	//Apply any loaded settings in whatever way you need.
 }
 
 void SettingsSave(jsonObject& settings)
