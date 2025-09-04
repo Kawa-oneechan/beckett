@@ -4,9 +4,6 @@
     <ClCompile Include="engine\Audio.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="engine\BigTables.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="engine\Console.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
