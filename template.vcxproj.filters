@@ -118,6 +118,9 @@
     <ClCompile Include="engine\NineSlicer.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="engine\PlatformWin32.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">
@@ -184,6 +187,9 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\NineSlicer.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Platform.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
