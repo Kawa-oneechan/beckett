@@ -1,44 +1,47 @@
 #include <random>
 
-namespace rnd
+namespace Beckett
 {
-	std::random_device device;
-	std::mt19937 engine(device());
-
-	int GetInt(int min, int max)
+	namespace Random
 	{
-		std::uniform_int_distribution<> dist(min, max);
-		return dist(engine);
-	}
+		std::random_device device;
+		std::mt19937 engine(device());
 
-	int GetInt(int max)
-	{
-		return GetInt(0, max);
-	}
+		int GetInt(int min, int max)
+		{
+			std::uniform_int_distribution<> dist(min, max);
+			return dist(engine);
+		}
 
-	int GetInt()
-	{
-		return GetInt(0, RAND_MAX);
-	}
+		int GetInt(int max)
+		{
+			return GetInt(0, max);
+		}
 
-	float GetFloat(float min, float max)
-	{
-		std::uniform_real_distribution<> dist(min, max);
-		return (float)dist(engine);
-	}
+		int GetInt()
+		{
+			return GetInt(0, RAND_MAX);
+		}
 
-	float GetFloat(float max)
-	{
-		return GetFloat(0.0f, max);
-	}
+		float GetFloat(float min, float max)
+		{
+			std::uniform_real_distribution<> dist(min, max);
+			return (float)dist(engine);
+		}
 
-	float GetFloat()
-	{
-		return GetFloat(0.0f, 1.0f);
-	}
+		float GetFloat(float max)
+		{
+			return GetFloat(0.0f, max);
+		}
 
-	bool Flip()
-	{
-		return GetFloat() > 0.5f;
+		float GetFloat()
+		{
+			return GetFloat(0.0f, 1.0f);
+		}
+
+		bool Flip()
+		{
+			return GetFloat() > 0.5f;
+		}
 	}
 }
