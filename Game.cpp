@@ -23,9 +23,6 @@ namespace fs = std::filesystem;
 #endif
 #endif
 
-using namespace Beckett;
-using namespace Beckett::Sprite;
-
 extern "C" int glfwGetKeyScancode(int key);
 
 constexpr int ScreenWidth = BECKETT_SCREENWIDTH;

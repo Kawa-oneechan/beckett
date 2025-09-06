@@ -5,29 +5,26 @@
 #include "Tickable.h"
 #include "Types.h"
 
-namespace Beckett
-{
-	//Returns true if point is inside of polygon.
-	extern bool PointInPoly(const glm::vec2 point, const polygon& polygon);
-	//Returns true if point is in rect.
-	extern bool PointInRect(const glm::vec2 point, const glm::vec4 rect);
+//Returns true if point is inside of polygon.
+extern bool PointInPoly(const glm::vec2 point, const polygon& polygon);
+//Returns true if point is in rect.
+extern bool PointInRect(const glm::vec2 point, const glm::vec4 rect);
 
-	//Go through all specified Tickables, calling their Tick methods in reverse order.
-	//Disabled Tickables are skipped. If any of them returns false, inputs are flushed.
-	extern bool RevAllTickables(const std::vector<TickableP>& tickables, float dt);
-	//Go through all specified Tickables, calling their Draw methods.
-	//Invisible Tickables are skipped.
-	extern void DrawAllTickables(const std::vector<TickableP>& tickables, float dt);
+//Go through all specified Tickables, calling their Tick methods in reverse order.
+//Disabled Tickables are skipped. If any of them returns false, inputs are flushed.
+extern bool RevAllTickables(const std::vector<TickableP>& tickables, float dt);
+//Go through all specified Tickables, calling their Draw methods.
+//Invisible Tickables are skipped.
+extern void DrawAllTickables(const std::vector<TickableP>& tickables, float dt);
 
-	//Returns the CRC32 hash for the given text.
-	extern hash GetCRC(const std::string& text);
-	//Returns the CRC32 hash for the given data.
-	extern hash GetCRC(unsigned char *buffer, int len);
-}
+//Returns the CRC32 hash for the given text.
+extern hash GetCRC(const std::string& text);
+//Returns the CRC32 hash for the given data.
+extern hash GetCRC(unsigned char *buffer, int len);
 
-#define conprint(C, F, ...) Beckett::console->Print(C, fmt::format(F, __VA_ARGS__))
+#define conprint(C, F, ...) console->Print(C, fmt::format(F, __VA_ARGS__))
 #ifdef DEBUG
-#define debprint(C, F, ...) Beckett::console->Print(C, fmt::format(F, __VA_ARGS__))
+#define debprint(C, F, ...) console->Print(C, fmt::format(F, __VA_ARGS__))
 #else
 #define debprint(C, F, ...)
 #endif

@@ -4,47 +4,44 @@
 
 extern void GameImGui();
 
-namespace Beckett
+bool debuggerEnabled{ false };
+
+extern float uiTime, glTime;
+extern GLFWwindow* window;
+
+bool IsImGuiHovered()
 {
-	bool debuggerEnabled{ false };
+	return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsAnyItemHovered();
+}
 
-	extern float uiTime, glTime;
-	extern GLFWwindow* window;
+void SetupImGui()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 130");
+}
 
-	bool IsImGuiHovered()
+void DoImGui()
+{
+	if (!debuggerEnabled)
+		return;
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	if (ImGui::Begin("Timing"))
 	{
-		return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsAnyItemHovered();
+		ImGui::Text("UI: %f\nGL: %f", uiTime, glTime);
 	}
+	ImGui::End();
 
-	void SetupImGui()
-	{
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init("#version 130");
-	}
+	GameImGui();
 
-	void DoImGui()
-	{
-		if (!debuggerEnabled)
-			return;
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-
-		if (ImGui::Begin("Timing"))
-		{
-			ImGui::Text("UI: %f\nGL: %f", uiTime, glTime);
-		}
-		ImGui::End();
-
-		GameImGui();
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	}
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

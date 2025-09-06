@@ -3,46 +3,43 @@
 #include <glm/glm.hpp>
 #include "../InputsMap.h"
 
-namespace Beckett
+struct InputKey
 {
-	struct InputKey
+	bool State;
+	int ScanCode;
+	int GamepadButton;
+	std::string Name;
+};
+
+class InputsMap
+{
+private:
+	glm::vec2 lastMousePos;
+	unsigned char trg[15]{ 0 };
+	unsigned char cnt[15]{ 0 };
+
+public:
+	InputKey Keys[NumKeyBinds]{ 0 };
+
+	bool MouseLeft, MouseRight, MouseMiddle;
+	bool MouseHoldLeft, MouseHoldRight, MouseHoldMiddle;
+	glm::vec2 MousePosition;
+
+	bool HaveGamePad = false;
+
+	InputsMap();
+	void Process(int scancode, int action);
+	void MouseMove(float x, float y);
+	bool MouseMoved();
+	bool UpdateGamepad();
+	void Clear(bool alsoGamepad = false);
+
+	bool KeyDown(Binds bind);
+	inline void Clear(Binds bind)
 	{
-		bool State;
-		int ScanCode;
-		int GamepadButton;
-		std::string Name;
-	};
+		Keys[(int)bind].State = false;
+		//cnt[Keys[(int)bind].GamepadButton] = 0;
+	}
+};
 
-	class InputsMap
-	{
-	private:
-		glm::vec2 lastMousePos;
-		unsigned char trg[15]{ 0 };
-		unsigned char cnt[15]{ 0 };
-
-	public:
-		InputKey Keys[NumKeyBinds]{ 0 };
-
-		bool MouseLeft, MouseRight, MouseMiddle;
-		bool MouseHoldLeft, MouseHoldRight, MouseHoldMiddle;
-		glm::vec2 MousePosition;
-
-		bool HaveGamePad = false;
-
-		InputsMap();
-		void Process(int scancode, int action);
-		void MouseMove(float x, float y);
-		bool MouseMoved();
-		bool UpdateGamepad();
-		void Clear(bool alsoGamepad = false);
-
-		bool KeyDown(Binds bind);
-		inline void Clear(Binds bind)
-		{
-			Keys[(int)bind].State = false;
-			//cnt[Keys[(int)bind].GamepadButton] = 0;
-		}
-	};
-
-	extern InputsMap Inputs;
-}
+extern InputsMap Inputs;

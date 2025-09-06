@@ -2,26 +2,23 @@
 #include <glm/glm.hpp>
 #include "Tickable.h"
 
-namespace Beckett
+class TextField : public Tickable
 {
-	class TextField : public Tickable
-	{
-		//TODO: since we have a scissor test, why not have scrolling?
-		//As in, [lo, world!_ ] with the "hel" off-screen, via an offset?
+	//TODO: since we have a scissor test, why not have scrolling?
+	//As in, [lo, world!_ ] with the "hel" off-screen, via an offset?
 
-	public:
-		glm::vec4 rect{ glm::vec4(0,0,128,32) };
-		glm::vec4 color{ glm::vec4(1) };
-		int font{ 1 };
-		float size{ 100.0 };
-		std::string value;
-		size_t caret{ 0 };
-		float time{ 0 };
+public:
+	glm::vec4 rect{ glm::vec4(0,0,128,32) };
+	glm::vec4 color{ glm::vec4(1) };
+	int font{ 1 };
+	float size{ 100.0 };
+	std::string value;
+	size_t caret{ 0 };
+	float time{ 0 };
 
-		void Draw(float dt);
-		bool Character(unsigned int codepoint);
-		bool Scancode(unsigned int scancode);
-		void Clear();
-		void Set(const std::string& to);
-	};
-}
+	void Draw(float dt);
+	bool Character(unsigned int codepoint);
+	bool Scancode(unsigned int scancode);
+	void Clear();
+	void Set(const std::string& to);
+};
