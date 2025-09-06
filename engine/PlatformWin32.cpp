@@ -2,14 +2,13 @@
 #include "../Game.h"
 
 #ifdef _WIN32
-extern int main(int argc, char** argv);
-
 namespace Beckett
 {
+	extern int main(int argc, char** argv);
+
 	namespace Platform
 	{
 		extern "C" {
-			int __stdcall WinMain(struct HINSTANCE__*, struct HINSTANCE__*, char*, int) { return main(__argc, __argv); };
 
 			//Normally, CharUpper/CharLower take either strings *or* characters, by checking the high bytes or sumth.
 			//It's a hack, but we don't *want* to use it on entire strings anyway cos we're UTF8.
@@ -38,6 +37,12 @@ namespace Beckett
 		}
 	}
 }
+
+int __stdcall WinMain(struct HINSTANCE__*, struct HINSTANCE__*, char*, int)
+{
+	return Beckett::main(__argc, __argv);
+};
+
 #else
 #pragma error("Why are you compiling PlatformWin32 on whatever this is?");
 //Note that PlatformWhatever.cpp should include CharUpper/Lower.
