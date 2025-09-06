@@ -3,6 +3,8 @@
 #include "engine/Text.h"
 #include "Game.h"
 
+using namespace Beckett;
+
 static const char* bindingNames[] = {
 	"up", "down", "left", "right",
 	"accept", "back", "pageup", "pagedown",

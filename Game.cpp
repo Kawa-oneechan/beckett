@@ -23,15 +23,14 @@ namespace fs = std::filesystem;
 #endif
 #endif
 
-__declspec(noreturn)
-extern void FatalError(const std::string& message);
+using namespace Beckett;
+using namespace Beckett::Sprite;
 
 extern "C" int glfwGetKeyScancode(int key);
 
 constexpr int ScreenWidth = SCREENWIDTH;
 constexpr int ScreenHeight = SCREENHEIGHT;
 
-extern Texture* whiteRect;
 
 class Background : public Tickable
 {

@@ -6,31 +6,34 @@
 #include "Texture.h"
 #include "Shader.h"
 
-namespace Sprite
+namespace Beckett
 {
-	//Number of sprites to queue up at once.
-	constexpr int BatchSize = 200;
-
-	enum SpriteFlags
+	namespace Sprite
 	{
-		NoFlags = 0,
-		FlipX = 1,
-		FlipY = 2,
-		FlipXY = 3,
-		TopLeft = 4,
-	};
+		//Number of sprites to queue up at once.
+		constexpr int BatchSize = 200;
 
-	void DrawSprite(Shader* shader, Texture& texture, glm::vec2 position, glm::vec2 size, glm::vec4 srcRect = glm::vec4(0.0f), float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
-	void DrawSprite(Texture& texture, const glm::vec2& position, const glm::vec2& size, const glm::vec4& srcRect = glm::vec4(0.0f), float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
-	void DrawSprite(Shader* shader, Texture& texture, const glm::vec2& position, const glm::vec4& srcRect, float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
-	void DrawSprite(Texture& texture, const glm::vec2& position, const glm::vec4& srcRect, float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
-	void DrawSprite(Shader* shader, Texture& texture, glm::vec2 position);
-	void DrawSprite(Texture& texture, glm::vec2 position);
-	void DrawLine(const glm::vec2& from, const glm::vec2& to, const glm::vec4& color);
+		enum SpriteFlags
+		{
+			NoFlags = 0,
+			FlipX = 1,
+			FlipY = 2,
+			FlipXY = 3,
+			TopLeft = 4,
+		};
 
-	void DrawText(int font, const std::string& text, glm::vec2 position, const glm::vec4& color = glm::vec4(1), float size = 100, float angle = 0.0f, bool raw = false);
-	void DrawText(const std::string& text, const glm::vec2& position, const glm::vec4& color = glm::vec4(1), float size = 100, float angle = 0.0f, bool raw = false);
-	glm::vec2 MeasureText(int font, const std::string& text, float size, bool raw = false);
+		void DrawSprite(Shader* shader, Texture& texture, glm::vec2 position, glm::vec2 size, glm::vec4 srcRect = glm::vec4(0.0f), float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
+		void DrawSprite(Texture& texture, const glm::vec2& position, const glm::vec2& size, const glm::vec4& srcRect = glm::vec4(0.0f), float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
+		void DrawSprite(Shader* shader, Texture& texture, const glm::vec2& position, const glm::vec4& srcRect, float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
+		void DrawSprite(Texture& texture, const glm::vec2& position, const glm::vec4& srcRect, float rotate = 0.0f, const glm::vec4& color = glm::vec4(1), SpriteFlags flags = SpriteFlags::NoFlags);
+		void DrawSprite(Shader* shader, Texture& texture, glm::vec2 position);
+		void DrawSprite(Texture& texture, glm::vec2 position);
+		void DrawLine(const glm::vec2& from, const glm::vec2& to, const glm::vec4& color);
 
-	void FlushBatch();
+		void DrawText(int font, const std::string& text, glm::vec2 position, const glm::vec4& color = glm::vec4(1), float size = 100, float angle = 0.0f, bool raw = false);
+		void DrawText(const std::string& text, const glm::vec2& position, const glm::vec4& color = glm::vec4(1), float size = 100, float angle = 0.0f, bool raw = false);
+		glm::vec2 MeasureText(int font, const std::string& text, float size, bool raw = false);
+
+		void FlushBatch();
+	}
 }

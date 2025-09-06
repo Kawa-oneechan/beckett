@@ -3,71 +3,74 @@
 #include "Console.h"
 #endif
 
-namespace JSONPatch
+namespace Beckett
 {
-
-	//RFC 7396
-	/*
-	define MergePatch(Target, Patch):
-		if Patch is an Object:
-			if Target is not an Object:
-				Target = {} # Ignore the contents and set it to an empty Object
-			for each Name/Value pair in Patch:
-				if Value is null:
-					if Name exists in Target:
-						remove the Name/Value pair from Target
-					else:
-						Target[Name] = MergePatch(Target[Name], Value)
-			return Target
-		else:
-			return Patch	
-	*/
-
-	static void mergeWorker(jsonValue& target, jsonValue& patch)
+	namespace JSONPatch
 	{
-		std::string state = target.stringify5(json5pp::rule::tab_indent<>());
-		if (patch.is_object())
+
+		//RFC 7396
+		/*
+		define MergePatch(Target, Patch):
+			if Patch is an Object:
+				if Target is not an Object:
+					Target = {} # Ignore the contents and set it to an empty Object
+				for each Name/Value pair in Patch:
+					if Value is null:
+						if Name exists in Target:
+							remove the Name/Value pair from Target
+						else:
+							Target[Name] = MergePatch(Target[Name], Value)
+				return Target
+			else:
+				return Patch
+		*/
+
+		static void mergeWorker(jsonValue& target, jsonValue& patch)
 		{
-			if (!target.is_object())
+			std::string state = target.stringify5(json5pp::rule::tab_indent<>());
+			if (patch.is_object())
 			{
-				target = json5pp::object({});
-				state = target.stringify5(json5pp::rule::tab_indent<>());
-			}
-			else
-			{
-				//auto merged = target.as_object();
-				for (const auto& p : patch.as_object())
+				if (!target.is_object())
 				{
-					if (p.second.is_null())
-					{
-						//merged.erase(p.first);
-						target.as_object().erase(p.first);
-					}
-					else
-					{
-						//auto res = merged.insert(p);
-						auto res = target.as_object().insert(p);
-						if (!res.second)
-							mergeWorker(res.first->second, (jsonValue&)p.second);
-					}
+					target = json5pp::object({});
 					state = target.stringify5(json5pp::rule::tab_indent<>());
+				}
+				else
+				{
+					//auto merged = target.as_object();
+					for (const auto& p : patch.as_object())
+					{
+						if (p.second.is_null())
+						{
+							//merged.erase(p.first);
+							target.as_object().erase(p.first);
+						}
+						else
+						{
+							//auto res = merged.insert(p);
+							auto res = target.as_object().insert(p);
+							if (!res.second)
+								mergeWorker(res.first->second, (jsonValue&)p.second);
+						}
+						state = target.stringify5(json5pp::rule::tab_indent<>());
+					}
 				}
 			}
 		}
-	}
 
-	jsonValue& ApplyPatch(jsonValue& source, jsonValue& patch)
-	{
+		jsonValue& ApplyPatch(jsonValue& source, jsonValue& patch)
+		{
 #ifdef DEEPERDOWN
-		conprint(0, "Original: {}", source.stringify5(json5pp::rule::tab_indent<>()));
-		conprint(0, "Patch:    {}", patch.stringify5(json5pp::rule::tab_indent<>()));
-		mergeWorker(source, patch);
-		conprint(0, "New:      {}", source.stringify5(json5pp::rule::tab_indent<>()));
-		console->Flush();
-		return source;
+			conprint(0, "Original: {}", source.stringify5(json5pp::rule::tab_indent<>()));
+			conprint(0, "Patch:    {}", patch.stringify5(json5pp::rule::tab_indent<>()));
+			mergeWorker(source, patch);
+			conprint(0, "New:      {}", source.stringify5(json5pp::rule::tab_indent<>()));
+			console->Flush();
+			return source;
 #else
-		mergeWorker(source, patch);
-		return source;
+			mergeWorker(source, patch);
+			return source;
 #endif
+		}
 	}
 }
