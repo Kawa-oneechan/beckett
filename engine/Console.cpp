@@ -61,7 +61,7 @@ namespace Beckett
 
 		hardcopy = std::ofstream("console.log", std::ios::trunc);
 
-		Print(3, GAMENAME);
+		Print(3, BECKETT_GAMENAME);
 		Print(3, "-------------------------");
 
 		inputLine = new TextField();
@@ -502,7 +502,7 @@ namespace Beckett
 	static void CCmdVersion(jsonArray& args)
 	{
 		args;
-		conprint(8, GAMENAME " - " VERSIONJOKE);
+		conprint(8, BECKETT_GAMENAME " - " BECKETT_VERSIONJOKE);
 #ifdef DEBUG
 		conprint(7, "Debug version: " __DATE__);
 #endif

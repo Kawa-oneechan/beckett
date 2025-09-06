@@ -3,6 +3,7 @@
 #include "Audio.h"
 #include "Console.h"
 #include "VFS.h"
+#include "../Game.h"
 
 namespace Beckett
 {
@@ -10,7 +11,10 @@ namespace Beckett
 	std::vector<Audio*> Audio::playing;
 
 	bool Audio::Enabled;
-	float Audio::MusicVolume, Audio::AmbientVolume, Audio::SoundVolume, Audio::SpeechVolume;
+	float Audio::MusicVolume, Audio::SoundVolume;
+#ifdef BECKETT_MOREVOLUME
+	float Audio::AmbientVolume, Audio::SpeechVolume;
+#endif
 
 	void Audio::Initialize()
 	{
@@ -79,10 +83,12 @@ namespace Beckett
 		auto mode = FMOD_HARDWARE | FMOD_2D | FMOD_OPENMEMORY;
 		if (filename.find("music/") != std::string::npos)
 			type = Type::Music;
+#ifdef BECKETT_MOREVOLUME
 		else if (filename.find("ambient/") != std::string::npos)
 			type = Type::Ambient;
 		else if (filename.find("speech/") != std::string::npos)
 			type = Type::Speech;
+#endif
 		else
 			type = Type::Sound;
 
@@ -171,9 +177,11 @@ namespace Beckett
 		switch (type)
 		{
 		case Type::Music: v = MusicVolume; break;
-		case Type::Ambient: v = AmbientVolume; break;
 		case Type::Sound: v = SoundVolume; break;
+#ifdef BECKETT_MOREVOLUME
+		case Type::Ambient: v = AmbientVolume; break;
 		case Type::Speech: v = SpeechVolume; break;
+#endif
 		}
 		Volume = glm::clamp(Volume, 0.0f, 1.0f);
 		theChannel->setVolume(v * Volume);
@@ -184,6 +192,7 @@ namespace Beckett
 		theChannel->setFrequency(frequency * ratio);
 	}
 
+#ifdef BECKETT_3DAUDIO
 	void Audio::SetPosition(glm::vec3 pos)
 	{
 		//Only generic sounds can be positioned.
@@ -192,6 +201,7 @@ namespace Beckett
 		FMOD_VECTOR v = { pos.x, pos.y, pos.z };
 		theChannel->set3DAttributes(&v, nullptr);
 	}
+#endif
 
 	void Audio::SetPan(float pos)
 	{

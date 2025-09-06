@@ -50,11 +50,11 @@ namespace Beckett
 
 		auto top = (int)(cam.y / tileset.tileGridHeight);
 		if (top < 0) top = 0;
-		auto bottom = top + (int)((SCREENHEIGHT / tileset.tileGridHeight) / s) + 1;
+		auto bottom = top + (int)((BECKETT_SCREENHEIGHT / tileset.tileGridHeight) / s) + 1;
 		if (bottom > height) bottom = height;
 		auto left = (int)(cam.x / tileset.tileGridWidth);
 		if (left < 0) left = 0;
-		auto right = left + (int)((SCREENWIDTH / tileset.tileGridWidth) / s) + 1;
+		auto right = left + (int)((BECKETT_SCREENWIDTH / tileset.tileGridWidth) / s) + 1;
 		if (right > width) right = width;
 
 		const auto tileSize = glm::vec2(tileset.tileWidth, tileset.tileHeight) * s;

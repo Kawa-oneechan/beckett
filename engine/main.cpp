@@ -30,7 +30,7 @@ extern void SettingsSave(Beckett::jsonObject& settings);
 
 namespace Beckett
 {
-	constexpr auto WindowTitle = GAMENAME " - " VERSIONJOKE
+	constexpr auto WindowTitle = BECKETT_GAMENAME " - " BECKETT_VERSIONJOKE
 #ifdef DEBUG
 		" (debug build " __DATE__ ")";
 
@@ -40,8 +40,8 @@ namespace Beckett
 #endif
 	;
 
-	constexpr int ScreenWidth = SCREENWIDTH;
-	constexpr int ScreenHeight = SCREENHEIGHT;
+	constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
+	constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
 	glm::mat4 perspectiveProjection, orthographicProjection;
 	bool useOrthographic = false;
@@ -54,7 +54,7 @@ namespace Beckett
 	Console* console = nullptr;
 
 	int width = ScreenWidth, height = ScreenHeight;
-	float scale = height / (float)SCREENHEIGHT;
+	float scale = height / (float)ScreenHeight;
 
 	float lastX = width / 2.0f;
 	float lastY = height / 2.0f;
@@ -135,9 +135,11 @@ namespace Beckett
 			DA("gamepadBinds", {});
 			DS("language", "USen");
 			DS("musicVolume", 70);
-			DS("ambientVolume", 50);
 			DS("soundVolume", 100);
+#ifdef BECKETT_MOREVOLUME
+			DS("ambientVolume", 50);
 			DS("speechVolume", 100);
+#endif
 #undef DA
 #undef DS
 
@@ -148,9 +150,11 @@ namespace Beckett
 
 			//Convert from saved integer values to float.
 			Audio::MusicVolume = settings["musicVolume"].as_integer() / 100.0f;
-			Audio::AmbientVolume = settings["ambientVolume"].as_integer() / 100.0f;
 			Audio::SoundVolume = settings["soundVolume"].as_integer() / 100.0f;
+#ifdef BECKETT_MOREVOLUME
+			Audio::AmbientVolume = settings["ambientVolume"].as_integer() / 100.0f;
 			Audio::SpeechVolume = settings["speechVolume"].as_integer() / 100.0f;
+#endif
 
 			auto keyBinds = settings["keyBinds"].as_array();
 			if (keyBinds.size() != NumKeyBinds)
@@ -195,9 +199,11 @@ namespace Beckett
 
 			//Convert from float values to easier-to-read integers.
 			settings["musicVolume"] = (int)(Audio::MusicVolume * 100.0f);
-			settings["ambientVolume"] = (int)(Audio::AmbientVolume * 100.0f);
 			settings["soundVolume"] = (int)(Audio::SoundVolume * 100.0f);
+#ifdef BECKETT_MOREVOLUME
+			settings["ambientVolume"] = (int)(Audio::AmbientVolume * 100.0f);
 			settings["speechVolume"] = (int)(Audio::SpeechVolume * 100.0f);
+#endif
 
 			SettingsSave(settings);
 
@@ -217,7 +223,7 @@ namespace Beckett
 		window;
 		Beckett::width = width;
 		Beckett::height = height;
-		scale = Beckett::height / (float)SCREENHEIGHT;
+		scale = Beckett::height / (float)ScreenHeight;
 		glViewport(0, 0, width, height);
 		commonUniforms.ScreenRes = glm::uvec2(width, height);
 

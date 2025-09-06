@@ -5,6 +5,7 @@
 #include <memory>
 #include <fmodex/fmod.hpp>
 #include <glm/glm.hpp>
+#include "../Game.h"
 
 namespace Beckett
 {
@@ -21,7 +22,10 @@ namespace Beckett
 		} status{ Status::Stopped };
 		enum class Type
 		{
-			Music, Ambient, Sound, Speech
+			Music, Sound,
+#ifdef BECKETT_MOREVOLUME
+			Ambient, Speech
+#endif
 		} type{ Type::Sound };
 		std::string filename;
 		std::unique_ptr<char[]> data{ nullptr };
@@ -30,14 +34,19 @@ namespace Beckett
 	public:
 		//Is audio enabled in general?
 		static bool Enabled;
-		//Background music volume -- outside hourly tracks, interiors, events.
+		//Background music volume
 		static float MusicVolume;
-		//Ambient noises -- outside wind, soundscapes.
-		static float AmbientVolume;
+#ifndef BECKETT_MOREVOLUME
+		//General sound volume
+		static float SoundVolume;
+#else
 		//General sounds -- diegetic and UI.
 		static float SoundVolume;
+		//Ambient noises -- outside wind, soundscapes.
+		static float AmbientVolume;
 		//Dialogue sounds -- both vocalizations and beeps.
 		static float SpeechVolume;
+#endif
 
 		//Initializes FMOD.
 		static void Initialize();

@@ -41,7 +41,7 @@ namespace Beckett
 		width = height = channels = 0;
 		data = nullptr;
 
-		this->filter = filter == 0 ? DEFAULTFILTER : filter;
+		this->filter = filter == 0 ? BECKETT_DEFAULTFILTER : filter;
 
 		auto c = cache.find(texturePath);
 		if (c != cache.end())
@@ -117,7 +117,7 @@ namespace Beckett
 		ID = 0;
 		this->file.clear();
 
-		this->filter = filter == 0 ? DEFAULTFILTER : filter;
+		this->filter = filter == 0 ? BECKETT_DEFAULTFILTER : filter;
 
 		atlas.push_back(glm::vec4(0, 0, width, height));
 
@@ -244,7 +244,7 @@ namespace Beckett
 		width = height = channels = 0, layers = 0;
 		data = nullptr;
 
-		this->filter = filter == 0 ? DEFAULTFILTER : filter;
+		this->filter = filter == 0 ? BECKETT_DEFAULTFILTER : filter;
 
 		file = entries[0];
 
@@ -304,7 +304,7 @@ namespace Beckett
 		width = height = channels = 0, layers = 0;
 		data = nullptr;
 
-		this->filter = filter == 0 ? DEFAULTFILTER : filter;
+		this->filter = filter == 0 ? BECKETT_DEFAULTFILTER : filter;
 
 		auto c = cacheArray.find(texturePath);
 		if (c != cacheArray.end())

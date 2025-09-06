@@ -34,7 +34,7 @@ namespace Beckett
 		{
 			wchar_t w[1024] = { 0 };
 			MultiByteToWideChar(65001, 0, message.c_str(), -1, w, 1024);
-			MessageBoxW(nullptr, w, L"" GAMENAME, 0x30);
+			MessageBoxW(nullptr, w, L"" BECKETT_GAMENAME, 0x30);
 		}
 	}
 }

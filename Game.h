@@ -9,13 +9,14 @@
 #include "engine/Tickable.h"
 #include "engine/Types.h"
 
-#define GAMENAME "Beckett Engine Template"
-#define VERSIONJOKE "Insert Funny Here"
-#define SCREENWIDTH 640
-#define SCREENHEIGHT 480
-
-#define DEFAULTFILTER GL_NEAREST
+#define BECKETT_GAMENAME "Beckett Engine Template"
+#define BECKETT_VERSIONJOKE "Insert Funny Here"
+#define BECKETT_SCREENWIDTH 640
+#define BECKETT_SCREENHEIGHT 480
+#define BECKETT_DEFAULTFILTER GL_NEAREST
 #define BECKETT_EXTRASAVEDIRS
+//#define BECKETT_MOREVOLUME
+//#define BECKETT_3DAUDIO
 
 constexpr int MaxLights = 3;
 

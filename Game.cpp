@@ -28,8 +28,8 @@ using namespace Beckett::Sprite;
 
 extern "C" int glfwGetKeyScancode(int key);
 
-constexpr int ScreenWidth = SCREENWIDTH;
-constexpr int ScreenHeight = SCREENHEIGHT;
+constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
+constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
 
 class Background : public Tickable
