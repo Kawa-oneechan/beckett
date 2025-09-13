@@ -267,6 +267,10 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		return;
 	}
 
+	Inputs.Shift = (mods & GLFW_MOD_SHIFT) != 0;
+	Inputs.Control = (mods & GLFW_MOD_CONTROL) != 0;
+	Inputs.Alt = (mods & GLFW_MOD_ALT) != 0;
+
 	Inputs.Process(scancode, action);
 
 	for (unsigned int i = (unsigned int)rootTickables.size(); i-- > 0; )

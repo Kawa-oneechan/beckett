@@ -65,6 +65,7 @@ bool InputsMap::UpdateGamepad()
 		Keys[(int)Binds::WalkE].State = state.axes[0] > dead;
 		Keys[(int)Binds::WalkN].State = state.axes[1] < -dead;
 		Keys[(int)Binds::WalkS].State = state.axes[1] > dead;
+		//Hold Shift if the axes are pushed further to run?
 
 		/*
 		//Hardwire the left stick to work for the walking actions

@@ -20,6 +20,7 @@ private:
 
 public:
 	InputKey Keys[NumKeyBinds]{ 0 };
+	bool Shift, Control, Alt;
 
 	bool MouseLeft, MouseRight, MouseMiddle;
 	bool MouseHoldLeft, MouseHoldRight, MouseHoldMiddle;
