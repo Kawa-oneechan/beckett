@@ -11,6 +11,8 @@ InputsMap::InputsMap()
 	lastMousePos = MousePosition = glm::vec2(width, height) + 20.0f;
 	MouseHoldLeft = MouseHoldMiddle = MouseHoldRight = false;
 	Shift = Control = Alt = false;
+	StickAngles[0] = StickAngles[1] = 0;
+	StickDists[0] = StickDists[1] = 0.0f;
 }
 
 void InputsMap::Process(int scancode, int action)
@@ -62,6 +64,23 @@ bool InputsMap::UpdateGamepad()
 	if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
 	{
 		const float dead = 0.2f;
+
+		for (int i = 0; i < 2; i++)
+		{
+			auto x = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X + (i * 2)];
+			auto y = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y + (i * 2)];
+			if (glm::abs(x) + glm::abs(y) > dead)
+			{
+				StickAngles[i] = (360 + (int)glm::degrees(std::atan2f(y, x)) + 90) % 360;
+				auto dotdotdot = glm::vec2(x, y);
+				StickDists[i] = glm::dot(dotdotdot, dotdotdot);
+			}
+			else
+			{
+				StickAngles[i] = 0;
+				StickDists[i] = 0.0f;
+			}
+		}
 
 #ifdef BECKETT_ANALOGLEFT
 		Keys[(int)BECKETT_ANALOGLEFT + 0].State = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] < -dead;

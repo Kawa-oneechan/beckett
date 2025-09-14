@@ -27,6 +27,8 @@ public:
 	glm::vec2 MousePosition;
 
 	bool HaveGamePad = false;
+	int StickAngles[2];
+	float StickDists[2];
 
 	InputsMap();
 	void Process(int scancode, int action);
