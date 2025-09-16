@@ -74,6 +74,8 @@ bool InputsMap::UpdateGamepad()
 				StickAngles[i] = (360 + (int)glm::degrees(std::atan2f(y, x)) + 90) % 360;
 				auto dotdotdot = glm::vec2(x, y);
 				StickDists[i] = glm::dot(dotdotdot, dotdotdot);
+				if (i == 0)
+					Shift = StickDists[0] > RunThreshold;
 			}
 			else
 			{

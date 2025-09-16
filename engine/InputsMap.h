@@ -29,6 +29,7 @@ public:
 	bool HaveGamePad = false;
 	int StickAngles[2];
 	float StickDists[2];
+	float RunThreshold{ 0.5 };
 
 	InputsMap();
 	void Process(int scancode, int action);

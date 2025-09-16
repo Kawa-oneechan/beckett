@@ -131,6 +131,7 @@ namespace UI
 		DS("screenHeight", ScreenHeight);
 		DA("keyBinds", {});
 		DA("gamepadBinds", {});
+		DS("gamepadRunThreshold", Inputs.RunThreshold);
 		DS("language", "USen");
 		DS("musicVolume", 70);
 		DS("soundVolume", 100);
@@ -143,6 +144,8 @@ namespace UI
 
 		width = settings["screenWidth"].as_integer();
 		height = settings["screenHeight"].as_integer();
+
+		Inputs.RunThreshold = settings["gamepadRunThreshold"].as_number();
 
 		gameLang = Text::GetLangCode(settings["language"].as_string());
 
@@ -194,6 +197,7 @@ namespace UI
 		for (auto& k : Inputs.Keys)
 			binds2.as_array().push_back(k.GamepadButton);
 		settings["gamepadBinds"] = std::move(binds2);
+		settings["gamepadRunThreshold"] = Inputs.RunThreshold;
 
 		//Convert from float values to easier-to-read integers.
 		settings["musicVolume"] = (int)(Audio::MusicVolume * 100.0f);
