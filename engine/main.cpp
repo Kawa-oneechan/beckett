@@ -532,7 +532,8 @@ int main(int argc, char** argv)
 	GameInit();
 
 	Inputs.HaveGamePad = (glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwJoystickIsGamepad(GLFW_JOYSTICK_1));
-	confirmGamepad(GLFW_JOYSTICK_1);
+	if (Inputs.HaveGamePad)
+		confirmGamepad(GLFW_JOYSTICK_1);
 
 	perspectiveProjection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 500.0f);
 	//Orthographic projection for a laugh. For best results, use a 45 degree pitch and yaw, no bending.
