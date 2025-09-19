@@ -67,6 +67,7 @@ public:
 	}
 };
 
+#ifndef BECKETT_NO3DMODELS
 class Teapot : public Tickable
 {
 private:
@@ -89,6 +90,7 @@ public:
 		glDisable(GL_DEPTH_TEST);
 	}
 };
+#endif
 
 class TestScreen : public Tickable
 {
@@ -101,8 +103,6 @@ public:
 	TestScreen()
 	{
 		//ChildTickables.push_back(std::make_shared<Background>());
-		//ChildTickables.push_back(std::make_shared<Teapot>());
-		//ChildTickables.push_back(std::make_shared<Farrah>());
 
 		tilemapMgr = std::make_shared<Tilemap>("maps/test3.json");
 		tilemapMgr->Scale = 3.0f;
@@ -111,7 +111,9 @@ public:
 		ChildTickables.push_back(tilemapMgr);
 		ChildTickables.push_back(tilemapMgr->GetLayer(0));
 		//ChildTickables.push_back(std::make_shared<BoingBall>());
+#ifndef BECKETT_NO3DMODELS
 		//ChildTickables.push_back(std::make_shared<Teapot>());
+#endif
 		ChildTickables.push_back(std::make_shared<Farrah>());
 		ChildTickables.push_back(tilemapMgr->GetLayer(1));
 

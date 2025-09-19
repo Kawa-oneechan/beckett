@@ -1,5 +1,7 @@
 ﻿#include "Model.h"
 
+#ifndef BECKETT_NO3DMODELS
+
 extern unsigned int currentVAO;
 
 namespace MeshBucket
@@ -153,3 +155,5 @@ namespace MeshBucket
 		}
 	};
 }
+
+#endif
