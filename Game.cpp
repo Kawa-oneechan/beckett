@@ -14,17 +14,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_inverse.hpp>
 
-#ifdef BECKETT_EXTRASAVEDIRS
-#include <filesystem>
-#ifdef _MSC_VER
-namespace fs = std::experimental::filesystem;
-#else
-namespace fs = std::filesystem;
-#endif
-#endif
-
-extern "C" int glfwGetKeyScancode(int key);
-
 constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
 constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
@@ -236,9 +225,10 @@ void GameInit()
 }
 
 #ifdef BECKETT_EXTRASAVEDIRS
-void GamePrepSaveDirs(const fs::path& savePath)
+void GamePrepSaveDirs()
 {
-//	fs::create_directory(savePath / "map");
+	//Example:
+	//VFS::MakeSaveDir("map/farm");
 }
 #endif
 
