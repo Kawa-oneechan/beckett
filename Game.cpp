@@ -49,21 +49,18 @@ public:
 	{
 		dt;
 		auto time = commonUniforms.TotalTime * 10.0f;
-
-		auto& frame = stage[0];
+		auto pos = glm::vec2(ScreenWidth, ScreenHeight) * 0.5f;
+		
 		Sprite::DrawSprite(stage,
-			glm::vec2(ScreenWidth - frame.z, ScreenHeight + (frame.w * 0.5)) / 2.0f,
-			frame,
-			0.0f,
-			glm::vec4(glm::vec3(0.5f + glm::abs(glm::sin(time * 0.1f) * 0.5f)), 1.0f));
-
-		frame = sprite[(int)time / 2 % sprite.Frames()];
+			pos, stage[0], 0.0f,
+			glm::vec4(glm::vec3(0.5f + glm::abs(glm::sin(time * 0.1f) * 0.5f)), 1.0f),
+			Sprite::SpriteFlags::CenterOrigin
+		);
 		Sprite::DrawSprite(sprite,
-			glm::vec2(ScreenWidth - frame.z, ScreenHeight - (frame.w * 0.5)) / 2.0f,
-			frame,
-			0.0f,
-			glm::vec4(1.0f));
-
+			pos, sprite[(int)time / 2 % sprite.Frames()], 0.0f,
+			glm::vec4(1.0f),
+			Sprite::SpriteFlags::MidBotOrigin
+		);
 	}
 };
 
