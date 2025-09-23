@@ -385,7 +385,11 @@ static int InitOpenGL()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 2);
+#ifdef BECKETT_MSAA
+	glfwWindowHint(GLFW_SAMPLES, 4);
+#else
+	glfwWindowHint(GLFW_SAMPLES, 0); //Disable
+#endif
 
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	if (mode->width < width || mode->height < height)

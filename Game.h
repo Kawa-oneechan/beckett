@@ -29,6 +29,9 @@
 //If defined, leaves out all 3D model stuff. Allows you to leave out UFBX, too.
 //#define BECKETT_NO3DMODELS
 
+//If defined, enables multi-sample anti-aliasing.
+//#define BECKETT_MSAA
+
 //If defined, maps the left analog stick to the specified actions.
 //Assumes the actions are in the order north-west-south-east.
 #define BECKETT_ANALOGLEFT Binds::WalkN
