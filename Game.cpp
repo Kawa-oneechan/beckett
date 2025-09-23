@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "engine/Game.h"
 #include "engine/Console.h"
 #include "engine/Cursor.h"
 #include "engine/Text.h"
@@ -159,7 +160,7 @@ std::string testString;
 glm::vec2 testVector;
 glm::vec4 testColor;
 
-void ConsoleRegister(Console* console)
+void Game::RegisterConsole(Console* console)
 {
 #define RV console->RegisterCVar
 
@@ -181,7 +182,7 @@ void ConsoleRegister(Console* console)
 	//console->RegisterCCmd("reshade", CCmdReshade);
 }
 
-void SettingsLoad(jsonObject& settings)
+void Game::LoadSettings(jsonObject& settings)
 {
 	//Ensure all settings you need exist with a proper default.
 #define DS(K, V) if (!settings[K]) settings[K] = jsonValue(V)
@@ -195,19 +196,19 @@ void SettingsLoad(jsonObject& settings)
 	//Apply any loaded settings in whatever way you need.
 }
 
-void SettingsSave(jsonObject& settings)
+void Game::SaveSettings(jsonObject& settings)
 {
 }
 
 #ifdef DEBUG
-void GameImGui()
+void Game::ImGui()
 {
 	//Put this function in its own module and #include <ImGUI/imgui.h>.
 	//Rendering is handled by the engine, just handle windows here.
 }
 #endif
 
-void GameInit()
+void Game::Initialize()
 {
 	//Add extra loading steps here
 
@@ -224,45 +225,45 @@ void GameInit()
 }
 
 #ifdef BECKETT_EXTRASAVEDIRS
-void GamePrepSaveDirs()
+void Game::PrepareSaveDirs()
 {
 	//Example:
 	//VFS::MakeSaveDir("map/farm");
 }
 #endif
 
-void GameStart(std::vector<TickableP>& tickables)
+void Game::Start(std::vector<TickableP>& tickables)
 {
 	tickables.push_back(std::make_shared<TestScreen>());
 }
 
-void GameMouse(double xPosIn, double yPosIn, float xoffset, float yoffset)
+void Game::OnMouse(double xPosIn, double yPosIn, float xoffset, float yoffset)
 {
 	xPosIn, yPosIn, xoffset, yoffset;
 }
 
-void GameResize()
+void Game::OnResize()
 {
 	scale = 1.0f;
 }
 
-void GameLoopStart()
+void Game::LoopStart()
 {
 	//cursor->SetScale(scale);
 }
 
-void GamePreDraw(float dt)
+void Game::PreDraw(float dt)
 {
 	dt;
 	glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void GamePostDraw(float dt)
+void Game::PostDraw(float dt)
 {
 	dt;
 }
 
-void GameQuit()
+void Game::OnQuit()
 {
 }
