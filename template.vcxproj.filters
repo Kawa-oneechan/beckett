@@ -198,6 +198,12 @@
     <ClInclude Include="engine\Random.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="engine\Tickable2D.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Game.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="data\shaders\common.fs">
