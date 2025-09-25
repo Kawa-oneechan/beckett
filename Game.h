@@ -29,6 +29,12 @@
 //If defined, leaves out all 3D model stuff. Allows you to leave out UFBX, too.
 //#define BECKETT_NO3DMODELS
 
+//If defined, BJTS support is disabled entirely. Text strings are always effectively "raw".
+//#define BECKETT_NOBJTS
+
+//If defined, only US English text strings are acknowledged.
+//#define BECKETT_ONLYMURCAN
+
 //If defined, enables multi-sample anti-aliasing.
 //#define BECKETT_MSAA
 
