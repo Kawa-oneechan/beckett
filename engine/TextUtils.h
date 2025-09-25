@@ -47,24 +47,22 @@ auto StringToEnum(const std::string& s, std::initializer_list<const std::string>
 {
 	auto it = std::find(opts.begin(), opts.end(), s);
 	if (it == opts.end())
-		throw std::range_error(fmt::format("StringToEnum: can't find \"{}\" in list \"{}\".", s, join(opts.begin(), opts.end())));
+		throw std::range_error(fmt::format("StringToEnum: can't find \"{}\" in list \"{}\".", s, StringJoin(opts.begin(), opts.end())));
 	return (T)std::distance(opts.begin(), it);
 }
 
 template<typename InputIt>
-std::string join(InputIt begin, InputIt end, const std::string& separator = ", ", const std::string& concluder = "")
+std::string StringJoin(InputIt begin, InputIt end, const std::string& separator = ", ", const std::string& concluder = "")
 {
-	std::ostringstream ss;
-
+	std::string ret;
+	ret.reserve(256);
 	if (begin != end)
-		ss << *begin++;
-
+		ret += *begin++;
 	while (begin != end)
 	{
-		ss << separator;
-		ss << *begin++;
+		ret += separator;
+		ret += *begin++;
 	}
-
-	ss << concluder;
-	return ss.str();
+	ret += concluder;
+	return ret;
 }
