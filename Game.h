@@ -20,6 +20,9 @@
 //If defined, GamePrepSaveDirs must be provided.
 #define BECKETT_EXTRASAVEDIRS
 
+//If defined, allows the user to resize the window.
+#define BECKETT_RESIZABLE
+
 //If defined, adds Ambient and Speech volume controls alongside Music and Sound.
 //#define BECKETT_MOREVOLUME
 

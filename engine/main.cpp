@@ -219,6 +219,11 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 	commonUniforms.ScreenRes = glm::uvec2(width, height);
 
+	perspectiveProjection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 500.0f);
+	constexpr auto orthoScale = 0.025f;
+	orthographicProjection = glm::ortho(-((float)width * orthoScale), ((float)width * orthoScale), -((float)height * orthoScale), ((float)height * orthoScale), -1.0f, 300.0f);
+	commonUniforms.Projection = useOrthographic ? orthographicProjection : perspectiveProjection;
+
 	Game::OnResize();
 }
 
@@ -397,7 +402,11 @@ static int InitOpenGL()
 		glfwWindowHint(GLFW_POSITION_X, (mode->width / 2) - (width / 2));
 		glfwWindowHint(GLFW_POSITION_Y, (mode->height / 2) - (height / 2));
 	}
+#ifdef BECKETT_RESIZABLE
+	glfwWindowHint(GLFW_RESIZABLE, 1);
+#else
 	glfwWindowHint(GLFW_RESIZABLE, 0);
+#endif
 
 	window = glfwCreateWindow(width, height, WindowTitle, NULL, NULL);
 	if (window == NULL)
@@ -528,13 +537,6 @@ int main(int argc, char** argv)
 	Inputs.HaveGamePad = (glfwJoystickPresent(GLFW_JOYSTICK_1) && glfwJoystickIsGamepad(GLFW_JOYSTICK_1));
 	if (Inputs.HaveGamePad)
 		confirmGamepad(GLFW_JOYSTICK_1);
-
-	perspectiveProjection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 500.0f);
-	//Orthographic projection for a laugh. For best results, use a 45 degree pitch and yaw, no bending.
-	constexpr auto orthoScale = 0.025f;
-	orthographicProjection = glm::ortho(-(ScreenWidth * orthoScale), (ScreenWidth * orthoScale), -(ScreenHeight * orthoScale), (ScreenHeight * orthoScale), -1.0f, 300.0f);
-	commonUniforms.Projection = useOrthographic ? orthographicProjection : perspectiveProjection;
-
 
 #ifdef DEBUG
 	auto startingTime = std::chrono::high_resolution_clock::now();
