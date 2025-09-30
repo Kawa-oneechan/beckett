@@ -65,6 +65,8 @@ namespace VFS
 	extern std::string GetPathPart(const std::string& path);
 	//Given "foo/bar/baz.txt", returns "baz.txt". Given "baz.txt", returns the empty string.
 	extern std::string GetFilePart(const std::string& path);
+	//Given "foo.txt", returns "txt".
+	extern std::string GetExtension(const std::string& path);
 	//Given "foo/bar/baz.txt" and "doc", returns "foo/bar/baz.doc".
 	extern std::string ChangeExtension(const std::string& path, const std::string& ext);
 	//Given "a/b/c", returns "a/b". Given "a", returns the empty string.

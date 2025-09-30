@@ -432,7 +432,7 @@ namespace VFS
 			return e.path == absPath;
 		});
 		if (it == entries.cend())
-			return nullptr;
+			return "";
 		return ReadString(*it);
 	}
 
@@ -723,6 +723,14 @@ namespace VFS
 			return path.substr(path.find_last_of('/') + 1);
 		return "";
 	}
+	
+	std::string GetExtension(const std::string& path)
+	{
+		if (path.empty()) return path;
+		if (path.find('.') != std::string::npos)
+			return path.substr(path.find_last_of('.') + 1);
+		return "";
+	}
 
 	std::string ChangeExtension(const std::string& path, const std::string& ext)
 	{
@@ -739,7 +747,6 @@ namespace VFS
 			return path.substr(0, path.rfind('/'));
 		return "";
 	}
-
 
 	std::string ClimbDown(const std::string& path, const std::string& fallback)
 	{

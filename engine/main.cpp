@@ -549,6 +549,8 @@ int main(int argc, char** argv)
 
 	while (!glfwWindowShouldClose(window))
 	{
+		Audio::Update();
+
 		Game::LoopStart();
 
 #ifdef DEBUG

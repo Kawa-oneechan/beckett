@@ -28,6 +28,13 @@ private:
 	std::string filename;
 	std::unique_ptr<char[]> data{ nullptr };
 	float frequency{ 0 };
+	std::vector<class AudioEventListener*> listeners;
+	std::vector<std::tuple<float, std::string>> tags;
+	float lastTag{ -1.0f };
+	float nextTag{ -1.0f };
+	int currentTag{ 0 };
+
+	void update();
 
 public:
 	//Is audio enabled in general?
@@ -81,4 +88,13 @@ public:
 	//Sets the sound's position in 2D stereo space where -1.0 is fully
 	//to the left and 1.0 is fully to the right.
 	void SetPan(float pos);
+
+	void RegisterListener(class AudioEventListener* listener);
+	void UnregisterLister(class AudioEventListener* listener);
+};
+
+class AudioEventListener
+{
+public:
+	virtual void AudioEvent(float time, const std::string& text) {};
 };

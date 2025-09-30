@@ -45,9 +45,10 @@ void Audio::Update()
 		changed = true;
 	}
 
-	if (changed)
+	for (auto x : playing)
 	{
-		for (auto x : playing)
+		x->update();
+		if (changed)
 		{
 			x->UpdateVolume();
 		}
@@ -98,8 +99,8 @@ Audio::Audio(std::string filename) : filename(filename)
 	theChannel->setCallback(callback);
 
 	//we don't have ends_with, that's a 20 thing.
-	auto ext = filename.substr(filename.length() - 4, 4);
-	if (ext == ".ogg")
+	auto ext = VFS::GetExtension(filename);
+	if (ext == "ogg")
 	{
 		FMOD_TAG tag;
 		if (theSound->getTag("LOOP_START", 0, &tag) == FMOD_OK)
@@ -113,6 +114,24 @@ Audio::Audio(std::string filename) : filename(filename)
 				conprint(1, "Wanted to set loop point for file {}, could not.", filename);
 		}
 	}
+
+	auto maybeTagFile = VFS::ChangeExtension(filename, "txt");
+	auto maybeTags = VFS::ReadString(maybeTagFile);
+	if (!maybeTags.empty())
+	{
+		//parse Audacity tag file
+		ReplaceAll(maybeTags, "\r", "");
+		auto lines = Split(maybeTags, '\n');
+		for (auto& line : lines)
+		{
+			auto parts = Split(line, '\t');
+			auto time = std::stof(parts[0]);
+			auto text = parts[2];
+			tags.push_back(std::make_tuple(time, text));
+		}
+		nextTag = std::get<0>(tags[0]);
+	}
+	
 	status = Status::Stopped;
 }
 
@@ -169,6 +188,35 @@ void Audio::Stop()
 	playing.erase(std::remove(playing.begin(), playing.end(), this), playing.end());
 }
 
+void Audio::update()
+{
+	if (tags.empty())
+		return;
+	if (listeners.empty())
+		return;
+	if (currentTag >= tags.size())
+		return;
+	unsigned int pos;
+	theChannel->getPosition(&pos, FMOD_TIMEUNIT_MS);
+	float fpos = pos / 1000.0f;
+	
+	//adjust a bit, not sure if my fault or FMOD's.
+	fpos -= 0.100f; if (fpos < 0.0f) fpos = 0.0f;
+
+	while (fpos > nextTag)
+	{
+		for (auto listener : listeners)
+		{
+			listener->AudioEvent(lastTag, std::get<1>(tags[currentTag]));
+		}
+		currentTag++;
+		if (currentTag >= tags.size())
+			return;
+		lastTag = nextTag;
+		nextTag = std::get<0>(tags[currentTag]);
+	}
+}
+
 void Audio::UpdateVolume()
 {
 	auto v = 0.0f;
@@ -205,4 +253,24 @@ void Audio::SetPan(float pos)
 {
 	if (theChannel->setPan(pos) != FMOD_OK)
 		conprint(1, "Couldn't set pan position for {}.", filename);
+}
+
+void Audio::RegisterListener(AudioEventListener* listener)
+{
+	if (std::find(listeners.cbegin(), listeners.cend(), listener) != listeners.cend())
+		return;
+	listeners.push_back(listener);
+}
+
+void Audio::UnregisterLister(AudioEventListener* listener)
+{
+	for (auto i = 0; i < listeners.size(); i++)
+	{
+		if (listeners[i] == listener)
+		{
+			listeners.erase(listeners.begin() + i);
+			return;
+		}
+	}
+	//std::erase would be nice here but that's C++20 :shrug:
 }
