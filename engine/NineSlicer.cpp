@@ -1,9 +1,15 @@
 #include "NineSlicer.h"
 #include "SpriteRenderer.h"
+#include "Texture.h"
 
-NineSlicer::NineSlicer(const std::string& texPath, int left, int top, int width, int height) : Position(left, top), Size(width, height)
+extern float scale;
+
+NineSlicer::NineSlicer(const std::string& texPath, int left, int top, int width, int height)
 {
+	parent = nullptr;
 	texture = std::make_shared<Texture>(texPath);
+	Position = glm::vec2(left, top);
+	Size = glm::vec2(width, height);
 }
 
 void NineSlicer::Draw(float dt)
@@ -11,18 +17,21 @@ void NineSlicer::Draw(float dt)
 	dt;
 	auto& tex = *texture;
 
-	auto minWidth = (tex[0].z + tex[2].z) * Scale;
-	auto minHeight = (tex[0].w + tex[6].w) * Scale;
+	auto scale = (Scale > 0) ? Scale : ::scale;
+
+	auto minWidth = (tex[0].z + tex[2].z) * scale;
+	auto minHeight = (tex[0].w + tex[6].w) * scale;
 	if (Size.x < minWidth)
 		Size.x = minWidth;
 	if (Size.y < minHeight)
 		Size.y = minHeight;
+	auto sSize = Size * scale;
 
-	auto size = glm::vec2(tex[0].z, tex[0].w) * Scale;
-	auto left = Position.x;
-	auto top = Position.y;
-	auto width = Size.x;
-	auto height = Size.y;
+	auto size = glm::vec2(tex[0].z, tex[0].w) * scale;
+	auto left = AbsolutePosition.x;
+	auto top = AbsolutePosition.y;
+	auto width = sSize.x;
+	auto height = sSize.y;
 	auto right = left + width - size.x;
 	auto bottom = top + height - size.y;
 	auto edgeWidth = (width - size.x - size.x);
@@ -59,4 +68,6 @@ void NineSlicer::Draw(float dt)
 
 	//Bottom right
 	Sprite::DrawSprite(tex, glm::vec2(right, bottom), size, tex[8], 0.0f, Color);
+
+	Tickable2D::Draw(dt);
 }

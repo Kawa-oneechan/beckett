@@ -120,8 +120,15 @@ public:
 
 		//AddChild(std::make_shared<BoingBall>());
 
+		auto panel = std::make_shared<NineSlicer>("example/panel1.png", 8, 8, 240, 64);
+		panel->ID = "Test Panel";
+		auto panelText = std::make_shared<Subtitle>("gadunkadunk", glm::vec2(16));
+		panel->AddChild(panelText);
+		AddChild(panel);
 
-		labelTest = new DropLabel("Does this have a blurry\noutline?\n    ... yes yes it do", 2, 100, DropLabel::Style::Blur);
+		AddChild(std::make_shared<SimpleSprite>("rorynite.png", 0, glm::vec2(128)));
+
+		labelTest = new DropLabel("Does this have a blurry\noutline?\n    ... yes yes it do", 2, 100, UI::themeColors["white"], DropLabel::Style::Blur);
 		//*/
 	}
 
@@ -129,10 +136,24 @@ public:
 	{
 		//tilemapMgr->Camera = glm::vec2(glm::sin(commonUniforms.TotalTime * 10.0f) * 5, 0);
 
+		if (Inputs.MouseHoldLeft)
+		{
+			auto panel = GetChild<Tickable2D>("Test Panel");
+			panel->Position = Inputs.MousePosition / scale;
+			panel->GetChild<TextLabel>(0)->Text = fmt::format("{}x{}", panel->Position.x, panel->Position.y);
+		}
+
+		/*
 		text = fmt::format("{}x{} --> tile {}",
 			Inputs.MousePosition.x, Inputs.MousePosition.y,
 			tilemapMgr->GetTile(0, Inputs.MousePosition)
 		);
+		*/
+		/*
+		text = fmt::format("{}, {} | {}, {}",
+			Inputs.StickAngles[0], Inputs.StickDists[0],
+			Inputs.StickAngles[1], Inputs.StickDists[1]);
+		*/
 
 		Tickable::Tick(dt);
 		return true;
@@ -147,7 +168,6 @@ public:
 			text, //"Hello, Beckett Engine!",
 			glm::vec2(24), glm::vec4(1), 50.0f);
 
-		Sprite::DrawSprite(labelTest->Texture(), glm::vec2(32));
 
 		//Sprite::DrawText(2, "Is this red?\nRenderDoc HELP!", glm::vec2(32 + 8), glm::vec4(1, 1, 1, 0.5));
 	}
@@ -247,7 +267,6 @@ void Game::OnMouse(double xPosIn, double yPosIn, float xoffset, float yoffset)
 
 void Game::OnResize()
 {
-	scale = 1.0f;
 }
 
 void Game::LoopStart()
