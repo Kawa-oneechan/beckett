@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include "../Game.h"
 
+//A wrapper around FMOD, or whatever other audio backend may be used.
 class Audio
 {
 private:
@@ -89,7 +90,9 @@ public:
 	//to the left and 1.0 is fully to the right.
 	void SetPan(float pos);
 
+	//Registers an AudioEventListener to receive messages for audio with timed events.
 	void RegisterListener(class AudioEventListener* listener);
+	//Unregisters an AudioEventListener.
 	void UnregisterLister(class AudioEventListener* listener);
 };
 

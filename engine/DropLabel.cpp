@@ -1,4 +1,5 @@
 #include <glad/glad.h>
+#include "Texture.h"
 #include "DropLabel.h"
 #include "SpriteRenderer.h"
 
@@ -99,7 +100,7 @@ void DropLabel::update()
 	glDeleteFramebuffers(1, &finalFBO);
 }
 
-DropLabel::DropLabel(const std::string& text, int font, float size, Style style) : text(text), textSize(size), font(font), style(style)
+DropLabel::DropLabel(const std::string& text, int font, float size, glm::vec4 color, Style style) : text(text), textSize(size), font(font), style(style)
 {
 	update();
 }

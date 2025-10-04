@@ -4,6 +4,8 @@
 #include "Model.h"
 #include "Utilities.h"
 #include "Console.h"
+#include "Shader.h"
+#include "Texture.h"
 
 #ifndef BECKETT_NO3DMODELS
 

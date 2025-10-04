@@ -8,7 +8,6 @@
 #include <stb_image.h>
 #include <format.h>
 #include "Types.h"
-#include "Shader.h"
 #include "Texture.h"
 #include "VFS.h"
 #include "../Game.h"
@@ -31,6 +30,7 @@ glad_glVertexAttribIPointer(index, size, type, stride, (void*)offset);
 #ifndef BECKETT_NO3DMODELS
 
 struct ufbx_mesh;
+class Shader;
 
 //Max amount of bones in a mesh
 static constexpr int MaxBones = 100;

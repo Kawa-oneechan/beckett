@@ -1,4 +1,6 @@
 ﻿#include "Model.h"
+#include "Shader.h"
+#include "Texture.h"
 
 #ifndef BECKETT_NO3DMODELS
 
@@ -173,7 +175,7 @@ namespace MeshBucket
 
 	void DrawAllWithDepth(float dt, const std::function<void(void)>& renderer)
 	{
-		if (Shaders.count("depthpass") == 0 || Shaders.count("depthpass2") == 0)
+		if (Shaders.count("depthpass") == 0 || Shaders.count("depthpass2") == 0) //-V838
 			FatalError("Cannot do depth prepass rendering without \"depthpass\" and \"depthpass2\" shaders.");
 
 		renderMode = 1;
