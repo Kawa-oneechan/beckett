@@ -2,6 +2,7 @@
 #include <fstream>
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include <sol.hpp>
 #include "Platform.h"
 #include "Tickable.h"
@@ -15,6 +16,7 @@
 #include "Shader.h"
 #include "SpriteRenderer.h"
 #include "Text.h"
+#include "VFS.h"
 #include "Game.h"
 #include "../Game.h"
 

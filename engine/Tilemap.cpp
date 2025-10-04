@@ -1,5 +1,6 @@
 #include "Tilemap.h"
 #include "TextUtils.h"
+#include "VFS.h"
 #include "SpriteRenderer.h"
 #include "../Game.h"
 

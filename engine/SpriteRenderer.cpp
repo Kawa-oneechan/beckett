@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <format.h>
 #include <stb_truetype.h>
@@ -10,6 +11,9 @@
 #include "TextUtils.h"
 #include "Console.h"
 #include "Types.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "VFS.h"
 
 extern int width, height;
 extern Texture* whiteRect;

@@ -9,6 +9,7 @@
 #include "engine/Tilemap.h"
 #include "engine/DropLabel.h"
 #include "engine/NineSlicer.h"
+#include "engine/Shader.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
