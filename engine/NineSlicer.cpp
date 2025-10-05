@@ -4,12 +4,10 @@
 
 extern float scale;
 
-NineSlicer::NineSlicer(const std::string& texPath, int left, int top, int width, int height)
+NineSlicer::NineSlicer(const std::string& texPath, int left, int top, int width, int height) : texture(std::make_shared<Texture>(texPath)), Size(glm::vec2(width, height))
 {
 	parent = nullptr;
-	texture = std::make_shared<Texture>(texPath);
 	Position = glm::vec2(left, top);
-	Size = glm::vec2(width, height);
 }
 
 void NineSlicer::Draw(float dt)
@@ -17,17 +15,17 @@ void NineSlicer::Draw(float dt)
 	dt;
 	auto& tex = *texture;
 
-	auto scale = (Scale > 0) ? Scale : ::scale;
+	auto sc = (Scale > 0) ? Scale : scale;
 
-	auto minWidth = (tex[0].z + tex[2].z) * scale;
-	auto minHeight = (tex[0].w + tex[6].w) * scale;
+	auto minWidth = (tex[0].z + tex[2].z) * sc;
+	auto minHeight = (tex[0].w + tex[6].w) * sc;
 	if (Size.x < minWidth)
 		Size.x = minWidth;
 	if (Size.y < minHeight)
 		Size.y = minHeight;
-	auto sSize = Size * scale;
+	auto sSize = Size * sc;
 
-	auto size = glm::vec2(tex[0].z, tex[0].w) * scale;
+	auto size = glm::vec2(tex[0].z, tex[0].w) * sc;
 	auto left = AbsolutePosition.x;
 	auto top = AbsolutePosition.y;
 	auto width = sSize.x;

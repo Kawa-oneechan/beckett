@@ -23,7 +23,7 @@ constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 class Background : public Tickable
 {
 public:
-	void Draw(float dt)
+	void Draw(float dt) override
 	{
 		dt;
 		Sprite::DrawSprite(Shaders["background"], *whiteRect, glm::vec2(0), glm::vec2(width, height), glm::vec4(0, 0, width, height));
@@ -33,7 +33,7 @@ public:
 class BoingBall : public Tickable
 {
 public:
-	void Draw(float dt)
+	void Draw(float dt) override
 	{
 		dt;
 		Sprite::DrawSprite(Shaders["boingball"], *whiteRect, glm::vec2(0), glm::vec2(width, height), glm::vec4(0, 0, width, height));
@@ -47,7 +47,7 @@ private:
 	Texture stage{ "example/stage.png" };
 
 public:
-	void Draw(float dt)
+	void Draw(float dt) override
 	{
 		dt;
 		auto time = commonUniforms.TotalTime * 10.0f;
@@ -73,7 +73,7 @@ private:
 	Model model{ "example/teapot.fbx" };
 
 public:
-	void Draw(float dt)
+	void Draw(float dt) override
 	{
 		dt;
 		auto time = commonUniforms.TotalTime * 10.0f;
@@ -132,7 +132,7 @@ public:
 		//*/
 	}
 
-	bool Tick(float dt)
+	bool Tick(float dt) override
 	{
 		//tilemapMgr->Camera = glm::vec2(glm::sin(commonUniforms.TotalTime * 10.0f) * 5, 0);
 
@@ -159,7 +159,7 @@ public:
 		return true;
 	}
 
-	void Draw(float dt)
+	void Draw(float dt) override
 	{
 		Tickable::Draw(dt);
 
@@ -172,7 +172,7 @@ public:
 		//Sprite::DrawText(2, "Is this red?\nRenderDoc HELP!", glm::vec2(32 + 8), glm::vec4(1, 1, 1, 0.5));
 	}
 
-	bool Character(unsigned int ch)
+	bool Character(unsigned int ch) override
 	{
 		labelTest->SetText(fmt::format("Ah! '{}'!", (char)ch));
 		return false;
@@ -205,7 +205,7 @@ void Game::RegisterConsole(Console* console)
 	//console->RegisterCCmd("reshade", CCmdReshade);
 }
 
-void Game::LoadSettings(jsonObject& settings)
+void Game::LoadSettings(const jsonObject& settings)
 {
 	//Ensure all settings you need exist with a proper default.
 #define DS(K, V) if (!settings[K]) settings[K] = jsonValue(V)
@@ -219,7 +219,7 @@ void Game::LoadSettings(jsonObject& settings)
 	//Apply any loaded settings in whatever way you need.
 }
 
-void Game::SaveSettings(jsonObject& settings)
+void Game::SaveSettings(const jsonObject& settings)
 {
 }
 

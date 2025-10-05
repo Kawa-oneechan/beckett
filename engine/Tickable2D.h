@@ -18,7 +18,7 @@ public:
 	glm::vec2 AbsolutePosition;
 	float Scale{ -1 };
 
-	virtual bool Tick(float dt)
+	virtual bool Tick(float dt) override
 	{
 		AbsolutePosition = (parent ? parent->AbsolutePosition + Position : (Position * (Scale > 0 ? Scale : ::scale)));
 		for (unsigned int i = (unsigned int)ChildTickables.size(); i-- > 0; )
@@ -32,7 +32,8 @@ public:
 		return true;
 	}
 
-	virtual void Draw(float dt)
+	/*
+	virtual void Draw(float dt) override
 	{
 		for (const auto& t : ChildTickables)
 		{
@@ -41,6 +42,7 @@ public:
 			t->Draw(dt);
 		}
 	}
+	*/
 
 	void AddChild(Tickable2D* newChild)
 	{
@@ -72,7 +74,7 @@ public:
 		Position = position;
 	}
 
-	void Draw(float)
+	void Draw(float) override
 	{
 		Sprite::DrawText(Font, Text, AbsolutePosition, Color, Size, Angle, Raw);
 	}
@@ -96,12 +98,12 @@ public:
 		Frame = frame;
 	}
 
-	~SimpleSprite()
+	~SimpleSprite() override
 	{
 		delete this->texture;
 	}
 
-	void Draw(float)
+	void Draw(float) override
 	{
 		Sprite::DrawSprite(*texture, AbsolutePosition, texture->operator[](Frame), 0.0f, glm::vec4(1), Flags);
 	}

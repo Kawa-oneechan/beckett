@@ -66,7 +66,7 @@ public:
 	//Depending on the path, its type is set to be music, ambient noise, speeeh,
 	//or a general sound. No matter the type, if it's an Ogg Vorbis file it's
 	//allowed to loop using the `LOOP_START` tag, specified in samples.
-	Audio(std::string filename);
+	Audio(const std::string& filename);
 	~Audio();
 	//Plays the sound. If it's already playing, it won't restart or anything
 	//*unless* `force` is true.
@@ -91,9 +91,9 @@ public:
 	void SetPan(float pos);
 
 	//Registers an AudioEventListener to receive messages for audio with timed events.
-	void RegisterListener(class AudioEventListener* listener);
+	void RegisterListener(const class AudioEventListener* listener);
 	//Unregisters an AudioEventListener.
-	void UnregisterLister(class AudioEventListener* listener);
+	void UnregisterLister(const class AudioEventListener* listener);
 };
 
 class AudioEventListener

@@ -51,7 +51,7 @@ namespace VFS
 
 	static jsonValue initJSON;
 
-	static void addFileEntry(Entry& entry)
+	static void addFileEntry(const Entry& entry)
 	{
 		if (entry.path.substr(entry.path.length() - 6, 6) == ".patch")
 		{
@@ -60,6 +60,7 @@ namespace VFS
 			return;
 		}
 
+		/*
 		bool replaced = false;
 		for (int i = 0; i < entries.size(); i++)
 		{
@@ -71,6 +72,17 @@ namespace VFS
 			}
 		}
 		if (!replaced)
+			entries.push_back(entry);
+		*/
+		auto it = std::find_if(entries.begin(), entries.end(), [entry](const auto& e)
+		{
+			return e.path == entry.path;
+		});
+		if (it != entries.end())
+		{
+			entries[it - entries.begin()] = entry;
+		}
+		else
 			entries.push_back(entry);
 	}
 
@@ -333,8 +345,8 @@ namespace VFS
 				sources.emplace_back(source);
 			};
 
-			for (const auto& source : sources)
-				originalSet.emplace_back(source);
+			originalSet.resize(sources.size());
+			std::copy(sources.cbegin(), sources.cend(), originalSet.begin());
 			sources.clear();
 
 			for (const auto& source : originalSet)
@@ -354,8 +366,7 @@ namespace VFS
 
 		for (int i = 0; i < sources.size(); i++)
 		{
-			auto& source = sources[i];
-			if (source.isZip)
+			if (sources[i].isZip)
 				addFromArchive(i);
 			else
 				addFromFolder(i);
@@ -410,7 +421,7 @@ namespace VFS
 	std::unique_ptr<char[]> ReadData(const std::string& path, size_t* size)
 	{
 		auto absPath = ResolvePath(path);
-		auto it = std::find_if(entries.cbegin(), entries.cend(), [absPath](Entry e)
+		auto it = std::find_if(entries.cbegin(), entries.cend(), [absPath](const auto& e)
 		{
 			return e.path == absPath;
 		});
@@ -427,7 +438,7 @@ namespace VFS
 	std::string ReadString(const std::string& path)
 	{
 		auto absPath = ResolvePath(path);
-		auto it = std::find_if(entries.cbegin(), entries.cend(), [absPath](Entry e)
+		auto it = std::find_if(entries.cbegin(), entries.cend(), [absPath](const auto& e)
 		{
 			return e.path == absPath;
 		});
@@ -466,7 +477,7 @@ namespace VFS
 	jsonValue ReadJSON(const std::string& path)
 	{
 		auto absPath = ResolvePath(path);
-		auto it = std::find_if(entries.cbegin(), entries.cend(), [absPath](Entry e)
+		auto it = std::find_if(entries.cbegin(), entries.cend(), [absPath](const auto& e)
 		{
 			return e.path == absPath;
 		});
@@ -486,14 +497,12 @@ namespace VFS
 
 		if (splatp == p.npos)
 		{
-			for (const auto& entry : entries)
+			auto it = std::find_if(entries.cbegin(), entries.cend(), [p](const auto& e)
 			{
-				if (entry.path == p)
-				{
-					r.push_back(entry);
-					break;
-				}
-			}
+				return e.path == p;
+			});
+			if (it != entries.cend())
+				r.push_back(*it);
 			return r;
 		}
 
@@ -531,7 +540,9 @@ namespace VFS
 
 	void Forget(const std::vector<Entry>& forget)
 	{
+#ifdef DEBUG
 		auto start = entries.size();
+#endif
 
 		for (const auto& f : forget)
 		{
@@ -635,7 +646,7 @@ namespace VFS
 
 	}
 
-	bool WriteSaveJSON(const std::string& archive, const std::string& path, jsonValue& data)
+	bool WriteSaveJSON(const std::string& archive, const std::string& path, const jsonValue& data)
 	{
 		return WriteSaveString(archive, path, data.stringify5(json5pp::rule::tab_indent<>()));
 	}
@@ -665,7 +676,7 @@ namespace VFS
 			throw std::runtime_error("Couldn't open file.");
 		std::streamsize fs = file.tellg();
 		file.seekg(0, std::ios::beg);
-		file.read((char*)ret, fs);
+		file.read(static_cast<char*>(ret), fs);
 		return fs;
 	}
 
@@ -681,7 +692,7 @@ namespace VFS
 		return doc;
 	}
 
-	bool WriteSaveData(const std::string& path, void* data, size_t size)
+	bool WriteSaveData(const std::string& path, const void* data, size_t size)
 	{
 		std::string p2 = mangle(path);
 
@@ -698,7 +709,7 @@ namespace VFS
 		return WriteSaveData(path, (void*)data.c_str(), data.length());
 	}
 
-	bool WriteSaveJSON(const std::string& path, jsonValue& data)
+	bool WriteSaveJSON(const std::string& path, const jsonValue& data)
 	{
 		return WriteSaveString(path, data.stringify5(json5pp::rule::tab_indent<>()));
 	}
@@ -752,7 +763,7 @@ namespace VFS
 	{
 		auto haveFile = [path](const std::string& p)
 		{
-			auto it = std::find_if(entries.cbegin(), entries.cend(), [p](Entry e)
+			auto it = std::find_if(entries.cbegin(), entries.cend(), [p](const auto& e)
 			{
 				return e.path == p;
 			});

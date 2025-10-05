@@ -57,12 +57,12 @@ void Audio::Update()
 
 static FMOD_RESULT F_CALLBACK callback(FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2)
 {
-	channel, type; commanddata1; commanddata2;
+	channel; type; commanddata1; commanddata2;
 	//FMOD::Channel *cppchannel = (FMOD::Channel *)channel;
 	return FMOD_OK;
 }
 
-Audio::Audio(std::string filename) : filename(filename)
+Audio::Audio(const std::string& filename) : filename(filename)
 {
 	size_t size = 0;
 	if (!Enabled)
@@ -107,7 +107,7 @@ Audio::Audio(std::string filename) : filename(filename)
 		{
 			if (theSound->setMode(mode | FMOD_LOOP_NORMAL) != FMOD_OK)
 				conprint(1, "Wanted to enable looping for file {}, could not.", filename);
-			unsigned int start = atoi((char*)tag.data);
+			unsigned int start = atoi(static_cast<char*>(tag.data));
 			unsigned int end = 0;
 			theSound->getLength(&end, FMOD_TIMEUNIT_PCM);
 			if (theSound->setLoopPoints(start, FMOD_TIMEUNIT_PCM, end, FMOD_TIMEUNIT_PCM) != FMOD_OK)
@@ -255,22 +255,19 @@ void Audio::SetPan(float pos)
 		conprint(1, "Couldn't set pan position for {}.", filename);
 }
 
-void Audio::RegisterListener(AudioEventListener* listener)
+void Audio::RegisterListener(const AudioEventListener* listener)
 {
 	if (std::find(listeners.cbegin(), listeners.cend(), listener) != listeners.cend())
 		return;
-	listeners.push_back(listener);
+	listeners.push_back(const_cast<AudioEventListener*>(listener));
 }
 
-void Audio::UnregisterLister(AudioEventListener* listener)
+void Audio::UnregisterLister(const AudioEventListener* listener)
 {
-	for (auto i = 0; i < listeners.size(); i++)
+	auto it = std::find_if(listeners.begin(), listeners.end(), [listener](auto e)
 	{
-		if (listeners[i] == listener)
-		{
-			listeners.erase(listeners.begin() + i);
-			return;
-		}
-	}
-	//std::erase would be nice here but that's C++20 :shrug:
+		return e == listener;
+	});
+	if (it != listeners.end())
+		listeners.erase(it);
 }

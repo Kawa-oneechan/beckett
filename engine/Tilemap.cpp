@@ -29,7 +29,7 @@ Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
 
 	data = std::make_unique<int[]>(totalSize);
 	int i = 0;
-	for (auto& di : lo["data"].as_array())
+	for (const auto& di : lo["data"].as_array())
 	{
 		data[i++] = di.as_integer() - 1;
 	}
@@ -99,7 +99,7 @@ const int Tilemap::MapLayer::GetTile(int row, int col) const
 	return data[(row * width) + col];
 }
 
-const int Tilemap::MapLayer::GetTile(glm::vec2& position) const
+const int Tilemap::MapLayer::GetTile(const glm::vec2& position) const
 {
 	auto pos = position / Scale;
 	pos += Camera;
@@ -251,7 +251,7 @@ bool Tilemap::Tick(float dt)
 		}
 	}
 
-	for (auto& l : layers)
+	for (const auto& l : layers)
 	{
 		l->Scale = Scale;
 		l->Camera = Camera;
@@ -293,7 +293,7 @@ const int Tilemap::GetTile(int layer, int row, int col) const
 	return layers[layer]->GetTile(row, col);
 }
 
-const int Tilemap::GetTile(int layer, glm::vec2& position) const
+const int Tilemap::GetTile(int layer, const glm::vec2& position) const
 {
 	return layers[layer]->GetTile(position);
 }

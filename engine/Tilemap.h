@@ -56,10 +56,10 @@ class Tilemap : public Tickable
 	public:
 		MapLayer() = default;
 		MapLayer(jsonValue& doc, Tilemap* owner);
-		void Draw(float dt);
+		void Draw(float dt) override;
 		void SetTile(int row, int col, int tile);
 		const int GetTile(int row, int col) const;
-		const int GetTile(glm::vec2& position) const;
+		const int GetTile(const glm::vec2& position) const;
 		glm::vec2 GetPixelSize();
 		glm::vec2 GetTileSize();
 		glm::vec4 GetCollision(int row, int col);
@@ -79,15 +79,15 @@ public:
 	float Scale{ -1.0f };
 
 	Tilemap(const std::string& source);
-	void Draw(float dt) {}
-	bool Tick(float);
+	void Draw(float dt) override {}
+	bool Tick(float) override;
 
 	std::shared_ptr<MapLayer> operator[](size_t i);
 	std::shared_ptr<MapLayer> GetLayer(size_t i);
 	void Tilemap::SetTile(int row, int col, int tile);
 	void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles);
 	const int GetTile(int layer, int row, int col) const;
-	const int GetTile(int layer, glm::vec2& position) const;
+	const int GetTile(int layer, const glm::vec2& position) const;
 	glm::vec2 GetPixelSize();
 	glm::vec2 GetTileSize();
 	glm::vec4 GetCollision(int layer, int row, int col);

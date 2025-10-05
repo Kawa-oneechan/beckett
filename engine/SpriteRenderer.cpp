@@ -439,7 +439,7 @@ namespace Sprite
 			if (ch == '<' && !raw)
 			{
 				auto bjtsEnd = text.find_first_of('>', i);
-				if (bjtsEnd == -1) goto renderIt;
+				if (bjtsEnd == std::string::npos) goto renderIt;
 				auto bjtsStart = i;
 				i = bjtsEnd + 1;
 
@@ -483,7 +483,7 @@ namespace Sprite
 
 		//TODO: clip
 
-		for (auto& letter : toDraw)
+		for (const auto& letter : toDraw)
 		{
 			auto bank = letter.codepoint >> 8;
 			DrawSprite(fontShader, *fontTextures[(letter.font * 256) + bank], letter.position, letter.scale, letter.srcRect, letter.angle, letter.color);
@@ -545,7 +545,7 @@ namespace Sprite
 			if (ch == '<' && !raw)
 			{
 				auto bjtsEnd = text.find_first_of('>', i);
-				if (bjtsEnd == -1) goto measureIt;
+				if (bjtsEnd == std::string::npos) goto measureIt;
 				auto bjtsStart = i;
 				i = bjtsEnd + 1;
 

@@ -92,7 +92,7 @@ public:
 		bool Translucent;
 		bool Opaque;
 
-		Mesh(ufbx_mesh* mesh, std::array<Bone, MaxBones>& bones, size_t boneCt);
+		Mesh(ufbx_mesh* mesh, const std::array<Bone, MaxBones>& bones, size_t boneCt);
 		const size_t Indices() { return indices.size(); }
 	};
 
@@ -108,11 +108,11 @@ public:
 	std::vector<Mesh> Meshes;
 	std::array<Model::Bone, MaxBones> Bones;
 	glm::mat4 finalBoneMatrices[MaxBones];
-	size_t BoneCt;
+	size_t BoneCt{ 0 };
 
-	hash Hash;
+	hash Hash{ 0 };
 
-	const bool IsSkinned() const { return Bones.size() > 0; }
+	const bool IsSkinned() const { return BoneCt > 0; }
 
 	Model() = default;
 	Model(const std::string& modelPath);
