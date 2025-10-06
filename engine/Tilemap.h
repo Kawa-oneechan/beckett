@@ -78,7 +78,7 @@ public:
 	glm::vec2 Camera;
 	float Scale{ -1.0f };
 
-	Tilemap(const std::string& source);
+	explicit Tilemap(const std::string& source);
 	void Draw(float dt) override {}
 	bool Tick(float) override;
 
