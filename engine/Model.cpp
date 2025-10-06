@@ -316,12 +316,12 @@ Model::Mesh& Model::GetMesh(int index)
 
 int Model::FindBone(const std::string& name)
 {
-	auto it = std::find_if(Meshes.cbegin(), Meshes.cend(), [name](const auto& e)
+	auto it = std::find_if(Bones.cbegin(), Bones.cend(), [name](const auto& e)
 	{
 		return e.Name == name;
 	});
-	if (it != Meshes.cend())
-		return (int)(it - Meshes.cbegin());
+	if (it != Bones.cend())
+		return (int)(it - Bones.cbegin());
 	return NoBone;
 }
 

@@ -13,9 +13,9 @@ public:
 	//Registers console commands and variables.
 	static void RegisterConsole(Console* console);
 	//Processes loading settings from JSON to variables and members.
-	static void LoadSettings(const jsonObject& settings);
+	static void LoadSettings(jsonObject& settings);
 	//Processes saving gsettings from variables and members to JSON.
-	static void SaveSettings(const jsonObject& settings);
+	static void SaveSettings(jsonObject& settings);
 	static void Initialize();
 	static void Start(std::vector<TickableP>& tickables);
 	static void OnMouse(double xPosIn, double yPosIn, float xoffset, float yoffset);

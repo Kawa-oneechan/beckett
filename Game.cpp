@@ -205,7 +205,7 @@ void Game::RegisterConsole(Console* console)
 	//console->RegisterCCmd("reshade", CCmdReshade);
 }
 
-void Game::LoadSettings(const jsonObject& settings)
+void Game::LoadSettings(jsonObject& settings)
 {
 	//Ensure all settings you need exist with a proper default.
 #define DS(K, V) if (!settings[K]) settings[K] = jsonValue(V)
@@ -219,7 +219,7 @@ void Game::LoadSettings(const jsonObject& settings)
 	//Apply any loaded settings in whatever way you need.
 }
 
-void Game::SaveSettings(const jsonObject& settings)
+void Game::SaveSettings(jsonObject& settings)
 {
 }
 
