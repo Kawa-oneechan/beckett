@@ -51,4 +51,11 @@ vec3 calcNormal(vec3 mapCol)
 	return newNormal;
 }
 
+float getFresnel(mat4 model, vec3 normal)
+{
+	vec3 camPos = normalize(((InvView - model) * vec4(0.0, 0.0, 0.0, 0.1)).xyz);
+	camPos *= vec3(0.0, 0.5, 0.5);
+	return clamp(0.25 - dot(normal, camPos), 0.0, 1.0);
+}
+
 //--------------
