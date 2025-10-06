@@ -45,18 +45,18 @@ void Tilemap::MapLayer::Draw(float dt)
 
 	auto cam = Camera * Parallax;
 
-	const auto& tileset = owner->tileset;
+	const auto& tiles = owner->tileset;
 
-	auto top = (int)(cam.y / tileset.tileGridHeight);
+	auto top = (int)(cam.y / tiles.tileGridHeight);
 	if (top < 0) top = 0;
-	auto bottom = top + (int)((BECKETT_SCREENHEIGHT / tileset.tileGridHeight) / s) + 1;
+	auto bottom = top + (int)((BECKETT_SCREENHEIGHT / tiles.tileGridHeight) / s) + 1;
 	if (bottom > height) bottom = height;
-	auto left = (int)(cam.x / tileset.tileGridWidth);
+	auto left = (int)(cam.x / tiles.tileGridWidth);
 	if (left < 0) left = 0;
-	auto right = left + (int)((BECKETT_SCREENWIDTH / tileset.tileGridWidth) / s) + 1;
+	auto right = left + (int)((BECKETT_SCREENWIDTH / tiles.tileGridWidth) / s) + 1;
 	if (right > width) right = width;
 
-	const auto tileSize = glm::vec2(tileset.tileWidth, tileset.tileHeight) * s;
+	const auto tileSize = glm::vec2(tiles.tileWidth, tiles.tileHeight) * s;
 	for (auto row = top; row < bottom; row++)
 	{
 		for (auto col = left; col < right; col++)
@@ -65,22 +65,22 @@ void Tilemap::MapLayer::Draw(float dt)
 			if (tile == -1)
 				continue;
 
-			auto anim = tileset.animations.find(tile);
-			if (anim != tileset.animations.end())
+			auto anim = tiles.animations.find(tile);
+			if (anim != tiles.animations.end())
 				tile = anim->second.tile[anim->second.currentFrame];
 
-			auto srcX = (tile % tileset.tilesPerLine) * tileset.tileWidth;
-			auto srcY = (tile / tileset.tilesPerLine) * tileset.tileHeight;
-			auto srcRect = glm::vec4(srcX, srcY, tileset.tileWidth, tileset.tileHeight);
+			auto srcX = (tile % tiles.tilesPerLine) * tiles.tileWidth;
+			auto srcY = (tile / tiles.tilesPerLine) * tiles.tileHeight;
+			auto srcRect = glm::vec4(srcX, srcY, tiles.tileWidth, tiles.tileHeight);
 
 			auto dest = !owner->isometric ?
-				glm::vec2(col * tileset.tileWidth, row * tileset.tileHeight) :
+				glm::vec2(col * tiles.tileWidth, row * tiles.tileHeight) :
 				glm::vec2(
-				((col - row) * (tileset.tileGridWidth / 2)) - (tileset.tileWidth / 2),
-					((row + col) * (tileset.tileGridHeight / 2))
+				((col - row) * (tiles.tileGridWidth / 2)) - (tiles.tileWidth / 2),
+					((row + col) * (tiles.tileGridHeight / 2))
 				);
 
-			Sprite::DrawSprite(*tileset.texture, (dest - cam - tileset.tileOffset) * s, tileSize, srcRect, 0.0, Tint);
+			Sprite::DrawSprite(*tiles.texture, (dest - cam - tiles.tileOffset) * s, tileSize, srcRect, 0.0, Tint);
 		}
 	}
 }
@@ -198,12 +198,12 @@ Tilemap::Tilemap(const std::string& source)
 				if (t.as_object()["objectgroup"].is_object())
 				{
 					//only one object per tile for now please
-					auto obj = t.as_object()["objectgroup"].as_object()["objects"].as_array()[0].as_object();
+					auto ob = t.as_object()["objectgroup"].as_object()["objects"].as_array()[0].as_object();
 					auto& newObj = tileset.collisions[id];
-					newObj.name = obj["name"].as_string();
-					newObj.type = obj["type"].as_string();
-					auto pos = glm::vec2(obj["x"].as_number(), obj["y"].as_number());
-					auto size = glm::vec2(obj["width"].as_number(), obj["height"].as_number());
+					newObj.name = ob["name"].as_string();
+					newObj.type = ob["type"].as_string();
+					auto pos = glm::vec2(ob["x"].as_number(), ob["y"].as_number());
+					auto size = glm::vec2(ob["width"].as_number(), ob["height"].as_number());
 					newObj.rectP = glm::vec4(pos, pos + size);
 					newObj.rectT = glm::vec4(pos / tileSize, (pos + size) / tileSize);
 				}
@@ -218,9 +218,9 @@ Tilemap::Tilemap(const std::string& source)
 			layers.push_back(std::make_shared<MapLayer>(l, this));
 		if (lo["type"].as_string() == "objectgroup")
 		{
-			for (auto obj : lo["objects"].as_array())
+			for (auto ob : lo["objects"].as_array())
 			{
-				auto o = obj.as_object();
+				auto o = ob.as_object();
 				auto pos = glm::vec2(o["x"].as_number(), o["y"].as_number());
 				auto size = glm::vec2(o["width"].as_number(), o["height"].as_number());
 				Shape shp = {

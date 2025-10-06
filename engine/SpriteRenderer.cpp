@@ -292,7 +292,7 @@ namespace Sprite
 		if (!ttfData)
 			FatalError(fmt::format("Could not load font {}.", fonts[font].file));
 		auto ttfBitmap = new unsigned char[FontAtlasExtent * FontAtlasExtent];
-		stbtt_BakeFontBitmap((unsigned char*)ttfData.get(), 0, (float)fonts[font].size  * FontBaseScale, ttfBitmap, FontAtlasExtent, FontAtlasExtent, 256 * bank, 256, &cdata[(font * 0xFFFF) + (0x100 * bank)]);
+		stbtt_BakeFontBitmap(reinterpret_cast<unsigned char*>(ttfData.get()), 0, (float)fonts[font].size  * FontBaseScale, ttfBitmap, FontAtlasExtent, FontAtlasExtent, 256 * bank, 256, &cdata[(font * 0xFFFF) + (0x100 * bank)]);
 
 		unsigned int fontID;
 		glGenTextures(1, &fontID);

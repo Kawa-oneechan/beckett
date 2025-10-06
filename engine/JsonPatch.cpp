@@ -46,7 +46,7 @@ namespace JSONPatch
 						//auto res = merged.insert(p);
 						auto res = target.as_object().insert(p);
 						if (!res.second)
-							mergeWorker(res.first->second, (jsonValue&)p.second);
+							mergeWorker(res.first->second, static_cast<jsonValue&>(std::decay_t<jsonValue>(p.second)));
 					}
 				}
 			}

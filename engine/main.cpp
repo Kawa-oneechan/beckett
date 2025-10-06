@@ -52,8 +52,7 @@ bool firstMouse = true;
 
 bool wireframe = false;
 
-float DeltaTime = 0.0f;
-float lastFrame = 0.0f;
+double DeltaTime = 0.0;
 float timeScale = 1.0f;
 bool cheatsEnabled;
 
@@ -92,33 +91,35 @@ namespace UI
 
 	void Load()
 	{
-		UI::json = VFS::ReadJSON("ui/ui.json");
-		if (!UI::json)
+		json = VFS::ReadJSON("ui/ui.json");
+		if (!json)
 			FatalError("Could not read ui/ui.json. Something is very wrong.");
-		auto json = UI::json.as_object();
-		auto colors = json["colors"].as_object();
-		for (auto& ink : colors["theme"].as_object())
+		auto js = json.as_object();
+
+		auto thC = js["colors"].as_object()["theme"].as_object();
+		std::for_each(thC.cbegin(), thC.cend(), [&](auto ink)
 		{
 			themeColors[ink.first] = GetJSONColor(ink.second);
-		}
-		for (auto& ink : colors["text"].as_array())
+		});
+		auto txC = js["colors"].as_object()["text"].as_array();
+		std::for_each(txC.cbegin(), txC.cend(), [&](auto ink)
 		{
 			textColors.push_back(GetJSONColor(ink));
-		}
+		});
 
 		try
 		{
-			UI::settings = VFS::ReadSaveJSON("options.json");
+			settings = VFS::ReadSaveJSON("options.json");
 		}
 		catch (std::runtime_error&)
 		{
-			UI::settings = json5pp::parse5("{}");
+			settings = json5pp::parse5("{}");
 		}
 
-		auto settings = UI::settings.as_object();
+		auto sets = settings.as_object();
 
-#define DS(K, V) if (!settings[K]) settings[K] = jsonValue(V)
-#define DA(K, V) if (!settings[K]) settings[K] = json5pp::array(V)
+#define DS(K, V) if (!sets[K]) sets[K] = jsonValue(V)
+#define DA(K, V) if (!sets[K]) sets[K] = json5pp::array(V)
 		DS("screenWidth", ScreenWidth);
 		DS("screenHeight", ScreenHeight);
 		DA("keyBinds", {});
@@ -134,22 +135,22 @@ namespace UI
 #undef DA
 #undef DS
 
-		width = settings["screenWidth"].as_integer();
-		height = settings["screenHeight"].as_integer();
+		width = sets["screenWidth"].as_integer();
+		height = sets["screenHeight"].as_integer();
 
-		Inputs.RunThreshold = settings["gamepadRunThreshold"].as_number();
+		Inputs.RunThreshold = sets["gamepadRunThreshold"].as_number();
 
-		gameLang = Text::GetLangCode(settings["language"].as_string());
+		gameLang = Text::GetLangCode(sets["language"].as_string());
 
 		//Convert from saved integer values to float.
-		Audio::MusicVolume = settings["musicVolume"].as_integer() / 100.0f;
-		Audio::SoundVolume = settings["soundVolume"].as_integer() / 100.0f;
+		Audio::MusicVolume = sets["musicVolume"].as_integer() / 100.0f;
+		Audio::SoundVolume = sets["soundVolume"].as_integer() / 100.0f;
 #ifdef BECKETT_MOREVOLUME
-		Audio::AmbientVolume = settings["ambientVolume"].as_integer() / 100.0f;
-		Audio::SpeechVolume = settings["speechVolume"].as_integer() / 100.0f;
+		Audio::AmbientVolume = sets["ambientVolume"].as_integer() / 100.0f;
+		Audio::SpeechVolume = sets["speechVolume"].as_integer() / 100.0f;
 #endif
 
-		auto keyBinds = settings["keyBinds"].as_array();
+		auto keyBinds = sets["keyBinds"].as_array();
 		if (keyBinds.size() != NumKeyBinds)
 		{
 			keyBinds.reserve(NumKeyBinds);
@@ -157,7 +158,7 @@ namespace UI
 				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k)));
 		}
 
-		auto padBinds = settings["gamepadBinds"].as_array();
+		auto padBinds = sets["gamepadBinds"].as_array();
 		if (padBinds.size() != NumKeyBinds)
 		{
 			padBinds.reserve(NumKeyBinds);
@@ -171,39 +172,39 @@ namespace UI
 			Inputs.Keys[i].GamepadButton = padBinds[i].as_integer();
 		}
 
-		Game::LoadSettings(settings);
+		Game::LoadSettings(sets);
 	}
 
 	void Save()
 	{
-		auto settings = UI::settings.as_object();
-		settings["screenWidth"] = width;
-		settings["screenHeight"] = height;
+		auto set = settings.as_object();
+		set["screenWidth"] = width;
+		set["screenHeight"] = height;
 
 		auto binds = json5pp::array({});
 		for (auto& k : Inputs.Keys)
 			binds.as_array().push_back(k.ScanCode);
-		settings["keyBinds"] = std::move(binds);
+		set["keyBinds"] = std::move(binds);
 
 		auto binds2 = json5pp::array({});
 		for (auto& k : Inputs.Keys)
 			binds2.as_array().push_back(k.GamepadButton);
-		settings["gamepadBinds"] = std::move(binds2);
-		settings["gamepadRunThreshold"] = Inputs.RunThreshold;
+		set["gamepadBinds"] = std::move(binds2);
+		set["gamepadRunThreshold"] = Inputs.RunThreshold;
 
 		//Convert from float values to easier-to-read integers.
-		settings["musicVolume"] = (int)(Audio::MusicVolume * 100.0f);
-		settings["soundVolume"] = (int)(Audio::SoundVolume * 100.0f);
+		set["musicVolume"] = (int)(Audio::MusicVolume * 100.0f);
+		set["soundVolume"] = (int)(Audio::SoundVolume * 100.0f);
 #ifdef BECKETT_MOREVOLUME
-		settings["ambientVolume"] = (int)(Audio::AmbientVolume * 100.0f);
-		settings["speechVolume"] = (int)(Audio::SpeechVolume * 100.0f);
+		set["ambientVolume"] = (int)(Audio::AmbientVolume * 100.0f);
+		set["speechVolume"] = (int)(Audio::SpeechVolume * 100.0f);
 #endif
 
-		Game::SaveSettings(settings);
+		Game::SaveSettings(set);
 
 		try
 		{
-			VFS::WriteSaveJSON("options.json", UI::settings);
+			VFS::WriteSaveJSON("options.json", settings);
 		}
 		catch (std::exception&)
 		{
@@ -564,7 +565,7 @@ int main(int argc, char** argv)
 		Inputs.UpdateGamepad();
 
 		auto newTime = glfwGetTime();
-		auto DeltaTime = newTime - oldTime;
+		DeltaTime = newTime - oldTime;
 		oldTime = newTime;
 		float dt = (float)DeltaTime;
 		commonUniforms.TotalTime += dt;

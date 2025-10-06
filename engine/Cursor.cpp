@@ -10,8 +10,6 @@ extern "C" { double glfwGetTime(void); }
 Cursor::Cursor()
 {
 	auto doc = VFS::ReadJSON("ui/cursors.json");
-	//for (const auto& hs : doc.as_object()["hotspots"].as_array())
-	//	hotspots.push_back(GetJSONVec2(hs));
 	auto spots = doc.as_object()["hotspots"].as_array();
 	std::for_each(spots.cbegin(), spots.cend(), [&](auto h)
 	{

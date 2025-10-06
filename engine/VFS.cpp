@@ -699,14 +699,14 @@ namespace VFS
 		std::ofstream file(savePath / p2, std::ios::trunc | std::ios::binary);
 		if (!file.good())
 			throw std::runtime_error("Couldn't open file.");
-		file.write((char*)data, size);
+		file.write(static_cast<char*>(std::decay_t<void*>(data)), size);
 		file.close();
 		return true;
 	}
 
 	bool WriteSaveString(const std::string& path, const std::string& data)
 	{
-		return WriteSaveData(path, (void*)data.c_str(), data.length());
+		return WriteSaveData(path, static_cast<void*>(std::decay_t<char*>(data.c_str())), data.length());
 	}
 
 	bool WriteSaveJSON(const std::string& path, const jsonValue& data)

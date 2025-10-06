@@ -16,11 +16,11 @@
 
 inline void kawa_glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLsizeiptr offset)
 {
-glad_glVertexAttribPointer(index, size, type, normalized, stride, (void*)offset);
+glad_glVertexAttribPointer(index, size, type, normalized, stride, reinterpret_cast<void*>(offset));
 }
 inline void kawa_glVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, GLsizeiptr offset)
 {
-glad_glVertexAttribIPointer(index, size, type, stride, (void*)offset);
+glad_glVertexAttribIPointer(index, size, type, stride, reinterpret_cast<void*>(offset));
 }
 #undef glVertexAttribPointer
 #undef glVertexAttribIPointer
