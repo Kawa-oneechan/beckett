@@ -355,7 +355,7 @@ namespace VFS
 
 		debprint(0, "Post-sort:");
 		table = std::vector<std::string>{ "ID", "Name", "Author", "Priority" };
-		for (const auto& source : sources)
+		for (const auto& source : sources) // cppcheck-suppress knownEmptyContainer
 		{
 			table.push_back(source.id);
 			table.push_back(source.friendlyName);

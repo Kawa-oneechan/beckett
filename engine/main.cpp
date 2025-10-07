@@ -78,7 +78,6 @@ std::vector<TickableP> rootTickables;
 //Tickables to add next cycle.
 std::vector<TickableP> newTickables;
 
-
 namespace UI
 {
 	std::map<std::string, glm::vec4> themeColors;
@@ -380,7 +379,7 @@ static void joystick_callback(int jid, int event)
 	}
 }
 
-static int InitOpenGL()
+static void InitOpenGL()
 {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -440,8 +439,6 @@ static int InitOpenGL()
 	//Required for sprites
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	return 0;
 }
 
 #ifdef DEBUG
@@ -512,8 +509,7 @@ int main(int argc, char** argv)
 
 	UI::Load();
 
-	if (auto r = InitOpenGL())
-		return r;
+	InitOpenGL();
 
 #ifdef DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
