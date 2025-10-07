@@ -180,6 +180,12 @@ namespace UI
 		set["screenWidth"] = width;
 		set["screenHeight"] = height;
 
+		if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED) || !glfwGetWindowAttrib(window, GLFW_DECORATED))
+		{
+			set["screenWidth"] = ScreenWidth;
+			set["screenHeight"] = ScreenHeight;
+		}
+
 		auto binds = json5pp::array({});
 		for (auto& k : Inputs.Keys)
 			binds.as_array().push_back(k.ScanCode);
@@ -216,7 +222,9 @@ namespace UI
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	window;
+	if (glfwGetWindowAttrib(window, GLFW_ICONIFIED))
+		return;
+
 	::width = width;
 	::height = height;
 	scale = ::height / (float)ScreenHeight;
@@ -288,9 +296,31 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 	if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
 		wireframe = !wireframe;
-
+#ifdef BECKETT_RESIZABLE
+	else if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+	{
+		auto monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		auto isWindowed = glfwGetWindowAttrib(window, GLFW_DECORATED) != 0;
+		if (isWindowed)
+		{
+			glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		}
+		else
+		{
+			if (width == mode->width || height == mode->height)
+			{
+				width = ScreenWidth;
+				height = ScreenHeight;
+			}
+			glfwSetWindowMonitor(window, nullptr, 0, 0, ScreenWidth, ScreenHeight, mode->refreshRate);
+			glfwSetWindowAttrib(window, GLFW_DECORATED, 1);
+			glfwSetWindowPos(window, (mode->width / 2) - (width / 2), (mode->height / 2) - (height / 2));
+		}
+	}
+#endif
 #ifdef DEBUG
-	if (key == GLFW_KEY_D && mods == GLFW_MOD_CONTROL && action == GLFW_PRESS)
+	else if (key == GLFW_KEY_D && mods == GLFW_MOD_CONTROL && action == GLFW_PRESS)
 		debuggerEnabled = !debuggerEnabled;
 #endif
 }
@@ -391,7 +421,7 @@ static void InitOpenGL()
 #endif
 
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	if (mode->width < width || mode->height < height)
+	if (mode->width < width + 32 || mode->height < height + 32)
 	{
 		width = mode->width;
 		height = mode->height;
@@ -550,6 +580,12 @@ int main(int argc, char** argv)
 
 	while (!glfwWindowShouldClose(window))
 	{
+		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED))
+		{
+			glfwPollEvents();
+			continue;
+		}
+
 		Audio::Update();
 
 		Game::LoopStart();
