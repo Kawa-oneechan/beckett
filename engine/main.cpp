@@ -117,8 +117,8 @@ namespace UI
 
 		auto sets = settings.as_object();
 
-#define DS(K, V) if (!sets[K]) sets[K] = jsonValue(V)
-#define DA(K, V) if (!sets[K]) sets[K] = json5pp::array(V)
+#define DS(K, V) if (sets[K].is_null()) sets[K] = jsonValue(V)
+#define DA(K, V) if (sets[K].is_null()) sets[K] = json5pp::array(V)
 		DS("screenWidth", ScreenWidth);
 		DS("screenHeight", ScreenHeight);
 		DA("keyBinds", {});
