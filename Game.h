@@ -59,13 +59,13 @@ struct Light
 struct CommonUniforms
 {
 	//Must match shaders/common.fs
-	float TotalTime; //0
-	float DeltaTime; //4
-	glm::uvec2 ScreenRes; //8
-	glm::mat4 View; //16
-	glm::mat4 Projection; //80
-	glm::mat4 InvView; //144
-	Light Lights[MaxLights]; //208
+	float TotalTime;
+	float DeltaTime;
+	glm::uvec2 ScreenRes;
+	glm::mat4 View;
+	glm::mat4 Projection;
+	glm::mat4 InvView;
+	Light Lights[MaxLights];
 };
 
 extern float scale;
