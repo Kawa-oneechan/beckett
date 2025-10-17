@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
 #include <glm/glm.hpp>
+#include "Tickable2D.h"
 
-class DropLabel
+class DropLabel : public Tickable2D
 {
 public:
 	enum class Style
@@ -26,6 +27,7 @@ public:
 	//Changes the text of the DropLabel, causing a refresh of the underlying texture.
 	void SetText(const std::string& text);
 	const glm::vec2 Size() const { return size; }
-	//Returns a reference to the underlying texture.
-	class Texture& Texture() { return canvas; }
+	void Draw(float dt) override;
 };
+
+using DropLabelP = std::shared_ptr<DropLabel>;

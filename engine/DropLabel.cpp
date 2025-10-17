@@ -1,7 +1,5 @@
 #include <glad/glad.h>
-#include "Texture.h"
 #include "DropLabel.h"
-#include "SpriteRenderer.h"
 
 extern int width, height;
 
@@ -112,4 +110,9 @@ void DropLabel::SetText(const std::string& newText)
 		this->text = newText;
 		update();
 	}
+}
+
+void DropLabel::Draw(float)
+{
+	Sprite::DrawSprite(canvas, AbsolutePosition);
 }

@@ -80,7 +80,7 @@ void Tilemap::MapLayer::Draw(float dt)
 					((row + col) * (tiles.tileGridHeight / 2))
 				);
 
-			Sprite::DrawSprite(*tiles.texture, (dest - cam - tiles.tileOffset) * s, tileSize, srcRect, 0.0, Tint);
+			Sprite::DrawSprite(*tiles.texture, ((dest - cam - tiles.tileOffset) * s) + owner->Position, tileSize, srcRect, 0.0, Tint);
 		}
 	}
 }
@@ -239,6 +239,8 @@ Tilemap::Tilemap(const std::string& source)
 
 bool Tilemap::Tick(float dt)
 {
+	Tickable2D::Tick(dt);
+
 	for (auto& a : tileset.animations)
 	{
 		a.second.durationLeft -= (int)(dt * 1000);

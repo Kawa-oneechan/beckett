@@ -1,13 +1,13 @@
 #pragma once
 #include <map>
-#include "Tickable.h"
+#include "Tickable2D.h"
 #include "Texture.h"
 #include "JsonUtils.h"
 
 //Provides as easier means to load a multi-layer map.
 //To properly use, place this somewhere in the tickable tree, then add the component layers
 //to the tree in their proper order so you can render sprites and such inbetween.
-class Tilemap : public Tickable
+class Tilemap : public Tickable2D
 {
 	static constexpr int MaxAnimFrames = 32;
 
@@ -76,7 +76,6 @@ private:
 
 public:
 	glm::vec2 Camera;
-	float Scale{ -1.0f };
 
 	explicit Tilemap(const std::string& source);
 	void Draw(float dt) override {}
