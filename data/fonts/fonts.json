@@ -2,15 +2,22 @@
 	{	//0 - System
 		"file": "fixedsex.ttf",
 		"size": 16,
-		"grid": true
+		"grid": true,
+		"inputs": 3
 	},
 	{	//1 - Dialogue
 		"file": "pixelmix_bold.ttf",
 		"size": 16,
-		"grid": true
+		"grid": true,
+		"inputs": 3
 	},
 	{	//2 - Test
 		"file": "backissues.otf",
+		"size": 32,
+		"inputs": 3
+	},
+	{	//3 - Input Prompts
+		"file": "kenney_input_xbox_series.otf",
 		"size": 32
 	}
 ]

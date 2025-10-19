@@ -99,9 +99,4 @@ public:
 		auto scaledSize = glm::vec2(frame.z, frame.w) * s;
 		Sprite::DrawSprite(*texture, AbsolutePosition, scaledSize, frame, 0.0f, glm::vec4(1), Flags);
 	}
-
-	void SetFrame(const std::string& name)
-	{
-		Frame = texture->Frames[name];
-	}
 };

@@ -37,7 +37,7 @@ Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
 
 void Tilemap::MapLayer::Draw(float dt)
 {
-	dt;
+	(void)(dt);
 	if (!data)
 		return;
 
