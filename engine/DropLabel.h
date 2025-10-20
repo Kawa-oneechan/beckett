@@ -8,7 +8,7 @@ class DropLabel : public Tickable2D
 public:
 	enum class Style
 	{
-		Blur, Drop
+		Blur, Drop, Outline
 	};
 
 private:
