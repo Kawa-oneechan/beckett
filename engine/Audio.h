@@ -3,7 +3,8 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include <fmodex/fmod.hpp>
+#include <soloud/soloud.h>
+#include <soloud/soloud_wavstream.h>
 #include <glm/glm.hpp>
 #include "../Game.h"
 
@@ -11,10 +12,10 @@
 class Audio
 {
 private:
-	static FMOD::System* Audio::system;
+	static SoLoud::Soloud system;
 	static std::vector<Audio*> playing;
-	FMOD::Sound* theSound{ nullptr };
-	FMOD::Channel* theChannel{ nullptr };
+	SoLoud::WavStream theSound;
+	SoLoud::handle theHandle;
 	enum class Status
 	{
 		Invalid, Stopped, Paused, Playing,
