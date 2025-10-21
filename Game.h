@@ -26,8 +26,8 @@
 //If defined, adds Ambient and Speech volume controls alongside Music and Sound.
 //#define BECKETT_MOREVOLUME
 
-//If defined, allows 3D positional audio. IF not, Audio::SetPosition is entirely removed.
-//#define BECKETT_3DAUDIO
+//If defined, allows 3D positional audio.
+#define BECKETT_3DAUDIO
 
 //If defined, leaves out all 3D model stuff. Allows you to leave out UFBX, too.
 //#define BECKETT_NO3DMODELS

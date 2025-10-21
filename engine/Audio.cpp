@@ -25,6 +25,10 @@ void Audio::Initialize()
 		Enabled = false;
 		return;
 	}
+
+#ifdef BECKETT_3DAUDIO
+	system.set3dListenerUp(0.0f, 0.1f, 0.0f);
+#endif
 }
 
 void Audio::Update()
@@ -46,6 +50,10 @@ void Audio::Update()
 			x->UpdateVolume();
 		}
 	}
+
+#ifdef BECKETT_3DAUDIO
+	system.update3dAudio();
+#endif
 }
 
 Audio::Audio(const std::string& filename) : filename(filename)
@@ -73,10 +81,27 @@ Audio::Audio(const std::string& filename) : filename(filename)
 	else
 		type = Type::Sound;
 
-	if (theSound.loadMem((unsigned char*)data.get(), (unsigned int)size, true) != 0)
+#ifndef BECKETT_MOREVOLUME
+	isStream = (type == Type::Music);
+#else 
+	isStream = (type == Type::Music) || (type == Type::Ambient);
+#endif
+
+	if (isStream)
 	{
-		fmt::format("Could not create stream for audio file {}.", filename);
-		return;
+		if (stream.loadMem((unsigned char*)data.get(), (unsigned int)size, true) != 0)
+		{
+			fmt::format("Could not create stream for audio file {}.", filename);
+			return;
+		}
+	}
+	else
+	{
+		if (sound.loadMem((unsigned char*)data.get(), (unsigned int)size, true) != 0)
+		{
+			fmt::format("Could not create sound for audio file {}.", filename);
+			return;
+		}
 	}
 
 	auto maybeTagFile = VFS::ChangeExtension(filename, "txt");
@@ -104,7 +129,18 @@ Audio::~Audio()
 	Stop();
 }
 
+void Audio::SetListenerPosition(const glm::vec3& pos)
+{
+#ifdef BECKETT_3DAUDIO
+	system.set3dListenerPosition(pos.x, pos.y, pos.z);
+#endif
+}
+
+#ifndef BECKETT_3DAUDIO
 void Audio::Play(bool force)
+#else
+void Audio::Play(bool force, bool in3D)
+#endif
 {
 	if (force && status != Status::Stopped)
 		Stop();
@@ -113,23 +149,43 @@ void Audio::Play(bool force)
 	{
 		if (Enabled)
 		{
-			theHandle = system.play(theSound);
+			if (isStream)
+				handle = system.play(stream);
+			else
+				handle = system.play(sound);
+
+#ifdef BECKETT_3DAUDIO
+			is3D = in3D;
+			if (in3D)
+			{
+				if (isStream)
+					handle = system.play3d(stream, 0.0f, 0.0f, 0.0f);
+				else
+					handle = system.play3d(sound, 0.0f, 0.0f, 0.0f);
+			}
+			else
+#endif
+			{
+				if (isStream)
+					handle = system.play(stream);
+				else
+					handle = system.play(sound);
+			}
 			UpdateVolume();
 		}
 		playing.push_back(this);
 	}
 	else if (status == Status::Paused)
 	{
-		system.setPause(theHandle, false);
+		system.setPause(handle, false);
 	}
-	frequency = system.getSamplerate(theHandle);
 	status = Status::Playing;
 }
 
 void Audio::Pause()
 {
 	if (Enabled)
-		system.setPause(theHandle, true);
+		system.setPause(handle, true);
 	status = Status::Paused;
 }
 
@@ -138,7 +194,7 @@ void Audio::Stop()
 	if (status != Status::Stopped)
 	{
 		if (Enabled)
-			system.stop(theHandle);
+			system.stop(handle);
 	}
 	status = Status::Stopped;
 	playing.erase(std::remove(playing.begin(), playing.end(), this), playing.end());
@@ -146,17 +202,16 @@ void Audio::Stop()
 
 void Audio::update()
 {
+	if (!isStream)
+		return;
 	if (tags.empty())
 		return;
 	if (listeners.empty())
 		return;
 	if (currentTag >= tags.size())
 		return;
-	float fpos = (float)system.getStreamPosition(theHandle);
+	float fpos = (float)system.getStreamPosition(handle);
 	
-	//adjust a bit, not sure if my fault or FMOD's.
-	//fpos -= 0.100f; if (fpos < 0.0f) fpos = 0.0f;
-
 	while (fpos > nextTag)
 	{
 		for (auto listener : listeners)
@@ -184,29 +239,31 @@ void Audio::UpdateVolume()
 #endif
 	}
 	Volume = glm::clamp(Volume, 0.0f, 1.0f);
-	system.setVolume(theHandle, v * Volume);
+	system.setVolume(handle, v * Volume);
 }
 
 void Audio::SetPitch(float ratio)
 {
-	assert(ratio != 0.0f);
-	system.setRelativePlaySpeed(theHandle, ratio);
+	assert(ratio > 0.0f);
+	system.setRelativePlaySpeed(handle, ratio);
 }
 
-#ifdef BECKETT_3DAUDIO
-void Audio::SetPosition(glm::vec3 pos)
+void Audio::SetPosition(const glm::vec3& pos)
 {
-	//Only generic sounds can be positioned.
-	if (type != Type::Sound)
-		return;
-	//FMOD_VECTOR v = { pos.x, pos.y, pos.z };
-	//theChannel->set3DAttributes(&v, nullptr);
-}
+#ifdef BECKETT_3DAUDIO
+	if (is3D)
+		system.set3dSourceParameters(handle, pos.x, pos.y, pos.z, 0.0f, 0.0f, 0.0f);
 #endif
+}
 
 void Audio::SetPan(float pos)
 {
-	system.setPan(theHandle, glm::clamp(pos, -1.0f, 1.0f));
+	system.setPan(handle, glm::clamp(pos, -1.0f, 1.0f));
+}
+
+void Audio::SetLoop(bool loop)
+{
+	system.setLooping(handle, loop);
 }
 
 void Audio::RegisterListener(const AudioEventListener* listener)
