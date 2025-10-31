@@ -154,7 +154,7 @@ namespace UI
 		{
 			keyBinds.reserve(NumKeyBinds);
 			for (auto &k : DefaultInputBindings)
-				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k)));
+				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k))); // cppcheck-suppress useStlAlgorithm
 		}
 
 		auto padBinds = sets["gamepadBinds"].as_array();
@@ -162,7 +162,7 @@ namespace UI
 		{
 			padBinds.reserve(NumKeyBinds);
 			for (auto &k : DefaultInputGamepadBindings)
-				padBinds.emplace_back(jsonValue(k));
+				padBinds.emplace_back(jsonValue(k)); // cppcheck-suppress useStlAlgorithm
 		}
 
 		for (int i = 0; i < NumKeyBinds; i++)
@@ -636,8 +636,7 @@ int main(int argc, char** argv)
 		}), rootTickables.end());
 		if (newTickables.size() > 0)
 		{
-			for (const auto& t : newTickables)
-				rootTickables.push_back(t);
+			std::for_each(newTickables.cbegin(), newTickables.cend(), [](auto t) { rootTickables.push_back(t); });
 			newTickables.clear();
 		}
 

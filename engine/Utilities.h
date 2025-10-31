@@ -26,10 +26,3 @@ constexpr extern hash operator ""_crc(const char* text, size_t size);
 
 #define arraysize(A) (sizeof(A) / sizeof((A)[0]))
 #define sizeof_member(T, M) sizeof(((T *)0)->M)
-
-#define conprint(C, F, ...) console->Print(C, fmt::format(F, __VA_ARGS__))
-#ifdef DEBUG
-#define debprint(C, F, ...) console->Print(C, fmt::format(F, __VA_ARGS__))
-#else
-#define debprint(C, F, ...)
-#endif
