@@ -6,7 +6,7 @@
 #include "VFS.h"
 #include "Console.h"
 
-#define HEADER "#version 430 core\n#define PSK\n"
+#define HEADER "#version 430 core\n#define BECKETT\n"
 
 __declspec(noreturn)
 	extern void FatalError(const std::string& message);

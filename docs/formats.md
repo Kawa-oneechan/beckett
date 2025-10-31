@@ -9,7 +9,14 @@ Used for 3D models and animations. Models can be combined with material map file
 Used for sprites and textures. Sprite sheets can be combined with an atlas file.
 
 ### Ogg Vorbis
-Used for all the audio. For any file in the `music` folder, you can include a `LOOP_START` tag measured in samples.
+Used for all the audio. You can include a `LOOP_START` tag measured in samples.
+
+If a matching `.txt` file is found in the same folder (`foo.ogg` matches `foo.txt`), this is taken as an Audacity tag list that objects can register to listen to. Those look like this:
+```text
+2.781500	2.781500	First tag
+4.003178	4.003179	Second tag
+```
+Note that only the timestamp in the first column is used.
 
 ### JSON
 Used for basically everything else.
@@ -43,13 +50,15 @@ The contents of a material map are like this:
 ```json
 {
 	"<material name>": {
-		"shader": ID, //taken from shaders/shaders.json
+		"shader": ID, //taken from shaders/shaders.json, defaults to "model"
 		"albedo": PNG filename, //may contain one *
 		"mix": PNG filename, //same as before
 		"normal": PNG filename, //same as before
 		"opacity": PNG filename, //same as before
 		"visible": boolean, //hides mesh with this material by default if false
-		"translucent": boolean, //marks mesh with this material for a later render step
+		"translucent": boolean, //marks mesh with this material as being semi-translucent
+		"opaque": boolean, //marks mesh with this material as having no translucency at all
+		"billboard": boolean, //marks mesh with this material as not to be rotated
 	},
 	"<another material>": {
 		...
@@ -57,6 +66,48 @@ The contents of a material map are like this:
 }
 ```
 Certain places where a model is used may provide their own textures. In those cases, the `albedo` key and its ilk should be left out entirely.
+
+Regarding `translucent` and `opaque`, the first one is to be set for things like glass and causes them to be drawn separately without a depth pass. Setting `opaque` indicates to the depth prepass that there is to be no translucency at all.
+
+#### Shaders
+
+The `shaders/shaders.json` file is used on load to precompile and store several shaders that can be identified by name. The content of this file is like this:
+
+```json
+{
+	"vertex shader file": {
+		"name": "fragment shader file",
+		...
+	},
+	...
+}
+```
+
+These shaders can be accessed from the `Shaders` map.
+
+The engine *requires* a few entries be defined, being `model`, `sprite`, and `font`. If you want to use depth prepass rendering, `depthpass` and `depthpass2` must also be defined. As such, the minimal `shaders.json` file is like this:
+
+```json
+{
+	"sprite.vs": {
+		"sprite": "sprite.fs", //Used by Sprite::DrawSprite by default
+		"font": "font.fs" //Used by Sprite::DrawString
+	},
+	"model.vs": {
+		"model": "model.fs", //Used by Meshes by default
+		"depthpass": "depthpass.fs", //Used by MeshBucket::DrawAllWithDepth
+		"depthpass2": "depthpass2.fs" //Same, but without alpha discard
+	}
+}
+```
+
+Any shader *not* listed here can be instantiated at any time by simply creating a new `Shader` object. The constructor takes either a single `std::string` for the *fragment* shader (full path, you don't *have* to put it in the `shaders` folder), or the vertex and fragment shader paths in that order. Preloading `shaders.json` does the same thing anyway.
+
+For shader code, both vertex and fragment files have these lines added up top:
+```glsl
+#version 430 core
+#define BECKETT
+```
 
 #### Text
 Files for the text database go in the `text` folder.
