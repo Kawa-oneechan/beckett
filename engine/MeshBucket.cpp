@@ -87,7 +87,7 @@ namespace MeshBucket
 				//auto s = glm::scale(glm::mat4(1), scale);
 				auto model = t * r; //* s;
 				if (m.Billboard)
-					model[0][3] = 1.0; //tag this mesh as a billboard
+					model[0][3] = 1.0;
 
 				theShader->Set("model", model);
 			}

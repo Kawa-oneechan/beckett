@@ -114,16 +114,9 @@ public:
 
 extern Console* console;
 
-template <typename T, typename... Types>
-inline void conprint(int color, T format, Types... args)
-{
-	console->Print(color, fmt::format(format, args...));
-}
-
-template <typename T, typename... Types>
-inline void debprint(int color, T format, Types... args)
-{
+#define conprint(C, F, ...) console->Print(C, fmt::format(F, __VA_ARGS__))
 #ifdef DEBUG
-	console->Print(color, fmt::format(format, args...));
+#define debprint(C, F, ...) console->Print(C, fmt::format(F, __VA_ARGS__))
+#else
+#define debprint(C, F, ...)
 #endif
-}
