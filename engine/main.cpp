@@ -154,7 +154,7 @@ namespace UI
 		{
 			keyBinds.reserve(NumKeyBinds);
 			for (auto &k : DefaultInputBindings)
-				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k))); // cppcheck-suppress useStlAlgorithm
+				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k)));
 		}
 
 		auto padBinds = sets["gamepadBinds"].as_array();
@@ -162,7 +162,7 @@ namespace UI
 		{
 			padBinds.reserve(NumKeyBinds);
 			for (auto &k : DefaultInputGamepadBindings)
-				padBinds.emplace_back(jsonValue(k)); // cppcheck-suppress useStlAlgorithm
+				padBinds.emplace_back(jsonValue(k));
 		}
 
 		for (int i = 0; i < NumKeyBinds; i++)
@@ -272,6 +272,40 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		return;
 	}
 
+	Game::OnKey(key, scancode, action, mods);
+
+#ifdef BECKETT_RESIZABLE
+	if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+	{
+		auto monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		auto isWindowed = glfwGetWindowAttrib(window, GLFW_DECORATED) != 0;
+		if (isWindowed)
+		{
+			glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+		}
+		else
+		{
+			if (width == mode->width || height == mode->height)
+			{
+				width = ScreenWidth;
+				height = ScreenHeight;
+			}
+			glfwSetWindowMonitor(window, nullptr, 0, 0, ScreenWidth, ScreenHeight, mode->refreshRate);
+			glfwSetWindowAttrib(window, GLFW_DECORATED, 1);
+			glfwSetWindowPos(window, (mode->width / 2) - (width / 2), (mode->height / 2) - (height / 2));
+		}
+		return;
+	}
+#endif
+#ifdef DEBUG
+	else if (key == GLFW_KEY_D && mods == GLFW_MOD_CONTROL && action == GLFW_PRESS)
+	{
+		debuggerEnabled = !debuggerEnabled;
+		return;
+	}
+#endif
+
 	if (console->visible && action == GLFW_PRESS)
 	{
 		console->Scancode(scancode);
@@ -293,36 +327,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 	if (console->visible)
 		return;
-
-	if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
-		wireframe = !wireframe;
-#ifdef BECKETT_RESIZABLE
-	else if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
-	{
-		auto monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-		auto isWindowed = glfwGetWindowAttrib(window, GLFW_DECORATED) != 0;
-		if (isWindowed)
-		{
-			glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-		}
-		else
-		{
-			if (width == mode->width || height == mode->height)
-			{
-				width = ScreenWidth;
-				height = ScreenHeight;
-			}
-			glfwSetWindowMonitor(window, nullptr, 0, 0, ScreenWidth, ScreenHeight, mode->refreshRate);
-			glfwSetWindowAttrib(window, GLFW_DECORATED, 1);
-			glfwSetWindowPos(window, (mode->width / 2) - (width / 2), (mode->height / 2) - (height / 2));
-		}
-	}
-#endif
-#ifdef DEBUG
-	else if (key == GLFW_KEY_D && mods == GLFW_MOD_CONTROL && action == GLFW_PRESS)
-		debuggerEnabled = !debuggerEnabled;
-#endif
 }
 
 static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
@@ -636,7 +640,8 @@ int main(int argc, char** argv)
 		}), rootTickables.end());
 		if (newTickables.size() > 0)
 		{
-			std::for_each(newTickables.cbegin(), newTickables.cend(), [](auto t) { rootTickables.push_back(t); });
+			for (const auto& t : newTickables)
+				rootTickables.push_back(t);
 			newTickables.clear();
 		}
 

@@ -17,6 +17,8 @@ extern bool RevAllTickables(const std::vector<TickableP>& tickables, float dt);
 //Invisible Tickables are skipped.
 extern void DrawAllTickables(const std::vector<TickableP>& tickables, float dt);
 
+extern void Screenshot();
+
 //Returns the CRC32 hash for the given text.
 extern hash GetCRC(const std::string& text);
 //Returns the CRC32 hash for the given data.
