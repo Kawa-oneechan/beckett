@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="engine\Audio.h" />
     <ClInclude Include="engine\Console.h" />
     <ClInclude Include="engine\Cursor.h" />
@@ -153,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BJTS.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="engine\Audio.cpp" />
     <ClCompile Include="engine\Console.cpp" />
     <ClCompile Include="engine\Cursor.cpp" />

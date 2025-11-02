@@ -9,7 +9,9 @@
 #include "engine/Tilemap.h"
 #include "engine/DropLabel.h"
 #include "engine/NineSlicer.h"
+#include "engine/Audio.h"
 #include "engine/Shader.h"
+#include "Camera.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
@@ -19,13 +21,14 @@
 constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
 constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
+std::shared_ptr<Camera> MainCamera;
 
 class Background : public Tickable
 {
 public:
 	void Draw(float dt) override
 	{
-		dt;
+		(void)(dt);
 		Sprite::DrawSprite(Shaders["background"], *whiteRect, glm::vec2(0), glm::vec2(width, height), glm::vec4(0, 0, width, height));
 	}
 };
@@ -35,7 +38,7 @@ class BoingBall : public Tickable
 public:
 	void Draw(float dt) override
 	{
-		dt;
+		(void)(dt);
 		Sprite::DrawSprite(Shaders["boingball"], *whiteRect, glm::vec2(0), glm::vec2(width, height), glm::vec4(0, 0, width, height));
 	}
 };
@@ -49,7 +52,7 @@ private:
 public:
 	void Draw(float dt) override
 	{
-		dt;
+		(void)(dt);
 		auto time = commonUniforms.TotalTime * 10.0f;
 		auto pos = glm::vec2(ScreenWidth, ScreenHeight) * 0.5f;
 		
@@ -75,8 +78,8 @@ private:
 public:
 	void Draw(float dt) override
 	{
-		dt;
-		auto time = commonUniforms.TotalTime * 10.0f;
+		(void)(dt);
+		auto time = commonUniforms.TotalTime * 50.0f;
 
 		//Have to flush here so the draw order becomes boingball, teapot, stage.
 		Sprite::FlushBatch();
@@ -89,23 +92,75 @@ public:
 		glDisable(GL_DEPTH_TEST);
 	}
 };
+
+class MapScene : public Tickable
+{
+private:
+	Model model{ "example/scene.fbx" };
+
+public:
+	void Draw(float dt) override
+	{
+		(void)(dt);
+		Sprite::FlushBatch();
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+
+		model.Draw(glm::vec3(0));
+		MeshBucket::Flush();
+
+		glDisable(GL_DEPTH_TEST);
+	}
+};
 #endif
+
+class RoryNite : public Tickable
+{
+private:
+	Texture sprite{ "rorynite.png" };
+	static constexpr int trailCt = 8;
+public:
+	glm::vec2 position = glm::vec2(ScreenWidth / 2, ScreenHeight / 2);
+
+	void Draw(float dt) override
+	{
+		for (int i = trailCt - 1; i >= 0; i--)
+		{
+			auto p = position + glm::vec2(i * 8, glm::sin((commonUniforms.TotalTime * 8) - i) * 4); //* (trailCt / (float)i));
+			Sprite::DrawSprite(sprite, p, sprite[0], 0.0f, glm::vec4(1, 1, 1, 1.0 - (i / (float)trailCt)));
+		}
+	}
+};
+
+class Subtitle : public TextLabel, AudioEventListener
+{
+public:
+	void AudioEvent(float time, const std::string& text) override
+	{
+		this->Text = text;
+	}
+	Subtitle(const std::string& text, glm::vec2 position) : TextLabel(text, position) {}
+};
 
 class TestScreen : public Tickable
 {
 private:
 	TilemapP tilemapMgr;
 	std::string text;
-	DropLabel* labelTest;
+	DropLabelP labelTest;
+
+	Audio* bgm = nullptr;
 
 public:
 	TestScreen()
 	{
 		//AddChild(std::make_shared<Background>());
+		//AddChild(std::make_shared<RoryNite>());
 
-		//*
+		/*
 		tilemapMgr = std::make_shared<Tilemap>("maps/test3.json");
-		tilemapMgr->Scale = 3.0f;
+		tilemapMgr->Scale = 2.0f;
+		tilemapMgr->Position = glm::vec2(16);
 		//tilemapMgr->Camera = glm::vec2(-(tilemapMgr->GetPixelSize().x / 5), 0);
 		//tilemapMgr->SetTile(0, 1, { -2, 118 });
 		AddChild(tilemapMgr);
@@ -126,22 +181,37 @@ public:
 		panel->AddChild(panelText);
 		AddChild(panel);
 
-		AddChild(std::make_shared<SimpleSprite>("rorynite.png", 0, glm::vec2(128)));
+		AddChild(std::make_shared<SimpleSprite>("rorynite.png", 0, glm::vec2(480, 32)));
 
-		labelTest = new DropLabel("Does this have a blurry\noutline?\n    ... yes yes it do", 2, 100, UI::themeColors["white"], DropLabel::Style::Blur);
+		labelTest = std::make_shared<DropLabel>("Does this have a blurry\noutline?\n    ... yes yes it do", 2,75.0f, UI::themeColors["white"], DropLabel::Style::Blur);
+		labelTest->Position = glm::vec2(32);
+		AddChild(labelTest);
 		//*/
+
+		//AddChild(std::make_shared<Teapot>());
+
+		//bgm = new Audio("example/dontforget.ogg");
+		//bgm->RegisterListener((AudioEventListener*)panelText.get());
+		//bgm->Play(false, false);
+		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
+
+		AddChild(std::make_shared<MapScene>());
 	}
 
 	bool Tick(float dt) override
 	{
 		//tilemapMgr->Camera = glm::vec2(glm::sin(commonUniforms.TotalTime * 10.0f) * 5, 0);
 
+		/*&
 		if (Inputs.MouseHoldLeft)
 		{
 			auto panel = GetChild<Tickable2D>("Test Panel");
 			panel->Position = Inputs.MousePosition / scale;
 			panel->GetChild<TextLabel>(0)->Text = fmt::format("{}x{}", panel->Position.x, panel->Position.y);
 		}
+		*/
+
+		Audio::SetListenerPosition(glm::vec3(Inputs.MousePosition.x / width, 0, Inputs.MousePosition.y / height));
 
 		/*
 		text = fmt::format("{}x{} --> tile {}",
@@ -162,19 +232,13 @@ public:
 	void Draw(float dt) override
 	{
 		Tickable::Draw(dt);
-
-
-		Sprite::DrawText(2,
-			text, //"Hello, Beckett Engine!",
-			glm::vec2(24), glm::vec4(1), 50.0f);
-
-
-		//Sprite::DrawText(2, "Is this red?\nRenderDoc HELP!", glm::vec2(32 + 8), glm::vec4(1, 1, 1, 0.5));
+		Sprite::DrawLine(glm::vec2(width * 0.5f, height * 0.5f), Inputs.MousePosition, glm::vec4(1, 0, 1, 1));
+		Sprite::FlushBatch();
 	}
 
 	bool Character(unsigned int ch) override
 	{
-		labelTest->SetText(fmt::format("Ah! '{}'!", (char)ch));
+		//labelTest->SetText(fmt::format("Ah! '{}'!", (char)ch));
 		return false;
 	}
 };
@@ -201,8 +265,6 @@ void Game::RegisterConsole(Console* console)
 	RV("testcol", CVar::Type::Color, &testColor);
 
 #undef RV
-
-	//console->RegisterCCmd("reshade", CCmdReshade);
 }
 
 void Game::LoadSettings(jsonObject& settings)
@@ -236,10 +298,15 @@ void Game::Initialize()
 	//Add extra loading steps here
 
 	//Set up a camera and lights for the 3D example
+	/*
 	auto cameraPos = glm::vec3(0.0f, 5.0f, 15.0f);
 	auto cameraTarget = glm::vec3(0.0f, 2.0f, 0.0f);
 	commonUniforms.View = glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 	commonUniforms.InvView = glm::affineInverse(commonUniforms.View);
+	*/
+	MainCamera = std::make_shared<Camera>();
+	MainCamera->Distance(50);
+	MainCamera->Target(glm::vec3(0, 5, 0));
 
 	commonUniforms.Lights[0].color = glm::vec4(0.5);
 	commonUniforms.Lights[0].pos = glm::vec4(0, 15, 20, 0);
@@ -257,16 +324,34 @@ void Game::PrepareSaveDirs()
 
 void Game::Start(std::vector<TickableP>& tickables)
 {
+	tickables.push_back(MainCamera);
 	tickables.push_back(std::make_shared<TestScreen>());
+}
+
+void Game::OnKey(int key, int scancode, int action, int mods)
+{
+	if (key == 301 && action == 1) //F12
+	{
+		Screenshot();
+		return;
+	}
 }
 
 void Game::OnMouse(double xPosIn, double yPosIn, float xoffset, float yoffset)
 {
-	xPosIn, yPosIn, xoffset, yoffset;
+	xPosIn, yPosIn;
+	if (Inputs.MouseHoldMiddle && !MainCamera->Locked)
+	{
+		auto angles = MainCamera->GetAngles();
+		angles.z -= xoffset;
+		angles.y -= yoffset;
+		MainCamera->Angles(angles);
+	}
 }
 
 void Game::OnResize()
 {
+	//scale = 1.0f;
 }
 
 void Game::LoopStart()
@@ -276,14 +361,14 @@ void Game::LoopStart()
 
 void Game::PreDraw(float dt)
 {
-	dt;
+	(void)(dt);
 	glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Game::PostDraw(float dt)
 {
-	dt;
+	(void)(dt);
 }
 
 void Game::OnQuit()

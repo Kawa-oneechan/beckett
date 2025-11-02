@@ -124,6 +124,9 @@
     <ClCompile Include="engine\ThreadedLoader.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">
@@ -203,6 +206,9 @@
     </ClInclude>
     <ClInclude Include="engine\Game.h">
       <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
