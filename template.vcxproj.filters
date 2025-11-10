@@ -233,6 +233,15 @@
     <None Include="data\ui\ui.json">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="data\shaders\model.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\model.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\lighting.fs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">

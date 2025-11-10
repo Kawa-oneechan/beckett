@@ -106,6 +106,9 @@ public:
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 
+		commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 1.0f);
+		commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
+
 		model.Draw(glm::vec3(0));
 		MeshBucket::Flush();
 
@@ -307,11 +310,12 @@ void Game::Initialize()
 	MainCamera = std::make_shared<Camera>();
 	MainCamera->Distance(50);
 	MainCamera->Target(glm::vec3(0, 5, 0));
+	MainCamera->Angles(glm::vec3(0, 18, 140));
 
-	commonUniforms.Lights[0].color = glm::vec4(0.5);
-	commonUniforms.Lights[0].pos = glm::vec4(0, 15, 20, 0);
-	commonUniforms.Lights[1].color = glm::vec4(1, 0, 0, 0.25);
-	commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
+	commonUniforms.Lights[0].color = glm::vec4(0.8, 0.8, 1, 0);
+	commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
+	//commonUniforms.Lights[1].color = glm::vec4(1, 0, 0, 0.25);
+	//commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
 }
 
 #ifdef BECKETT_EXTRASAVEDIRS

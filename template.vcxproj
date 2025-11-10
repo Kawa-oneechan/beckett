@@ -213,6 +213,9 @@
   <ItemGroup>
     <None Include="data\shaders\common.fs" />
     <None Include="data\shaders\font.fs" />
+    <None Include="data\shaders\lighting.fs" />
+    <None Include="data\shaders\model.fs" />
+    <None Include="data\shaders\model.vs" />
     <None Include="data\shaders\scroller.fs" />
     <None Include="data\shaders\shaders.json" />
     <None Include="data\shaders\sprite.fs" />
