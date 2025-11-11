@@ -346,7 +346,7 @@ void Console::Draw(float dt)
 	inputLine->Draw(dt);
 }
 
-void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat, int min, int max)
+void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat, int min, int max, CVarCallback onChange)
 {
 	auto it = std::find_if(cvars.begin(), cvars.end(), [name](const auto& e)
 	{
@@ -357,6 +357,7 @@ void Console::RegisterCVar(const std::string& name, CVar::Type type, void* targe
 		it->type = type;
 		it->asVoid = target;
 		it->cheat = cheat;
+		it->onChange = onChange;
 		return;
 	}
 	CVar cv;
@@ -366,6 +367,7 @@ void Console::RegisterCVar(const std::string& name, CVar::Type type, void* targe
 	cv.cheat = cheat;
 	cv.min = min;
 	cv.max = max;
+	cv.onChange = onChange;
 	cvars.push_back(cv);
 }
 
@@ -440,6 +442,7 @@ bool CVar::Set(const std::string& value)
 				*asBool = json.as_integer() != 0;
 			else if (json.is_boolean())
 				*asBool = json.as_boolean();
+			if (onChange) onChange(this);
 			return true;
 		case Type::Int:
 			if (json.is_integer())
@@ -449,6 +452,7 @@ bool CVar::Set(const std::string& value)
 					i = glm::clamp(i, min, max);
 				*asInt = i;
 			}
+			if (onChange) onChange(this);
 			return true;
 		case Type::Float:
 			if (json.is_number())
@@ -458,27 +462,33 @@ bool CVar::Set(const std::string& value)
 					i = glm::clamp(i, (float)min, (float)max);
 				*asFloat = i;
 			}
+			if (onChange) onChange(this);
 			return true;
 		case Type::String:
 			if (json.is_number())
 				*asString = fmt::format("{}", json.as_number());
 			else if (json.is_string())
 				*asString = json.as_string();
+			if (onChange) onChange(this);
 			return true;
 		case Type::Vec2:
 			if (json.is_array())
 				*asVec2 = GetJSONVec2(json);
+			if (onChange) onChange(this);
 			return true;
 		case Type::Vec3:
 			if (json.is_array())
 				*asVec3 = GetJSONVec3(json);
+			if (onChange) onChange(this);
 			return true;
 		case Type::Vec4:
 			if (json.is_array())
 				*asVec4 = GetJSONVec4(json);
+			if (onChange) onChange(this);
 			return true;
 		case Type::Color:
 			*asVec4 = GetJSONColor(json);
+			if (onChange) onChange(this);
 			return true;
 		}
 		return false;
