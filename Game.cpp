@@ -266,6 +266,7 @@ void Game::RegisterConsole(Console* console)
 	RV("teststr", CVar::Type::String, &testString);
 	RV("testvec", CVar::Type::Vec2, &testVector);
 	RV("testcol", CVar::Type::Color, &testColor);
+	RV("callback", CVar::Type::String, &testString, false, -1, -1, [](CVar* c) { StringToUpper(*c->asString); });
 
 #undef RV
 }
