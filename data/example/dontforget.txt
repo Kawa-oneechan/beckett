@@ -1,0 +1,9 @@
+1.952239	1.952239	0:When the light is running low
+1.952239	1.952239	1:When
+2.781500	2.781500	1:When the
+3.525961	3.525961	1:When the light
+4.003178	4.003179	1:When the light is
+4.327687	4.327687	1:When the light is running
+4.922164	4.922164	1:When the light is running low
+5.882779	5.882779	0:And the shadows start to grow
+5.882779	5.882779	1:And

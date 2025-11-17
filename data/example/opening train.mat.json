@@ -1,0 +1,23 @@
+{
+	"mReBody": {
+		"albedo": "mReBody_Alb.png",
+		"mix": "mReBody_Mix.png",
+		"normal": "mReBody_Nrm.png"
+	},
+	"mReFabric": {
+		"albedo": "mReFabric_Alb.png",
+		"mix": "mReFabric_Mix.png",
+		"normal": "mReFabric_Nrm.png"
+	},
+	"Material": {
+		"albedo": "mToolSet_Alb - Copy.png"
+	},
+	"Material.001": {
+		"albedo": "scene_albedo.png",
+		"normal": "scene_normal.png"
+	},
+	"Material.002": {
+		"albedo": "woods.png",
+		"shader": "fast_horiz"
+	}
+}

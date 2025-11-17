@@ -45,5 +45,4 @@ void main()
 
 	gl_Position = Projection * tm;
 	TexCoord = aTexCoord;
-
 }

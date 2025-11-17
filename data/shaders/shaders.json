@@ -8,6 +8,7 @@
 		"background": "background.fs"
 	},
 	"model.vs": {
-		"model": "model.fs"
+		"model": "model.fs",
+		"fast_horiz": "fast_horiz.fs"
 	}
 }

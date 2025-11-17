@@ -23,6 +23,60 @@ constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
 std::shared_ptr<Camera> MainCamera;
 
+class Button : public Tickable2D
+{
+public:
+	std::string Text;
+	glm::vec4 Color{ 1, 1, 1, 1 };
+	glm::vec4 BackColor{ 0, 0, 0.75, 0.5 };
+	glm::vec2 Size{ 128, 32 };
+	float TextSize{ 100.0f };
+	float Angle{ 0.0f };
+	int Font{ 1 };
+	bool Raw{ false };
+	std::function<void()> OnClick{};
+
+	Button(const std::string& text, glm::vec2 position) : Text(text)
+	{
+		parent = nullptr;
+		Position = position;
+	}
+
+	bool Tick(float) override
+	{
+		if (!Inputs.MouseLeft)
+			return true;
+		if (!OnClick)
+			return true;
+		if (Inputs.MousePosition.x > Position.x &&
+			Inputs.MousePosition.y > Position.y &&
+			Inputs.MousePosition.x < Position.x + Size.x &&
+			Inputs.MousePosition.y < Position.y + Size.y)
+		{
+			OnClick();
+			return false;
+		}
+		return true;
+	}
+
+	void Draw(float) override
+	{
+		float s = Scale > 0 ? Scale : scale;
+		auto color = BackColor;
+		if (Inputs.MousePosition.x > Position.x &&
+			Inputs.MousePosition.y > Position.y &&
+			Inputs.MousePosition.x < Position.x + Size.x &&
+			Inputs.MousePosition.y < Position.y + Size.y)
+			color.a = 1.0f;
+		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, color);
+		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
+		auto size = Sprite::MeasureText(Font, Text, TextSize * s, Raw);
+		auto center = (Size * 0.5f) - (size * 0.5f);
+		center.y += 4;
+		Sprite::DrawText(Font, Text, AbsolutePosition + center, Color, TextSize * s, Angle, Raw);
+	}
+};
+
 class Background : public Tickable
 {
 public:
@@ -102,6 +156,7 @@ public:
 	void Draw(float dt) override
 	{
 		(void)(dt);
+
 		Sprite::FlushBatch();
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -115,6 +170,31 @@ public:
 		glDisable(GL_DEPTH_TEST);
 	}
 };
+
+class TrainScene : public Tickable
+{
+private:
+	Model model{ "example/opening train.fbx" };
+
+public:
+	void Draw(float dt) override
+	{
+		(void)(dt);
+
+		Sprite::FlushBatch();
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+
+		commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 1.0f);
+		commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
+
+		model.Draw(glm::vec3(0));
+		MeshBucket::Flush();
+
+		glDisable(GL_DEPTH_TEST);
+	}
+};
+
 #endif
 
 class RoryNite : public Tickable
@@ -198,7 +278,20 @@ public:
 		//bgm->Play(false, false);
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
 
-		AddChild(std::make_shared<MapScene>());
+		AddChild(std::make_shared<TrainScene>());
+		MainCamera->Target(glm::vec3(5, 10, -40));
+		MainCamera->Angles(glm::vec3(0, 0, 0));
+
+
+		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8));
+		testButton->OnClick = []()
+		{
+			//conprint(0, "Yowza!");
+			MainCamera->Angles(MainCamera->Angles() + glm::vec3(0, 0, 1));
+		};
+		testButton->AbsolutePosition = testButton->Position;
+		AddChild(testButton);
+
 	}
 
 	bool Tick(float dt) override
@@ -235,7 +328,7 @@ public:
 	void Draw(float dt) override
 	{
 		Tickable::Draw(dt);
-		Sprite::DrawLine(glm::vec2(width * 0.5f, height * 0.5f), Inputs.MousePosition, glm::vec4(1, 0, 1, 1));
+		//Sprite::DrawLine(glm::vec2(width * 0.5f, height * 0.5f), Inputs.MousePosition, glm::vec4(1, 0, 1, 1));
 		Sprite::FlushBatch();
 	}
 
@@ -310,10 +403,10 @@ void Game::Initialize()
 	*/
 	MainCamera = std::make_shared<Camera>();
 	MainCamera->Distance(50);
-	MainCamera->Target(glm::vec3(0, 5, 0));
 	MainCamera->Angles(glm::vec3(0, 18, 140));
+	MainCamera->Target(glm::vec3(0, 5, 0));
 
-	commonUniforms.Lights[0].color = glm::vec4(0.8, 0.8, 1, 0);
+	commonUniforms.Lights[0].color = glm::vec4(1.0);
 	commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
 	//commonUniforms.Lights[1].color = glm::vec4(1, 0, 0, 0.25);
 	//commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
