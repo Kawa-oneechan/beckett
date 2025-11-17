@@ -11,6 +11,7 @@
 #include "engine/NineSlicer.h"
 #include "engine/Audio.h"
 #include "engine/Shader.h"
+#include "engine//Random.h"
 #include "Camera.h"
 
 //Wouldn't need this here if the camera were a proper
@@ -175,8 +176,35 @@ class TrainScene : public Tickable
 {
 private:
 	Model model{ "example/opening train.fbx" };
+	float bumpTimer{ 0.0f };
 
 public:
+	TrainScene()
+	{
+		MainCamera->Target(glm::vec3(7, 12, -31));
+		MainCamera->Angles(glm::vec3(1, 0, -3));
+		MainCamera->Distance(50);
+
+		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.25);
+		commonUniforms.Lights[0].pos = glm::vec4(25, 50, 10, 1);
+		commonUniforms.Lights[1].color = glm::vec4(1.0, 1.0, 1.0, 0.04);
+		commonUniforms.Lights[1].pos = glm::vec4(0, 50, 0, 0);
+
+		commonUniforms.Toon = true;
+	}
+
+	bool Tick(float dt) override
+	{
+		bumpTimer += dt;
+		MainCamera->Target(glm::vec3(7, Random::GetFloat(12.0f, 12.1f), -31));
+		if (bumpTimer > 2.0f)
+			MainCamera->Target(glm::vec3(7, 12.4f, -31));
+		if (bumpTimer > 2.1f)
+			bumpTimer = 0.0f;
+
+		return Tickable::Tick(dt);
+	}
+
 	void Draw(float dt) override
 	{
 		(void)(dt);
@@ -185,8 +213,8 @@ public:
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 
-		commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 1.0f);
-		commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
+		//commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 1.0f);
+		//commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
 
 		model.Draw(glm::vec3(0));
 		MeshBucket::Flush();
@@ -279,8 +307,6 @@ public:
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
 
 		AddChild(std::make_shared<TrainScene>());
-		MainCamera->Target(glm::vec3(5, 10, -40));
-		MainCamera->Angles(glm::vec3(0, 0, 0));
 
 
 		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8));
@@ -290,7 +316,7 @@ public:
 			MainCamera->Angles(MainCamera->Angles() + glm::vec3(0, 0, 1));
 		};
 		testButton->AbsolutePosition = testButton->Position;
-		AddChild(testButton);
+		//AddChild(testButton);
 
 	}
 
@@ -381,14 +407,6 @@ void Game::LoadSettings(jsonObject& settings)
 void Game::SaveSettings(jsonObject& settings)
 {
 }
-
-#ifdef DEBUG
-void Game::ImGui()
-{
-	//Put this function in its own module and #include <ImGUI/imgui.h>.
-	//Rendering is handled by the engine, just handle windows here.
-}
-#endif
 
 void Game::Initialize()
 {

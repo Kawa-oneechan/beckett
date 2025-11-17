@@ -155,6 +155,9 @@
   <ItemGroup>
     <ClCompile Include="BJTS.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DebugImgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="engine\Audio.cpp" />
     <ClCompile Include="engine\Console.cpp" />
     <ClCompile Include="engine\Cursor.cpp" />

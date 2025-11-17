@@ -9,14 +9,19 @@
 		"mix": "mReFabric_Mix.png",
 		"normal": "mReFabric_Nrm.png"
 	},
-	"Material": {
-		"albedo": "mToolSet_Alb - Copy.png"
+	"mPosters": {
+		"albedo": "mToolSet_Alb.png"
 	},
-	"Material.001": {
+	"mWall": {
 		"albedo": "scene_albedo.png",
 		"normal": "scene_normal.png"
 	},
-	"Material.002": {
+	"mFloor": {
+		"albedo": "RoomTexFloorRoseWood00_Alb.png",
+		"mix": "RoomTexFloorRoseWood00_Mix.png",
+		"normal": "RoomTexFloorRoseWood00_Nrm.png"
+	},
+	"mGlass": {
 		"albedo": "woods.png",
 		"shader": "fast_horiz"
 	}

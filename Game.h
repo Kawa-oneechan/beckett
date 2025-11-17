@@ -48,7 +48,7 @@
 //Makes the same assumption as BECKETT_ANALOGLEFT.
 //#define BECKETT_ANALOGRIGHT Binds::CameraUp
 
-constexpr int MaxLights = 3;
+constexpr int MaxLights = 4;
 
 struct Light
 {
@@ -66,6 +66,8 @@ struct CommonUniforms
 	glm::mat4 Projection;
 	glm::mat4 InvView;
 	Light Lights[MaxLights];
+	alignas(4) bool Toon;
+	alignas(4) bool Fresnel;
 };
 
 extern float scale;

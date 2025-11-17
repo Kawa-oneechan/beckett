@@ -1,6 +1,8 @@
 //---Common---
 
-#define NUMLIGHTS 3
+#define OPACITY_CUTOFF 0.5
+
+#define NUMLIGHTS 4
 
 struct light
 {
@@ -17,6 +19,8 @@ layout (std140) uniform CommonData
 	mat4 Projection;
 	mat4 InvView;
 	light Lights[NUMLIGHTS];
+	bool Toon;
+	bool Fresnel;
 };
 
 //------------
