@@ -181,17 +181,17 @@ private:
 public:
 	TrainScene()
 	{
-		MainCamera->Target(glm::vec3(7, 12, -31));
-		MainCamera->Angles(glm::vec3(1, 0, -3));
+		MainCamera->Target(glm::vec3(6, 12, -37));
+		MainCamera->Angles(glm::vec3(1, 2, -3));
 		MainCamera->Distance(50);
-		MainCamera->FirstPerson(true);
+		MainCamera->FirstPerson(false);
 
 		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.25);
 		commonUniforms.Lights[0].pos = glm::vec4(25, 50, 10, 1);
 		commonUniforms.Lights[1].color = glm::vec4(1.0, 1.0, 1.0, 0.04);
 		commonUniforms.Lights[1].pos = glm::vec4(0, 50, 0, 0);
 
-		commonUniforms.Toon = true;
+		commonUniforms.Toon = false;
 	}
 
 	bool Tick(float dt) override
@@ -348,8 +348,8 @@ public:
 		testButton->AbsolutePosition = testButton->Position;
 		//AddChild(testButton);
 
-		MainCamera->FirstPerson(true);
-		AddChild(std::make_shared<FirstPersonController>());
+		//MainCamera->FirstPerson(true);
+		//AddChild(std::make_shared<FirstPersonController>());
 	}
 
 	bool Tick(float dt) override

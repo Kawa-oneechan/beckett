@@ -9,6 +9,7 @@
 	},
 	"model.vs": {
 		"model": "model.fs",
-		"fast_horiz": "fast_horiz.fs"
+		"fast_horiz": "fast_horiz.fs",
+		"warm_unlit": "warm_unlit.fs"
 	}
 }

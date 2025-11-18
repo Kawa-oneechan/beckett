@@ -21,6 +21,9 @@
 		"mix": "RoomTexFloorRoseWood00_Mix.png",
 		"normal": "RoomTexFloorRoseWood00_Nrm.png"
 	},
+	"mLights": {
+		"shader": "warm_unlit"
+	},
 	"mGlass": {
 		"albedo": "woods.png",
 		"shader": "fast_horiz"
