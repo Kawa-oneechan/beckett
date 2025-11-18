@@ -14,7 +14,7 @@
 extern unsigned int commonBuffer;
 extern bool useOrthographic;
 
-Camera::Camera(glm::vec3 target, glm::vec3 angles, float distance) : _target(target), _angles(angles), _distance(distance), _swapYZ(false)
+Camera::Camera(glm::vec3 target, glm::vec3 angles, float distance) : _target(target), _angles(angles), _distance(distance), _swapYZ(false), _firstPerson(false)
 {
 }
 
@@ -52,6 +52,12 @@ void Camera::SwapYZ(bool swapYZ)
 	Update();
 }
 
+void Camera::FirstPerson(bool firstPerson)
+{
+	_firstPerson = firstPerson;
+	Update();
+}
+
 void Camera::Set(
 	const glm::vec3& target,
 	const glm::vec3& angles,
@@ -66,13 +72,26 @@ void Camera::Set(
 
 void Camera::Update()
 {
-	commonUniforms.InvView = (
-		glm::translate(_target)
-		* (glm::eulerAngleY(glm::radians(_angles.z)))
-		* (glm::eulerAngleX(glm::radians(-_angles.y)))
-		* (glm::eulerAngleZ(glm::radians(_angles.x)))
-		* glm::translate(glm::vec3(0, 0, _distance))
-		);
+	if (!_firstPerson)
+	{
+		commonUniforms.InvView = (
+			glm::translate(_target)
+			* (glm::eulerAngleY(glm::radians(_angles.z)))
+			* (glm::eulerAngleX(glm::radians(-_angles.y)))
+			* (glm::eulerAngleZ(glm::radians(_angles.x)))
+			* glm::translate(glm::vec3(0, 0, _distance))
+			);
+	}
+	else
+	{
+		commonUniforms.InvView = (
+			glm::lookAt(-_target, -_target + glm::vec3(0, 0, -1), glm::vec3(0, 1, 0))
+			* (glm::eulerAngleY(glm::radians(_angles.z)))
+			* (glm::eulerAngleX(glm::radians(-_angles.y)))
+			* (glm::eulerAngleZ(glm::radians(_angles.x)))
+			);
+	}
+
 	if (_swapYZ)
 	{
 		commonUniforms.InvView = glm::mat4(

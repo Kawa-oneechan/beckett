@@ -12,10 +12,10 @@ protected:
 	float _distance{ 0 };
 
 	glm::vec3* _tracking{};
-
 	glm::vec3 position{};
 
 	bool _swapYZ;
+	bool _firstPerson;
 
 public:
 	Camera(const Camera& c) = default;
@@ -27,11 +27,13 @@ public:
 	inline const glm::vec3& Angles() const { return _angles; }
 	inline float Distance() const { return _distance; }
 	inline bool SwapYZ() const { return _swapYZ; }
+	inline bool FirstPerson() const { return _firstPerson; }
 
 	void Target(const glm::vec3& target);
 	void Angles(const glm::vec3& angles);
 	void Distance(float distance);
 	void SwapYZ(bool swapYZ);
+	void FirstPerson(bool firstPerson);
 	void Set(
 		const glm::vec3& target,
 		const glm::vec3& angles,

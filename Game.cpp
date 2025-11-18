@@ -184,6 +184,7 @@ public:
 		MainCamera->Target(glm::vec3(7, 12, -31));
 		MainCamera->Angles(glm::vec3(1, 0, -3));
 		MainCamera->Distance(50);
+		MainCamera->FirstPerson(true);
 
 		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.25);
 		commonUniforms.Lights[0].pos = glm::vec4(25, 50, 10, 1);
@@ -196,9 +197,11 @@ public:
 	bool Tick(float dt) override
 	{
 		bumpTimer += dt;
-		MainCamera->Target(glm::vec3(7, Random::GetFloat(12.0f, 12.1f), -31));
+		auto t = MainCamera->Target();
+		t.y = Random::GetFloat(12.0f, 12.1f);
 		if (bumpTimer > 2.0f)
-			MainCamera->Target(glm::vec3(7, 12.4f, -31));
+			t.y = 12.4f;
+		MainCamera->Target(t);
 		if (bumpTimer > 2.1f)
 			bumpTimer = 0.0f;
 
@@ -251,6 +254,33 @@ public:
 		this->Text = text;
 	}
 	Subtitle(const std::string& text, glm::vec2 position) : TextLabel(text, position) {}
+};
+
+class FirstPersonController : public Tickable
+{
+	bool Tick(float dt) override
+	{
+		if (Inputs.KeyDown(Binds::WalkN) || Inputs.KeyDown(Binds::WalkS))
+		{
+			auto speed = Inputs.KeyDown(Binds::WalkN) ? 0.05f : -0.05f;
+			auto pos = MainCamera->GetTarget();
+			auto yaw = MainCamera->GetAngles().z;
+			pos.x -= glm::sin(glm::radians(yaw)) * speed;
+			pos.z -= glm::cos(glm::radians(yaw)) * speed;
+			MainCamera->Target(pos);
+		}
+		if (Inputs.KeyDown(Binds::WalkE) || Inputs.KeyDown(Binds::WalkW))
+		{
+			auto speed = Inputs.KeyDown(Binds::WalkW) ? 0.025f : -0.025f;
+			auto pos = MainCamera->GetTarget();
+			auto yaw = MainCamera->GetAngles().z + 90.0f;
+			pos.x -= glm::sin(glm::radians(yaw)) * speed;
+			pos.z -= glm::cos(glm::radians(yaw)) * speed;
+			MainCamera->Target(pos);
+		}
+
+		return Tickable::Tick(dt);
+	}
 };
 
 class TestScreen : public Tickable
@@ -318,6 +348,8 @@ public:
 		testButton->AbsolutePosition = testButton->Position;
 		//AddChild(testButton);
 
+		MainCamera->FirstPerson(true);
+		AddChild(std::make_shared<FirstPersonController>());
 	}
 
 	bool Tick(float dt) override

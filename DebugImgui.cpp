@@ -10,7 +10,9 @@ static void DoCamera()
 {
 	if (ImGui::Begin("Camera"))
 	{
-		ImGui::SeparatorText("Target");
+		auto first = MainCamera->FirstPerson();
+
+		ImGui::SeparatorText(first ? "Position" : "Target");
 		{
 			auto& tar = MainCamera->GetTarget();
 			if (ImGui::DragFloat("X", &tar.x, 1.0, -50, 50))
@@ -33,12 +35,16 @@ static void DoCamera()
 		}
 
 		ImGui::Separator();
+		if (first) ImGui::BeginDisabled();
 		if (ImGui::DragFloat("Distance", &MainCamera->GetDistance(), 1.0, -100, 100, "%.3f", ImGuiSliderFlags_Logarithmic))
 			MainCamera->Update();
+		if (first) ImGui::EndDisabled();
 
 
 		ImGui::SeparatorText("Settings");
 		ImGui::Checkbox("Locked", &MainCamera->Locked);
+		if (ImGui::Checkbox("First", &first))
+			MainCamera->FirstPerson(first);
 
 		if (ImGui::Button("Reset"))
 		{
