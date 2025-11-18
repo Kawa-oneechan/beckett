@@ -11,16 +11,12 @@ class Tickable2D;
 
 class Tickable2D : public Tickable
 {
-protected:
-	Tickable2D* parent{ nullptr };
 public:
-	glm::vec2 Position;
-	glm::vec2 AbsolutePosition;
 	float Scale{ -1 };
 
 	virtual bool Tick(float dt) override
 	{
-		AbsolutePosition = (parent ? parent->AbsolutePosition + Position : (Position * (Scale > 0 ? Scale : ::scale)));
+		UpdatePosition();
 		for (unsigned int i = (unsigned int)ChildTickables.size(); i-- > 0; )
 		{
 			auto t = ChildTickables[i];
@@ -35,12 +31,34 @@ public:
 	void AddChild(Tickable2D* newChild)
 	{
 		newChild->parent = this;
+		newChild->AbsolutePosition = (parent ? parent->AbsolutePosition + Position : (Position * (Scale > 0 ? Scale : ::scale)));
 		ChildTickables.push_back(std::shared_ptr<Tickable2D>(newChild));
 	}
 	void AddChild(std::shared_ptr<Tickable2D> newChild)
 	{
 		newChild->parent = this;
+		newChild->AbsolutePosition = (parent ? parent->AbsolutePosition + Position : (Position * (Scale > 0 ? Scale : ::scale)));
 		ChildTickables.push_back(newChild);
+	}
+
+	virtual glm::vec2 GetMinimalSize()
+	{
+		auto ret = glm::vec2(0);
+		for (const auto& t : ChildTickables)
+		{
+			auto tl = t->AbsolutePosition;
+			auto br = tl + t->GetSize();
+			if (br.x > ret.x)
+				ret.x = br.x;
+			if (br.y > ret.y)
+				ret.y = br.y;
+		}
+		return ret;
+	}
+
+	virtual glm::vec2 GetSize()
+	{
+		return GetMinimalSize();
 	}
 };
 
@@ -66,6 +84,17 @@ public:
 	{
 		float s = Scale > 0 ? Scale : scale;
 		Sprite::DrawText(Font, Text, AbsolutePosition, Color, Size * s, Angle, Raw);
+	}
+
+	glm::vec2 GetMinimalSize() override
+	{
+		float s = Scale > 0 ? Scale : scale;
+		return Sprite::MeasureText(Font, Text, Size * s, Raw);
+	}
+
+	glm::vec2 GetSize() override
+	{
+		return GetMinimalSize();
 	}
 };
 
@@ -106,5 +135,17 @@ public:
 		auto frame = texture->operator[](Frame);
 		auto scaledSize = glm::vec2(frame.z, frame.w) * s;
 		Sprite::DrawSprite(*texture, AbsolutePosition, scaledSize, frame, 0.0f, glm::vec4(1), Flags);
+	}
+
+	glm::vec2 GetMinimalSize() override
+	{
+		float s = Scale > 0 ? Scale : scale;
+		auto frame = texture->operator[](Frame);
+		return glm::vec2(frame.z, frame.w) * s;
+	}
+
+	glm::vec2 GetSize() override
+	{
+		return GetMinimalSize();
 	}
 };

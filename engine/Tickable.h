@@ -10,6 +10,7 @@ class Tickable
 {
 protected:
 	std::vector<std::shared_ptr<Tickable>> ChildTickables;
+	Tickable* parent{ nullptr };
 public:
 	bool* Mutex{ nullptr };
 	bool Dead{ false };
@@ -130,6 +131,17 @@ public:
 		return GetChild<Tickable>(n);
 	}
 
+	glm::vec2 AbsolutePosition{ -1 };
+	glm::vec2 Position{ -1 };
+	virtual glm::vec2 GetSize() { return glm::vec2(0); }
+	void UpdatePosition()
+	{
+		AbsolutePosition = parent ? parent->AbsolutePosition + Position : Position;
+		for (const auto& t : ChildTickables)
+		{
+			t->UpdatePosition();
+		}
+	}
 };
 
 using TickableP = std::shared_ptr<Tickable>;

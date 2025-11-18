@@ -14,4 +14,8 @@ public:
 
 	NineSlicer(const std::string& texture, int left, int top, int width, int height);
 	void Draw(float dt) override;
+	glm::vec2 GetSize() override
+	{
+		return Size;
+	}
 };

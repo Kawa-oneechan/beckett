@@ -37,10 +37,17 @@ public:
 	bool Raw{ false };
 	std::function<void()> OnClick{};
 
-	Button(const std::string& text, glm::vec2 position) : Text(text)
+	Button(const std::string& text, glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Text(text)
 	{
 		parent = nullptr;
 		Position = position;
+		Size = size;
+
+		auto minSize = GetMinimalSize();
+		if (Size.x == -1)
+			Size.x = minSize.x;
+		if (Size.y == -1)
+			Size.y = minSize.y;
 	}
 
 	bool Tick(float) override
@@ -49,10 +56,10 @@ public:
 			return true;
 		if (!OnClick)
 			return true;
-		if (Inputs.MousePosition.x > Position.x &&
-			Inputs.MousePosition.y > Position.y &&
-			Inputs.MousePosition.x < Position.x + Size.x &&
-			Inputs.MousePosition.y < Position.y + Size.y)
+		if (Inputs.MousePosition.x > AbsolutePosition.x &&
+			Inputs.MousePosition.y > AbsolutePosition.y &&
+			Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
+			Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
 		{
 			OnClick();
 			return false;
@@ -64,10 +71,10 @@ public:
 	{
 		float s = Scale > 0 ? Scale : scale;
 		auto color = BackColor;
-		if (Inputs.MousePosition.x > Position.x &&
-			Inputs.MousePosition.y > Position.y &&
-			Inputs.MousePosition.x < Position.x + Size.x &&
-			Inputs.MousePosition.y < Position.y + Size.y)
+		if (Inputs.MousePosition.x > AbsolutePosition.x &&
+			Inputs.MousePosition.y > AbsolutePosition.y &&
+			Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
+			Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
 			color.a = 1.0f;
 		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, color);
 		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
@@ -75,6 +82,62 @@ public:
 		auto center = (Size * 0.5f) - (size * 0.5f);
 		center.y += 4;
 		Sprite::DrawText(Font, Text, AbsolutePosition + center, Color, TextSize * s, Angle, Raw);
+	}
+
+	glm::vec2 GetMinimalSize() override
+	{
+		float s = Scale > 0 ? Scale : scale;
+		return Sprite::MeasureText(Font, Text, TextSize * s, Raw) + glm::vec2(16, 8);
+	}
+
+	glm::vec2 GetSize() override
+	{
+		return Size;
+	}
+};
+
+class TestPanel : public Tickable2D
+{
+public:
+	glm::vec4 Color{ 1, 1, 1, 1 };
+	glm::vec4 BackColor{ 0.75, 0, 0, 0.5 };
+	glm::vec2 Size;
+public:
+	TestPanel(glm::vec2 position, glm::vec2 size = glm::vec2(-1))
+	{
+		parent = nullptr;
+		Position = position;
+		Size = size;
+
+		auto minSize = GetMinimalSize();
+		if (Size.x == -1)
+			Size.x = minSize.x;
+		if (Size.y == -1)
+			Size.y = minSize.y;
+
+		Size += glm::vec2(8);
+	}
+
+	void Draw(float dt) override
+	{
+		float s = Scale > 0 ? Scale : scale;
+		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, BackColor);
+		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
+
+		Tickable2D::Draw(dt);
+	}
+
+	void Reflow()
+	{
+		UpdatePosition();
+		auto pos = glm::vec2(8);
+		for (auto& t : ChildTickables)
+		{
+			t->Position = pos;
+			t->UpdatePosition();
+			pos.y += t->GetSize().y + 8;
+		}
+		Size = GetMinimalSize();
 	}
 };
 
@@ -338,15 +401,19 @@ public:
 
 		AddChild(std::make_shared<TrainScene>());
 
-
-		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8));
+		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8), glm::vec2(160, -1));
 		testButton->OnClick = []()
 		{
 			//conprint(0, "Yowza!");
 			MainCamera->Angles(MainCamera->Angles() + glm::vec3(0, 0, 1));
 		};
 		testButton->AbsolutePosition = testButton->Position;
-		//AddChild(testButton);
+
+		auto testPanel = std::make_shared<TestPanel>(glm::vec2(8));
+		testPanel->AddChild(testButton);
+		testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(8), glm::vec2(160, -1)));
+		testPanel->Reflow();
+		AddChild(testPanel);
 
 		MainCamera->FirstPerson(true);
 		AddChild(std::make_shared<FirstPersonController>());
