@@ -1,31 +1,32 @@
 {
-	"mReBody": {
-		"albedo": "mReBody_Alb.png",
-		"mix": "mReBody_Mix.png",
-		"normal": "mReBody_Nrm.png"
+	"mMetal": {
+		"albedo": "traincouchmetal_alb.png",
+		"mix": "traincouchmetal_mix.png",
+		"normal": "traincouchmetal_nrm.png"
 	},
-	"mReFabric": {
-		"albedo": "mReFabric_Alb.png",
-		"mix": "mReFabric_Mix.png",
-		"normal": "mReFabric_Nrm.png"
+	"mSeat": {
+		"albedo": "traincouchseat_alb.png",
+		"mix": "traincouchseat_mix.png",
+		"normal": "traincouchseat_nrm.png"
 	},
 	"mPosters": {
-		"albedo": "mToolSet_Alb.png"
+		"albedo": "trainposters_alb.png"
 	},
 	"mWall": {
-		"albedo": "scene_albedo.png",
-		"normal": "scene_normal.png"
+		"albedo": "trainwall_alb.png",
+		"mix": "trainwall_mix.png",
+		"normal": "trainwall_nrm.png"
 	},
 	"mFloor": {
-		"albedo": "RoomTexFloorRoseWood00_Alb.png",
-		"mix": "RoomTexFloorRoseWood00_Mix.png",
-		"normal": "RoomTexFloorRoseWood00_Nrm.png"
+		"albedo": "trainfloor_alb.png",
+		"mix": "trainfloor_mix.png",
+		"normal": "trainfloor_nrm.png"
 	},
 	"mLights": {
 		"shader": "warm_unlit"
 	},
 	"mGlass": {
-		"albedo": "woods.png",
+		"albedo": "trainwoods_alb.png",
 		"shader": "fast_horiz"
 	}
 }
