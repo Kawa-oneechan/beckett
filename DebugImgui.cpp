@@ -92,7 +92,7 @@ static void DoCamera()
 static void DoLights()
 {
 	static int lightIndex = 0;
-	static const char lightLabels[] = "1\0" "2\0" "3\0" "4\0" "5\0" "6\0" "7\0" "8\0";
+	static const char lightLabels[] = "S\0" "2\0" "3\0" "4\0" "5\0" "6\0" "7\0" "8\0";
 	if (ImGui::Begin("Lighting"))
 	{
 		for (int i = 0; i < MaxLights; i++)
@@ -130,6 +130,9 @@ static void DoLights()
 		}
 
 		ImGui::ColorPicker4("Color", &l.color.x, ImGuiColorEditFlags_DisplayRGB);
+
+		ImGui::Checkbox("Fresnel", &commonUniforms.Fresnel);
+		ImGui::Checkbox("Toon", &commonUniforms.Toon);
 
 		/*
 		if (ImGui::Button("Copy JSON"))

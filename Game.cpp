@@ -186,10 +186,12 @@ public:
 		MainCamera->Distance(50);
 		MainCamera->FirstPerson(false);
 
-		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.25);
-		commonUniforms.Lights[0].pos = glm::vec4(25, 50, 10, 1);
-		commonUniforms.Lights[1].color = glm::vec4(1.0, 1.0, 1.0, 0.04);
-		commonUniforms.Lights[1].pos = glm::vec4(0, 50, 0, 0);
+		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.0);
+		commonUniforms.Lights[0].pos = glm::vec4(-50, 24, 35, 0);
+		commonUniforms.Lights[1].color = glm::vec4(0.75, 0.75, 0.75, 0.04);
+		commonUniforms.Lights[1].pos = glm::vec4(16, 22, -16, 0);
+		commonUniforms.Lights[2].color = glm::vec4(0.75, 0.75, 0.75, 0.04);
+		commonUniforms.Lights[2].pos = glm::vec4(16, 22, -40, 0);
 
 		commonUniforms.Toon = false;
 	}
@@ -460,6 +462,7 @@ void Game::Initialize()
 	commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
 	//commonUniforms.Lights[1].color = glm::vec4(1, 0, 0, 0.25);
 	//commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
+	commonUniforms.Fresnel = true;
 }
 
 #ifdef BECKETT_EXTRASAVEDIRS

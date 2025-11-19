@@ -73,7 +73,7 @@ float getFresnel(mat4 model, vec3 normal)
 
 	vec3 camPos = normalize(((InvView - model) * vec4(0.0, 0.0, 0.0, 0.1)).xyz);
 	camPos.y -= 0.25;
-	return clamp(0.25 - dot(normal, camPos), 0.0, 1.0);
+	return clamp(0.0025 - dot(normal, camPos), 0.0, 1.0);
 }
 
 
