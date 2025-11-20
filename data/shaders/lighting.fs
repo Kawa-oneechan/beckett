@@ -61,7 +61,7 @@ vec3 calcNormal(vec3 mapCol)
 	return newNormal;
 }
 
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+float fresnelSchlick(float cosTheta, float F0)
 {
 	return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
@@ -71,9 +71,20 @@ float getFresnel(mat4 model, vec3 normal)
 	if (!Fresnel)
 		return 0.0;
 
-	vec3 camPos = normalize(((InvView - model) * vec4(0.0, 0.0, 0.0, 0.1)).xyz);
-	camPos.y -= 0.25;
-	return clamp(0.0025 - dot(normal, camPos), 0.0, 1.0);
+	//vec3 camPos = normalize(((InvView - model) * vec4(1.0)).xyz);
+	//camPos.y -= 0.25;
+	//return clamp(0.04 - dot(normal, camPos), 0.0, 1.0);
+	
+	vec3 camPos = (InvView * vec4(1.0)).xyz;
+	vec3 WorldPos = (model * vec4(1.0)).xyz;
+
+	vec3 V = normalize(camPos - WorldPos);
+	vec3 L = normalize(Lights[0].pos.xyz - WorldPos);
+	vec3 H = normalize(V + L);
+
+	return fresnelSchlick(max(dot(H, V), 0.0), 0.04);
+
+	//return clamp(0.04 - dot(normal, V), 0.0, 1.0);
 }
 
 

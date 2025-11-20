@@ -5,7 +5,8 @@
 		"font": "font.fs",
 		"scroller": "scroller.fs",
 		"boingball": "boingball.fs",
-		"background": "background.fs"
+		"background": "background.fs",
+		"postfx": "postfx.fs"
 	},
 	"model.vs": {
 		"model": "model.fs",

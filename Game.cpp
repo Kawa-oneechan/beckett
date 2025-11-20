@@ -13,6 +13,7 @@
 #include "engine/Shader.h"
 #include "engine//Random.h"
 #include "Camera.h"
+#include "engine/Framebuffer.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
@@ -177,6 +178,7 @@ class TrainScene : public Tickable
 private:
 	Model model{ "example/opening train.fbx" };
 	float bumpTimer{ 0.0f };
+	Framebuffer* postFx;
 
 public:
 	TrainScene()
@@ -194,6 +196,13 @@ public:
 		commonUniforms.Lights[2].pos = glm::vec4(16, 22, -40, 0);
 
 		commonUniforms.Toon = false;
+
+		//postFx = new Framebuffer(Shaders["postfx"], width, height);
+	}
+
+	~TrainScene()
+	{
+		//delete postFx;
 	}
 
 	bool Tick(float dt) override
@@ -215,6 +224,9 @@ public:
 		(void)(dt);
 
 		Sprite::FlushBatch();
+
+		//postFx->Use();
+
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 
@@ -223,8 +235,11 @@ public:
 
 		model.Draw(glm::vec3(0));
 		MeshBucket::Flush();
-
+		
 		glDisable(GL_DEPTH_TEST);
+
+		//postFx->Drop();
+		//postFx->Draw(glm::vec2(0), glm::vec2(width, height));
 	}
 };
 
