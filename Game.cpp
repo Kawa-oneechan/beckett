@@ -38,10 +38,18 @@ public:
 	bool Raw{ false };
 	std::function<void()> OnClick{};
 
-	Button(const std::string& text, glm::vec2 position) : Text(text)
+	Button(const std::string& text, glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Text(text)
 	{
 		parent = nullptr;
 		Position = position;
+		Size = size;
+
+		auto minSize = GetMinimalSize();
+		float s = GetScale();
+		if (Size.x == -1)
+			Size.x = minSize.x * s;
+		if (Size.y == -1)
+			Size.y = minSize.y * s;
 	}
 
 	bool Tick(float) override
@@ -50,10 +58,10 @@ public:
 			return true;
 		if (!OnClick)
 			return true;
-		if (Inputs.MousePosition.x > Position.x &&
-			Inputs.MousePosition.y > Position.y &&
-			Inputs.MousePosition.x < Position.x + Size.x &&
-			Inputs.MousePosition.y < Position.y + Size.y)
+		if (Inputs.MousePosition.x > AbsolutePosition.x &&
+			Inputs.MousePosition.y > AbsolutePosition.y &&
+			Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
+			Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
 		{
 			OnClick();
 			return false;
@@ -63,19 +71,79 @@ public:
 
 	void Draw(float) override
 	{
-		float s = Scale > 0 ? Scale : scale;
+		float s = GetScale();
 		auto color = BackColor;
-		if (Inputs.MousePosition.x > Position.x &&
-			Inputs.MousePosition.y > Position.y &&
-			Inputs.MousePosition.x < Position.x + Size.x &&
-			Inputs.MousePosition.y < Position.y + Size.y)
+		if (Inputs.MousePosition.x > AbsolutePosition.x &&
+			Inputs.MousePosition.y > AbsolutePosition.y &&
+			Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
+			Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
 			color.a = 1.0f;
-		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, color);
-		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
+		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size * s, glm::vec4(0), 0.0f, color);
+		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + (Size * s)), Color);
 		auto size = Sprite::MeasureText(Font, Text, TextSize * s, Raw);
 		auto center = (Size * 0.5f) - (size * 0.5f);
 		center.y += 4;
-		Sprite::DrawText(Font, Text, AbsolutePosition + center, Color, TextSize * s, Angle, Raw);
+		Sprite::DrawText(Font, Text, AbsolutePosition + (center * s), Color, TextSize * s, Angle, Raw);
+	}
+
+	glm::vec2 GetMinimalSize() override
+	{
+		float s = GetScale();
+		return Sprite::MeasureText(Font, Text, TextSize * s, Raw) + glm::vec2(16, 8);
+	}
+
+	glm::vec2 GetSize() override
+	{
+		return Size;
+	}
+};
+
+class TestPanel : public Tickable2D
+{
+public:
+	glm::vec4 Color{ 1, 1, 1, 1 };
+	glm::vec4 BackColor{ 0.75, 0, 0, 0.5 };
+	glm::vec2 Size;
+public:
+	TestPanel(glm::vec2 position, glm::vec2 size = glm::vec2(-1))
+	{
+		parent = nullptr;
+		Position = position;
+		Size = size;
+
+		auto minSize = GetMinimalSize();
+		if (Size.x == -1)
+			Size.x = minSize.x;
+		if (Size.y == -1)
+			Size.y = minSize.y;
+
+		Size += glm::vec2(8);
+	}
+
+	void Draw(float dt) override
+	{
+		float s = GetScale();
+		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size * s, glm::vec4(0), 0.0f, BackColor);
+		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + (Size * s)), Color);
+
+		Tickable2D::Draw(dt);
+	}
+
+	void Reflow()
+	{
+		UpdatePosition();
+		float s = GetScale();
+		auto pos = glm::vec2(8) * s;
+		for (const auto& t : ChildTickables)
+		{
+			if (auto t2D = dynamic_cast<Tickable2D*>(t.get()))
+			{
+				t2D->Position = pos;
+				t2D->UpdatePosition();
+				pos.y += (t2D->GetSize().y + 8) * s;
+			}
+		}
+		Size = GetMinimalSize();
 	}
 };
 
@@ -111,7 +179,7 @@ public:
 		(void)(dt);
 		auto time = commonUniforms.TotalTime * 10.0f;
 		auto pos = glm::vec2(ScreenWidth, ScreenHeight) * 0.5f;
-		
+
 		Sprite::DrawSprite(stage,
 			pos, stage[0], 0.0f,
 			glm::vec4(glm::vec3(0.5f + glm::abs(glm::sin(time * 0.1f) * 0.5f)), 1.0f),
@@ -235,7 +303,7 @@ public:
 
 		model.Draw(glm::vec3(0));
 		MeshBucket::Flush();
-		
+
 		glDisable(GL_DEPTH_TEST);
 
 		//postFx->Drop();
@@ -355,8 +423,7 @@ public:
 
 		AddChild(std::make_shared<TrainScene>());
 
-
-		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8));
+		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8), glm::vec2(160, -1));
 		testButton->OnClick = []()
 		{
 			//conprint(0, "Yowza!");
@@ -364,6 +431,13 @@ public:
 		};
 		testButton->AbsolutePosition = testButton->Position;
 		//AddChild(testButton);
+
+		auto testPanel = std::make_shared<TestPanel>(glm::vec2(4));
+		testPanel->AddChild(testButton);
+		testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(8), glm::vec2(160, -1)));
+		testPanel->Scale = 1.0;
+		testPanel->Reflow();
+		AddChild(testPanel);
 
 		//MainCamera->FirstPerson(true);
 		//AddChild(std::make_shared<FirstPersonController>());

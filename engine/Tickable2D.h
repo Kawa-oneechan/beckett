@@ -12,7 +12,7 @@ class Tickable2D;
 class Tickable2D : public Tickable
 {
 protected:
-	Tickable2D* parent{ nullptr };
+	Tickable2D* parent{ nullptr }; 
 public:
 	glm::vec2 Position;
 	glm::vec2 AbsolutePosition;
@@ -41,6 +41,55 @@ public:
 	{
 		newChild->parent = this;
 		ChildTickables.push_back(newChild);
+	}
+
+	virtual glm::vec2 GetMinimalSize()
+	{
+		auto ret = glm::vec2(0);
+		for (const auto t : ChildTickables)
+		{
+			if (auto t2D = dynamic_cast<Tickable2D*>(t.get()))
+			{
+				auto tl = t2D->AbsolutePosition;
+				auto br = tl + t2D->GetSize();
+				if (br.x > ret.x)
+					ret.x = br.x;
+				if (br.y > ret.y)
+					ret.y = br.y;
+			}
+		}
+		return ret;
+	}
+
+	virtual glm::vec2 GetSize()
+	{
+		return GetMinimalSize();
+	}
+
+	virtual float GetScale()
+	{
+		float s = Scale > 0 ? Scale : scale;
+		if (parent)
+			s = s * parent->GetScale();
+		return s;
+	}
+
+	void UpdatePosition()
+	{
+		if (parent)
+		{
+			float s = Scale > 0 ? Scale : scale;
+			AbsolutePosition = parent->AbsolutePosition + (Position * s);
+		}
+		else
+		{
+			AbsolutePosition = Position;
+		}
+		for (const auto& t : ChildTickables)
+		{
+			if (auto t2D = dynamic_cast<Tickable2D*>(t.get()))
+				t2D->UpdatePosition();
+		}
 	}
 };
 
