@@ -2,7 +2,7 @@
 	//Keys are used in matmap files and C++ code alike.
 	"sprite.vs": {
 		"sprite": "sprite.fs",
-		"font": "font.fs",
+		"red8": "red8.fs",
 		"scroller": "scroller.fs",
 		"boingball": "boingball.fs",
 		"background": "background.fs",
