@@ -25,6 +25,20 @@ constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
 std::shared_ptr<Camera> MainCamera;
 
+static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color, int flags)
+{
+	Sprite::DrawSprite(*whiteRect, pos, size - glm::vec2(1), glm::vec4(0), 0.0f, color);
+
+	auto diff = glm::vec4(0.25, 0.25, 0.25, 0.0);
+	auto hi = color + diff;
+	auto lo = color - diff;
+
+	Sprite::DrawLine(pos, pos + glm::vec2(size.x - 1, 0), hi);
+	Sprite::DrawLine(pos + glm::vec2(0, 1), pos + glm::vec2(0, size.y - 1), hi);
+	Sprite::DrawLine(pos + glm::vec2(0, size.y - 1), pos + glm::vec2(size.x - 1, size.y - 1), lo);
+	Sprite::DrawLine(pos + glm::vec2(size.x, 1), pos + glm::vec2(size.x, size.y - 1), lo);
+}
+
 class Button : public Tickable2D
 {
 public:
@@ -37,6 +51,7 @@ public:
 	int Font{ 1 };
 	bool Raw{ false };
 	std::function<void()> OnClick{};
+	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ FrameDrawer };
 
 	Button(const std::string& text, glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Text(text)
 	{
@@ -45,11 +60,10 @@ public:
 		Size = size;
 
 		auto minSize = GetMinimalSize();
-		float s = GetScale();
 		if (Size.x == -1)
-			Size.x = minSize.x * s;
+			Size.x = minSize.x;
 		if (Size.y == -1)
-			Size.y = minSize.y * s;
+			Size.y = minSize.y;
 	}
 
 	bool Tick(float) override
@@ -71,25 +85,25 @@ public:
 
 	void Draw(float) override
 	{
-		float s = GetScale();
 		auto color = BackColor;
 		if (Inputs.MousePosition.x > AbsolutePosition.x &&
 			Inputs.MousePosition.y > AbsolutePosition.y &&
 			Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
 			Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
 			color.a = 1.0f;
-		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size * s, glm::vec4(0), 0.0f, color);
-		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + (Size * s)), Color);
-		auto size = Sprite::MeasureText(Font, Text, TextSize * s, Raw);
+		//Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, color);
+		//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
+		FrameDrawer(AbsolutePosition, Size, color, 0);
+
+		auto size = Sprite::MeasureText(Font, Text, TextSize, Raw);
 		auto center = (Size * 0.5f) - (size * 0.5f);
 		center.y += 4;
-		Sprite::DrawText(Font, Text, AbsolutePosition + (center * s), Color, TextSize * s, Angle, Raw);
+		Sprite::DrawText(Font, Text, AbsolutePosition + center, Color, TextSize, Angle, Raw);
 	}
 
 	glm::vec2 GetMinimalSize() override
 	{
-		float s = GetScale();
-		return Sprite::MeasureText(Font, Text, TextSize * s, Raw) + glm::vec2(16, 8);
+		return Sprite::MeasureText(Font, Text, TextSize, Raw) + glm::vec2(16, 8);
 	}
 
 	glm::vec2 GetSize() override
@@ -105,6 +119,8 @@ public:
 	glm::vec4 BackColor{ 0.75, 0, 0, 0.5 };
 	glm::vec2 Size;
 public:
+	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ FrameDrawer };
+
 	TestPanel(glm::vec2 position, glm::vec2 size = glm::vec2(-1))
 	{
 		parent = nullptr;
@@ -122,9 +138,9 @@ public:
 
 	void Draw(float dt) override
 	{
-		float s = GetScale();
-		Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size * s, glm::vec4(0), 0.0f, BackColor);
-		Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + (Size * s)), Color);
+		//Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, BackColor);
+		//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
+		FrameDrawer(AbsolutePosition, Size, BackColor, 0);
 
 		Tickable2D::Draw(dt);
 	}
@@ -132,15 +148,14 @@ public:
 	void Reflow()
 	{
 		UpdatePosition();
-		float s = GetScale();
-		auto pos = glm::vec2(8) * s;
+		auto pos = glm::vec2(8);
 		for (const auto& t : ChildTickables)
 		{
 			if (auto t2D = dynamic_cast<Tickable2D*>(t.get()))
 			{
 				t2D->Position = pos;
 				t2D->UpdatePosition();
-				pos.y += (t2D->GetSize().y + 8) * s;
+				pos.y += t2D->GetSize().y + 8;
 			}
 		}
 		Size = GetMinimalSize();
@@ -277,9 +292,9 @@ public:
 
 	bool Tick(float dt) override
 	{
-		bumpTimer += dt;
+		//bumpTimer += dt;
 		auto t = MainCamera->Target();
-		t.y = Random::GetFloat(12.0f, 12.1f);
+		//t.y = Random::GetFloat(12.0f, 12.1f);
 		if (bumpTimer > 2.0f)
 			t.y = 12.4f;
 		MainCamera->Target(t);
@@ -438,9 +453,8 @@ public:
 		auto testPanel = std::make_shared<TestPanel>(glm::vec2(4));
 		testPanel->AddChild(testButton);
 		testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(8), glm::vec2(160, -1)));
-		testPanel->Scale = 1.0;
 		testPanel->Reflow();
-		//AddChild(testPanel);
+		AddChild(testPanel);
 
 		//MainCamera->FirstPerson(true);
 		//AddChild(std::make_shared<FirstPersonController>());

@@ -16,11 +16,10 @@ protected:
 public:
 	glm::vec2 Position;
 	glm::vec2 AbsolutePosition;
-	float Scale{ -1 };
 
 	virtual bool Tick(float dt) override
 	{
-		AbsolutePosition = (parent ? parent->AbsolutePosition + Position : (Position * (Scale > 0 ? Scale : ::scale)));
+		AbsolutePosition = (parent ? (parent->AbsolutePosition + Position) : Position) * ::scale;
 		for (unsigned int i = (unsigned int)ChildTickables.size(); i-- > 0; )
 		{
 			auto t = ChildTickables[i];
@@ -66,20 +65,11 @@ public:
 		return GetMinimalSize();
 	}
 
-	virtual float GetScale()
-	{
-		float s = Scale > 0 ? Scale : scale;
-		if (parent)
-			s = s * parent->GetScale();
-		return s;
-	}
-
 	void UpdatePosition()
 	{
 		if (parent)
 		{
-			float s = Scale > 0 ? Scale : scale;
-			AbsolutePosition = parent->AbsolutePosition + (Position * s);
+			AbsolutePosition = parent->AbsolutePosition + Position;
 		}
 		else
 		{
@@ -113,8 +103,7 @@ public:
 
 	void Draw(float) override
 	{
-		float s = Scale > 0 ? Scale : scale;
-		Sprite::DrawText(Font, Text, AbsolutePosition, Color, Size * s, Angle, Raw);
+		Sprite::DrawText(Font, Text, AbsolutePosition, Color, Size, Angle, Raw);
 	}
 };
 
@@ -151,9 +140,8 @@ public:
 
 	void Draw(float) override
 	{
-		float s = Scale > 0 ? Scale : scale;
 		auto frame = texture->operator[](Frame);
-		auto scaledSize = glm::vec2(frame.z, frame.w) * s;
-		Sprite::DrawSprite(*texture, AbsolutePosition, scaledSize, frame, 0.0f, glm::vec4(1), Flags);
+		auto size = glm::vec2(frame.z, frame.w);
+		Sprite::DrawSprite(*texture, AbsolutePosition, size, frame, 0.0f, glm::vec4(1), Flags);
 	}
 };
