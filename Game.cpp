@@ -244,9 +244,11 @@ public:
 class TrainScene : public Tickable
 {
 private:
-	Model model{ "example/opening train.fbx" };
+	Model model{ "example/train/train.fbx" };
 	float bumpTimer{ 0.0f };
 	Framebuffer* postFx;
+
+	Model bob{ "example/bob/bob.fbx" };
 
 public:
 	TrainScene()
@@ -301,6 +303,7 @@ public:
 		//commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 1.0f);
 		//commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
 
+		bob.Draw(glm::vec3(3, 4, -14));
 		model.Draw(glm::vec3(0));
 		MeshBucket::Flush();
 
@@ -437,7 +440,7 @@ public:
 		testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(8), glm::vec2(160, -1)));
 		testPanel->Scale = 1.0;
 		testPanel->Reflow();
-		AddChild(testPanel);
+		//AddChild(testPanel);
 
 		//MainCamera->FirstPerson(true);
 		//AddChild(std::make_shared<FirstPersonController>());

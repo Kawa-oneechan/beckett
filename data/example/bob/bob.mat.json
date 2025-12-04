@@ -1,0 +1,22 @@
+{
+	"mBody": {
+		"albedo": "body_alb.png",
+		"mix": "body_mix.png",
+		"normal": "body_nrm.png"
+	},
+	"mCapVis": {
+		"albedo": "body_alb.png",
+		"mix": "body_mix.png",
+		"normal": "body_nrm.png"
+	},
+	"mEye": {
+		"albedo": "eye0_alb.png",
+		"mix": "eye0_mix.png",
+		"normal": "eye0_nrm.png"
+	},
+	"mMouth": {
+		"albedo": "mouth0_alb.png",
+		"mix": "mouth0_mix.png",
+		"normal": "mouth0_nrm.png"
+	}
+}

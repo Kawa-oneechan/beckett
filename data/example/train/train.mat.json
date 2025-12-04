@@ -1,0 +1,32 @@
+{
+	"mMetal": {
+		"albedo": "couchmetal_alb.png",
+		"mix": "couchmetal_mix.png",
+		"normal": "couchmetal_nrm.png"
+	},
+	"mSeat": {
+		"albedo": "couchseat_alb.png",
+		"mix": "couchseat_mix.png",
+		"normal": "couchseat_nrm.png"
+	},
+	"mPosters": {
+		"albedo": "posters_alb.png"
+	},
+	"mWall": {
+		"albedo": "wall_alb.png",
+		"mix": "wall_mix.png",
+		"normal": "wall_nrm.png"
+	},
+	"mFloor": {
+		"albedo": "floor_alb.png",
+		"mix": "floor_mix.png",
+		"normal": "floor_nrm.png"
+	},
+	"mLights": {
+		"shader": "warm_unlit"
+	},
+	"mGlass": {
+		"albedo": "woods_alb.png",
+		"shader": "fast_horiz"
+	}
+}

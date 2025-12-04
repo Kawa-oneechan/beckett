@@ -82,9 +82,9 @@ float getFresnel(mat4 model, vec3 normal)
 	vec3 L = normalize(Lights[0].pos.xyz - WorldPos);
 	vec3 H = normalize(V + L);
 
-	return fresnelSchlick(max(dot(H, V), 0.0), 0.04);
+	//return fresnelSchlick(max(dot(H, V), 0.0), 0.04);
 
-	//return clamp(0.04 - dot(normal, V), 0.0, 1.0);
+	return clamp(0.4 - dot(normal, V), 0.0, 1.0);
 }
 
 
