@@ -19,7 +19,7 @@ public:
 
 	virtual bool Tick(float dt) override
 	{
-		AbsolutePosition = (parent ? (parent->AbsolutePosition + Position) : Position) * ::scale;
+		AbsolutePosition = (parent ? (parent->AbsolutePosition + Position) : Position);
 		for (unsigned int i = (unsigned int)ChildTickables.size(); i-- > 0; )
 		{
 			auto t = ChildTickables[i];

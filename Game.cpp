@@ -48,7 +48,7 @@ public:
 	glm::vec2 Size{ 128, 32 };
 	float TextSize{ 100.0f };
 	float Angle{ 0.0f };
-	int Font{ 1 };
+	int Font{ 0 };
 	bool Raw{ false };
 	std::function<void()> OnClick{};
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ FrameDrawer };
@@ -97,7 +97,6 @@ public:
 
 		auto size = Sprite::MeasureText(Font, Text, TextSize, Raw);
 		auto center = (Size * 0.5f) - (size * 0.5f);
-		center.y += 4;
 		Sprite::DrawText(Font, Text, AbsolutePosition + center, Color, TextSize, Angle, Raw);
 	}
 
@@ -238,6 +237,19 @@ private:
 	Model model{ "example/scene.fbx" };
 
 public:
+	MapScene()
+	{
+		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.5);
+		commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
+	}
+
+	bool Tick(float dt) override
+	{
+		commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 0.5f);
+		commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 0.5f);
+		return Tickable::Tick(dt);
+	}
+
 	void Draw(float dt) override
 	{
 		(void)(dt);
@@ -245,9 +257,6 @@ public:
 		Sprite::FlushBatch();
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-
-		commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 1.0f);
-		commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
 
 		model.Draw(glm::vec3(0));
 		MeshBucket::Flush();
@@ -439,7 +448,7 @@ public:
 		//bgm->Play(false, false);
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
 
-		AddChild(std::make_shared<TrainScene>());
+		AddChild(std::make_shared<MapScene>());
 
 		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8), glm::vec2(160, -1));
 		testButton->OnClick = []()
@@ -564,10 +573,6 @@ void Game::Initialize()
 	MainCamera->Angles(glm::vec3(0, 18, 140));
 	MainCamera->Target(glm::vec3(0, 5, 0));
 
-	commonUniforms.Lights[0].color = glm::vec4(1.0);
-	commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
-	//commonUniforms.Lights[1].color = glm::vec4(1, 0, 0, 0.25);
-	//commonUniforms.Lights[1].pos = glm::vec4(0, -15, 0, 0);
 	commonUniforms.Fresnel = true;
 }
 
