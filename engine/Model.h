@@ -99,9 +99,6 @@ public:
 
 private:
 	std::string file;
-	TextureArray fallback{ "fallback.png" };
-	TextureArray fallbackNormal{ "fallback_nrm.png" };
-	TextureArray white{ "white.png" };
 
 	void CalculateBoneTransform(int id);
 
@@ -117,6 +114,7 @@ public:
 
 	Model() = default;
 	explicit Model(const std::string& modelPath);
+	~Model();
 
 	//Queues the model for drawing at the specified position and rotation. If the mesh argument is -1, the entire model is drawn.
 	void Draw(const glm::vec3& pos = glm::vec3(0), float yaw = 0, int mesh = -1);

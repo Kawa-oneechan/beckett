@@ -148,6 +148,8 @@ Texture::Texture(const unsigned char* externalData, int width, int height, int c
 
 Texture::~Texture()
 {
+	if (Locked)
+		return;
 	if (cache.size() == 0)
 		return;
 	auto c = cache.find(file);
@@ -374,14 +376,13 @@ TextureArray::TextureArray(const std::string& texturePath, int repeat, int filte
 
 TextureArray::~TextureArray()
 {
+	if (Locked)
+		return;
 	if (cacheArray.size() == 0)
 		return;
 	auto c = cacheArray.find(file);
 	if (c != cacheArray.end())
 	{
-		//BUGBUG
-		if (file == "white.png" || file == "fallback.png" || file == "fallback_nrm.png")
-			return;
 		TextureArray* t = c->second;
 		t->refCount--;
 		if (t->refCount > 0)

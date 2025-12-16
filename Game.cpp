@@ -272,7 +272,8 @@ private:
 	float bumpTimer{ 0.0f };
 	Framebuffer* postFx;
 
-	Model bob{ "example/bob/bob.fbx" };
+	//Model bob{ "example/bob/bob.fbx" };
+	Model* bob{ nullptr };
 
 public:
 	TrainScene()
@@ -310,6 +311,20 @@ public:
 		if (bumpTimer > 2.1f)
 			bumpTimer = 0.0f;
 
+		if (Inputs.KeyDown(Binds::WalkN))
+		{
+			if (!bob)
+				bob = new Model("example/bob/bob.fbx");
+		}
+		else if (Inputs.KeyDown(Binds::WalkS))
+		{
+			if (bob)
+			{
+				delete bob;
+				bob = nullptr;
+			}
+		}
+
 		return Tickable::Tick(dt);
 	}
 
@@ -327,8 +342,10 @@ public:
 		//commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 1.0f);
 		//commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
 
-		bob.Draw(glm::vec3(3, 4, -14));
+		if (bob != nullptr)
+			bob->Draw(glm::vec3(3, 4, -14));
 		model.Draw(glm::vec3(0));
+
 		MeshBucket::Flush();
 
 		glDisable(GL_DEPTH_TEST);
@@ -587,7 +604,7 @@ void Game::PrepareSaveDirs()
 void Game::Start(std::vector<TickableP>& tickables)
 {
 	tickables.push_back(MainCamera);
-	tickables.push_back(std::make_shared<TestScreen>());
+	tickables.push_back(std::make_shared<TrainScene>());
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)

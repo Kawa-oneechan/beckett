@@ -43,6 +43,10 @@ static glm::quat ufbxToGlmQuat(const ufbx_quat& qua)
 }
 #pragma warning(pop)
 
+static TextureArray* fallback{ nullptr }; //{ "fallback.png" };
+static TextureArray* fallbackNormal{ nullptr }; // { "fallback_nrm.png" };
+static TextureArray* white{ nullptr }; //{ "white.png" };
+
 Model::Model(const std::string& modelPath) : file(modelPath)
 {
 	auto c = cache.find(modelPath);
@@ -59,6 +63,16 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 	}
 
 	Hash = GetCRC(file);
+
+	if (!fallback)
+	{
+		fallback = new TextureArray("fallback.png");
+		fallbackNormal = new TextureArray("fallback_nrm.png");
+		white = new TextureArray("white.png");
+		fallback->Locked = true;
+		fallbackNormal->Locked = true;
+		white->Locked = true;
+	}
 
 	size_t vfsSize = 0;
 	auto vfsData = VFS::ReadData(modelPath, &vfsSize);
@@ -166,10 +180,10 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 			m.Shader = Shaders["model"];
 			m.Translucent = false;
 			m.Opaque = false;
-			m.Textures[0] = &fallback;
-			m.Textures[1] = &fallbackNormal;
-			m.Textures[2] = &white;
-			m.Textures[3] = &white;
+			m.Textures[0] = fallback;
+			m.Textures[1] = fallbackNormal;
+			m.Textures[2] = white;
+			m.Textures[3] = white;
 
 			if (node->mesh->materials.count > 0)
 			{
@@ -230,6 +244,31 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 	ufbx_free_scene(scene);
 
 	cache[file] = std::make_tuple(this, 1);
+}
+
+Model::~Model()
+{
+	conprint(5, "Destructing model {}", this->file);
+	if (cache.size() == 0)
+		return;
+	auto c = cache.find(file);
+	if (c != cache.end())
+	{
+		Model* m = std::get<0>(c->second);
+		int i = std::get<1>(c->second);
+		i--;
+		if (i > 0)
+		{
+			conprint(5, "Actually only decreasing refcount.");
+			c->second = std::make_tuple(m, i);
+			return;
+		}
+		else
+		{
+			conprint(5, "Actually destructing.");
+			cache.erase(c);
+		}
+	}
 }
 
 void Model::Draw(const glm::vec3& pos, float yaw, int mesh)
