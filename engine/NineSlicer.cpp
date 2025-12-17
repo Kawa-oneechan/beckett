@@ -4,7 +4,7 @@
 
 extern float scale;
 
-NineSlicer::NineSlicer(const std::string& texPath, int left, int top, int width, int height) : texture(std::make_shared<Texture>(texPath)), Size(glm::vec2(width, height))
+NineSlicer::NineSlicer(const std::string& texture, int left, int top, int width, int height) : texture(std::make_shared<Texture>(texture)), Size(glm::vec2(width, height))
 {
 	parent = nullptr;
 	Position = glm::vec2(left, top);

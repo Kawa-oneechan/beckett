@@ -82,7 +82,7 @@ public:
 	void Draw(float dt) override {}
 	bool Tick(float) override;
 
-	std::shared_ptr<MapLayer> operator[](size_t i);
+	std::shared_ptr<MapLayer> operator[](size_t i) const;
 	std::shared_ptr<MapLayer> GetLayer(size_t i);
 	void Tilemap::SetTile(int row, int col, int tile);
 	void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles);

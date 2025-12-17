@@ -94,7 +94,7 @@ public:
 		bool Billboard{ false };
 
 		Mesh(ufbx_mesh* mesh, const std::array<Bone, MaxBones>& bones, size_t boneCt);
-		const size_t Indices() { return indices.size(); }
+		const size_t Indices() const { return indices.size(); }
 	};
 
 private:
