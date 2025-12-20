@@ -6,6 +6,21 @@
 #include "Game.h"
 #include "Camera.h"
 
+extern bool TimeLocked;
+extern float TimeOfDay;
+extern glm::vec3 NightSkyColor;
+
+static void DoSky()
+{
+	if (ImGui::Begin("Sky"))
+	{
+		ImGui::ColorPicker4("Night", &NightSkyColor.x, ImGuiColorEditFlags_DisplayRGB);
+		ImGui::Checkbox("Time locked", &TimeLocked);
+		ImGui::SliderFloat("Time of day", &TimeOfDay, 0.0f, 1.0f);
+	}
+	ImGui::End();
+}
+
 static void DoCamera()
 {
 	if (ImGui::Begin("Camera"))
@@ -178,4 +193,6 @@ void Game::ImGui()
 {
 	DoCamera();
 	DoLights();
+
+	DoSky();
 }

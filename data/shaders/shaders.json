@@ -6,6 +6,7 @@
 		"scroller": "scroller.fs",
 		"boingball": "boingball.fs",
 		"background": "background.fs",
+		"sky": "sky.fs",
 		"postfx": "postfx.fs"
 	},
 	"model.vs": {

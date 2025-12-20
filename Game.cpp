@@ -14,6 +14,7 @@
 #include "engine//Random.h"
 #include "Camera.h"
 #include "engine/Framebuffer.h"
+#include <ctime>
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
@@ -385,6 +386,44 @@ public:
 	Subtitle(const std::string& text, glm::vec2 position) : TextLabel(text, position) {}
 };
 
+bool TimeLocked = false;
+float TimeOfDay = 0.5;
+glm::vec3 NightSkyColor = glm::vec3(0);
+
+class Sky : public Tickable
+{
+private:
+	Texture cloudImage{ "example/sky/clouds.png" };
+	Texture starsImage{ "example/sky/starfield.png" };
+	Texture skyImage{ "example/sky/skycolors.png" };
+
+public:
+	void Draw(float dt) override
+	{
+		Shaders["sky"]->Use();
+		if (TimeLocked)
+		{
+			Shaders["sky"]->Set("TimeOfDay", TimeOfDay);
+		}
+		else
+		{
+			tm gm{};
+			auto now = time(nullptr);
+			localtime_s(&gm, &now);
+			Shaders["sky"]->Set("TimeOfDay", (gm.tm_hour / 24.0f) + ((gm.tm_min / 60.0f) / 24.0f));
+		}
+
+		Shaders["sky"]->Set("NightSkyColor", NightSkyColor);
+
+		cloudImage.Use(1);
+		starsImage.Use(2);
+		skyImage.Use(3);
+
+		Sprite::DrawSprite(Shaders["sky"], *whiteRect, glm::vec2(0), glm::vec2(width, height));
+		Sprite::FlushBatch();
+	}
+};
+
 class FirstPersonController : public Tickable
 {
 	bool Tick(float dt) override
@@ -427,6 +466,9 @@ public:
 		//AddChild(std::make_shared<Background>());
 		//AddChild(std::make_shared<RoryNite>());
 
+		AddChild(std::make_shared<Sky>());
+
+		AddChild(std::make_shared<MapScene>());
 		/*
 		tilemapMgr = std::make_shared<Tilemap>("maps/test3.json");
 		tilemapMgr->Scale = 2.0f;
@@ -452,11 +494,11 @@ public:
 		AddChild(panel);
 
 		AddChild(std::make_shared<SimpleSprite>("rorynite.png", 0, glm::vec2(480, 32)));
+		//*/
 
 		labelTest = std::make_shared<DropLabel>("Does this have a blurry\noutline?\n    ... yes yes it do", 2,75.0f, UI::themeColors["white"], DropLabel::Style::Blur);
 		labelTest->Position = glm::vec2(32);
 		AddChild(labelTest);
-		//*/
 
 		//AddChild(std::make_shared<Teapot>());
 
@@ -464,8 +506,6 @@ public:
 		//bgm->RegisterListener((AudioEventListener*)panelText.get());
 		//bgm->Play(false, false);
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
-
-		AddChild(std::make_shared<MapScene>());
 
 		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8), glm::vec2(160, -1));
 		testButton->OnClick = []()
@@ -483,7 +523,7 @@ public:
 		AddChild(testPanel);
 
 		//MainCamera->FirstPerson(true);
-		//AddChild(std::make_shared<FirstPersonController>());
+		AddChild(std::make_shared<FirstPersonController>());
 	}
 
 	bool Tick(float dt) override
@@ -604,7 +644,7 @@ void Game::PrepareSaveDirs()
 void Game::Start(std::vector<TickableP>& tickables)
 {
 	tickables.push_back(MainCamera);
-	tickables.push_back(std::make_shared<TrainScene>());
+	tickables.push_back(std::make_shared<TestScreen>());
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)
