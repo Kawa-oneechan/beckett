@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 class Texture;
+class TextureArray;
 class Shader;
 
 class Framebuffer
@@ -11,7 +12,7 @@ private:
 	unsigned int fbo{ 0 };
 	unsigned int rbo{ 0 };
 	Texture* texture{ nullptr };
-	Texture* lut{ nullptr };
+	TextureArray* lut{ nullptr };
 	Shader* shader{ nullptr };
 	int width, height;
 	bool isSetup{ false };
@@ -26,7 +27,7 @@ public:
 	//Binds the FrameBuffer for use.
 	void Use();
 	//Releases the FrameBuffer, switching back to none.
-	static void Drop();
+	void Drop();
 	//Draws the FrameBuffer's contents at full size using the currently attached shader.
 	void Draw(const glm::vec2& pos = glm::vec2(0));
 	//Draws the FrameBuffer's contents using the currently attached shader.
@@ -42,9 +43,9 @@ public:
 	//Returns a reference to the FrameBuffer's underlying texture.
 	Texture& GetTexture();
 	//Replaces the color lookup table or whatever the attached shader needs in slot 1.
-	void SetLut(Texture* newLut);
+	void SetLut(TextureArray* newLut);
 	//Returns a pointer to the current color lookup table.
-	Texture* GetLut();
+	TextureArray* GetLut();
 
 	Framebuffer(const Framebuffer &x) = delete;
 	Framebuffer &operator=(const Framebuffer &x) = delete;
