@@ -246,6 +246,7 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 	cache[file] = std::make_tuple(this, 1);
 }
 
+#if 0
 Model::~Model()
 {
 	conprint(5, "Destructing model {}", this->file);
@@ -270,6 +271,7 @@ Model::~Model()
 		}
 	}
 }
+#endif
 
 void Model::Draw(const glm::vec3& pos, float yaw, int mesh)
 {
@@ -365,7 +367,7 @@ Model::Mesh& Model::GetMesh(int index)
 
 int Model::FindBone(const std::string& name)
 {
-	auto it = std::find_if(Bones.cbegin(), Bones.cend(), [name](const auto& e)
+	auto it = std::find_if(Bones.cbegin(), Bones.cbegin() + BoneCt, [name](const auto& e)
 	{
 		return e.Name == name;
 	});
@@ -388,6 +390,13 @@ void Model::CalculateBoneTransform(int id)
 
 void Model::CalculateBoneTransforms()
 {
+	if (BoneCt == 1)
+	{
+		CalculateBoneTransform(0);
+		finalBoneMatrices[0] = Bones[0].GlobalTransform * Bones[0].InverseBind;
+		return;
+	}
+
 	//Way I load my armature, the root can be *any* ID. Find it.
 	auto root = FindBone("Root");
 	if (root == NoBone)
@@ -404,7 +413,7 @@ void Model::CalculateBoneTransforms()
 		finalBoneMatrices[i] = Bones[i].GlobalTransform * Bones[i].InverseBind;
 }
 
-void Model::CopyBoneTransforms(ModelP target)
+void Model::CopyBoneTransforms(std::shared_ptr<Model> target)
 {
 	if (!target)
 		return;

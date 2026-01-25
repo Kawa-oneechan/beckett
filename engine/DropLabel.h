@@ -27,6 +27,7 @@ public:
 	//Changes the text of the DropLabel, causing a refresh of the underlying texture.
 	void SetText(const std::string& text);
 	const glm::vec2 Size() const { return size; }
+	class Texture& Texture() { return canvas; }
 	void Draw(float dt) override;
 };
 

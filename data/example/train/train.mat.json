@@ -28,5 +28,8 @@
 	"mGlass": {
 		"albedo": "woods_alb.png",
 		"shader": "fast_horiz"
+	},
+	"mBrian": {
+		"albedo": "brian.png"
 	}
 }

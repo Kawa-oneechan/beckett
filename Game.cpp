@@ -126,11 +126,11 @@ public:
 		Position = position;
 		Size = size;
 
-		auto minSize = GetMinimalSize();
+		//auto minSize = GetMinimalSize();
 		if (Size.x == -1)
-			Size.x = minSize.x;
+			Size.x = 32; //minSize.x;
 		if (Size.y == -1)
-			Size.y = minSize.y;
+			Size.y = 32; //minSize.y;
 
 		Size += glm::vec2(8);
 	}
@@ -270,7 +270,7 @@ class TrainScene : public Tickable
 private:
 	Model model{ "example/train/train.fbx" };
 	float bumpTimer{ 0.0f };
-	Framebuffer* postFx;
+	Framebuffer* postFx{ nullptr };
 
 	//Model bob{ "example/bob/bob.fbx" };
 	Model* bob{ nullptr };
@@ -465,7 +465,7 @@ public:
 		//bgm->Play(false, false);
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
 
-		AddChild(std::make_shared<MapScene>());
+		AddChild(std::make_shared<TrainScene>());
 
 		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8), glm::vec2(160, -1));
 		testButton->OnClick = []()
