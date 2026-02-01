@@ -33,9 +33,9 @@ bool PointInRect(const glm::vec2 point, const glm::vec4 rect)
 {
 	return
 		(point.x >= rect.x) &&
-		(point.x < rect.x + rect.z) &&
+		(point.x < rect.z) &&
 		(point.y >= rect.y) &&
-		(point.y < rect.y + rect.w);
+		(point.y < rect.w);
 }
 
 bool RevAllTickables(const std::vector<TickableP>& tickables, float dt)
