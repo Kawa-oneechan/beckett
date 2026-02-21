@@ -20,36 +20,24 @@ public:
 	virtual bool Tick(float dt) override
 	{
 		AbsolutePosition = (parent ? (parent->AbsolutePosition + Position) : Position);
-		for (unsigned int i = (unsigned int)ChildTickables.size(); i-- > 0; )
-		{
-			auto t = ChildTickables[i];
-			if (!t->Enabled)
-				continue;
-			if (!t->Tick(dt))
-				Inputs.Clear();
-		}
-		return true;
-	}
 
-	void AddChild(Tickable2D* newChild)
-	{
-		newChild->parent = this;
-		ChildTickables.push_back(std::shared_ptr<Tickable2D>(newChild));
-	}
-	void AddChild(std::shared_ptr<Tickable2D> newChild)
-	{
-		newChild->parent = this;
-		ChildTickables.push_back(newChild);
+		for (int i = 0; i < ChildTickables.size(); i++)
+		{
+			if (auto t2D = std::dynamic_pointer_cast<Tickable2D>(ChildTickables[i]))
+				t2D->parent = this;
+		}
+
+		return Tickable::Tick(dt);
 	}
 
 	virtual glm::vec2 GetMinimalSize()
 	{
 		auto ret = glm::vec2(0);
-		for (const auto t : ChildTickables)
+		for (int i = 0; i < ChildTickables.size(); i++)
 		{
-			if (auto t2D = dynamic_cast<Tickable2D*>(t.get()))
+			if (auto t2D = std::dynamic_pointer_cast<Tickable2D>(ChildTickables[i]))
 			{
-				auto tl = t2D->AbsolutePosition;
+				auto tl = t2D->Position;
 				auto br = tl + t2D->GetSize();
 				if (br.x > ret.x)
 					ret.x = br.x;
@@ -75,9 +63,9 @@ public:
 		{
 			AbsolutePosition = Position;
 		}
-		for (const auto& t : ChildTickables)
+		for (int i = 0; i < ChildTickables.size(); i++)
 		{
-			if (auto t2D = dynamic_cast<Tickable2D*>(t.get()))
+			if (auto t2D = std::dynamic_pointer_cast<Tickable2D>(ChildTickables[i]))
 				t2D->UpdatePosition();
 		}
 	}

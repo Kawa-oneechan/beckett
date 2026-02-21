@@ -146,18 +146,20 @@ public:
 
 	void Reflow()
 	{
+		constexpr auto margin = 8.0f;
 		UpdatePosition();
-		auto pos = glm::vec2(8);
-		for (const auto& t : ChildTickables)
+		Tick(0.0f);
+		auto pos = glm::vec2(margin);
+		for (int i = 0; i < ChildTickables.size(); i++)
 		{
-			if (auto t2D = dynamic_cast<Tickable2D*>(t.get()))
+			if (auto t2D = std::dynamic_pointer_cast<Tickable2D>(ChildTickables[i]))
 			{
 				t2D->Position = pos;
 				t2D->UpdatePosition();
-				pos.y += t2D->GetSize().y + 8;
+				pos.y += t2D->GetSize().y + margin;
 			}
 		}
-		Size = GetMinimalSize();
+		Size = GetMinimalSize() + glm::vec2(margin);
 	}
 };
 
