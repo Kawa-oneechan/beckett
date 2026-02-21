@@ -8,8 +8,13 @@ class Tickable;
 
 class Tickable
 {
+private:
+	std::vector<std::shared_ptr<Tickable>> addQueue;
+	bool iterating = false;
+
 protected:
 	std::vector<std::shared_ptr<Tickable>> ChildTickables;
+
 public:
 	bool* Mutex{ nullptr };
 	bool Dead{ false };
@@ -20,6 +25,7 @@ public:
 	virtual ~Tickable() {}
 	virtual bool Tick(float dt)
 	{
+		iterating = true;
 		for (unsigned int i = (unsigned int)ChildTickables.size(); i-- > 0; )
 		{
 			auto t = ChildTickables[i];
@@ -28,6 +34,20 @@ public:
 			if (!t->Tick(dt))
 				Inputs.Clear();
 		}
+		iterating = false;
+
+		ChildTickables.erase(std::remove_if(ChildTickables.begin(), ChildTickables.end(), [](std::shared_ptr<Tickable> i)
+		{
+			return i->Dead;
+		}), ChildTickables.end());
+
+		if (addQueue.size() > 0)
+		{
+			for (const auto& t : addQueue)
+				AddChild(t);
+			addQueue.clear();
+		}
+
 		return true;
 	}
 
@@ -67,17 +87,26 @@ public:
 
 	void AddChild(Tickable* newChild)
 	{
-		ChildTickables.push_back(std::shared_ptr<Tickable>(newChild));
+		if (iterating)
+			addQueue.push_back(std::shared_ptr<Tickable>(newChild));
+		else
+			ChildTickables.push_back(std::shared_ptr<Tickable>(newChild));
 	}
 	void AddChild(std::shared_ptr<Tickable> newChild)
 	{
-		ChildTickables.push_back(newChild);
+		if (iterating)
+			addQueue.push_back(newChild);
+		else
+			ChildTickables.push_back(newChild);
 	}
 	void RemoveChild(size_t i)
 	{
 		if (i >= ChildTickables.size())
 			return;
-		ChildTickables.erase(ChildTickables.begin() + i);
+		if (iterating)
+			ChildTickables[i]->Dead = true;
+		else
+			ChildTickables.erase(ChildTickables.begin() + i);
 	}
 	void RemoveChild(const std::string& n)
 	{
@@ -86,7 +115,12 @@ public:
 			return e->ID == n;
 		});
 		if (it != ChildTickables.end())
-			ChildTickables.erase(it);
+		{
+			if (iterating)
+				it->get()->Dead = true;
+			else
+				ChildTickables.erase(it);
+		}
 	}
 	void RemoveChild(std::shared_ptr<Tickable> c)
 	{
@@ -95,11 +129,36 @@ public:
 			return e == c;
 		});
 		if (it != ChildTickables.end())
-			ChildTickables.erase(it);
+		{
+			if (iterating)
+				it->get()->Dead = true;
+			else
+				ChildTickables.erase(it);
+		}
 	}
+	template<typename T>
+	void RemoveChild()
+	{
+		for (int i = 0; i < ChildTickables.size(); i++)
+		{
+			auto e = std::dynamic_pointer_cast<T>(ChildTickables[i]);
+			if (e)
+			{
+				RemoveChild(i);
+				return;
+			}
+		}
+	}
+
 	void RemoveAll()
 	{
-		ChildTickables.clear();
+		if (iterating)
+		{
+			for (auto& e : ChildTickables)
+				e->Dead = true;
+		}
+		else
+			ChildTickables.clear();
 	}
 	
 	template<typename T>
@@ -112,24 +171,51 @@ public:
 	template<typename T>
 	T* GetChild(const std::string& n) const
 	{
-		auto it = std::find_if(ChildTickables.begin(), ChildTickables.end(), [n](auto e)
+		for (auto& i : ChildTickables)
 		{
-			return e->ID == n;
-		});
-		if (it != ChildTickables.end())
-			return (T*)(*it).get();
+			auto e = std::dynamic_pointer_cast<T>(i);
+			if (e)
+			{
+				if (n.empty())
+					return e.get();
+				else if (i->ID == n)
+					return e.get();
+			}
+		}
+
 		return nullptr;
 	}
-	
+	template<typename T>
+	T* GetChild() const
+	{
+		for (auto& i : ChildTickables)
+		{
+			auto e = std::dynamic_pointer_cast<T>(i);
+			if (e)
+				return e.get();
+		}
+
+		return nullptr;
+	}
+
 	Tickable* operator[](size_t i) const
 	{
 		return GetChild<Tickable>(i);
 	}
 	Tickable* operator[](const std::string& n) const
 	{
-		return GetChild<Tickable>(n);
+		auto it = std::find_if(ChildTickables.begin(), ChildTickables.end(), [n](auto e)
+		{
+			return e->ID == n;
+		});
+		if (it != ChildTickables.end())
+			return it->get();
 	}
 
+	size_t size() const
+	{
+		return ChildTickables.size();
+	}
 };
 
 using TickableP = std::shared_ptr<Tickable>;

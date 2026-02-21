@@ -601,10 +601,10 @@ void Game::PrepareSaveDirs()
 }
 #endif
 
-void Game::Start(std::vector<TickableP>& tickables)
+void Game::Start(Tickable& root)
 {
-	tickables.push_back(MainCamera);
-	tickables.push_back(std::make_shared<TrainScene>());
+	root.AddChild(MainCamera);
+	root.AddChild(std::make_shared<MapScene>());
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)

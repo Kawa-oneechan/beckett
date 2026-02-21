@@ -39,7 +39,13 @@ static glm::vec3 ufbxToGlmVec(const ufbx_vec3& vec)
 
 static glm::quat ufbxToGlmQuat(const ufbx_quat& qua)
 {
-	return glm::make_quat(&qua.x);
+	auto q = glm::quat();
+	q.x = (float)qua.x;
+	q.y = (float)qua.y;
+	q.z = (float)qua.z;
+	q.w = (float)qua.w;
+	return q;
+	//return glm::make_quat(&qua.v[0]);
 }
 #pragma warning(pop)
 
@@ -469,4 +475,46 @@ void Model::CopyBoneTransforms(std::shared_ptr<Model> target)
 	target->CalculateBoneTransforms();
 }
 
+UfbxMisc::UfbxMisc(const std::string& modelPath)
+{
+	size_t vfsSize = 0;
+	auto vfsData = VFS::ReadData(modelPath, &vfsSize);
+
+	ufbx_load_opts options = {};
+	options.target_axes = ufbx_axes_right_handed_y_up;
+	//options.target_unit_meters = 1.0f;
+	options.target_camera_axes = ufbx_axes_left_handed_y_up;
+	options.target_light_axes = ufbx_axes_right_handed_y_up;
+	options.space_conversion = UFBX_SPACE_CONVERSION_ADJUST_TRANSFORMS;
+	ufbx_error errors;
+	ufbx_scene *scene = ufbx_load_memory(vfsData.get(), vfsSize, &options, &errors);
+	if (!scene)
+		FatalError(fmt::format("Could not load scene {}: {}", modelPath, errors.description.data));
+
+	debprint(5, "Loading cameras and lights in {}\n-------------------------------", modelPath);
+
+	for (size_t i = 0; i < scene->nodes.count; i++)
+	{
+		ufbx_node *node = scene->nodes.data[i];
+		if (node->light)
+		{
+			auto l = Light();
+			l.Position = ufbxToGlmVec(node->local_transform.translation);
+			auto c = ufbxToGlmVec(node->light->color);
+			l.Color = glm::vec4(c, (float)node->light->intensity * 0.025f);
+			Lights.emplace_back(l);
+		}
+		else if (node->camera)
+		{
+			auto c = Camera();
+			c.Position = ufbxToGlmVec(node->local_transform.translation);
+			c.Direction = glm::vec3(node->euler_rotation.x, node->euler_rotation.z, node->euler_rotation.y); //ufbxToGlmVec(node->euler_rotation);
+			//c.Direction = glm::vec3(node->euler_rotation.x, node->euler_rotation.y, node->euler_rotation.z);
+			//c.Direction = ufbxToGlmQuat(node->local_transform.rotation) * glm::vec3(0, 0, 1);
+			Cameras.emplace_back(c);
+		}
+	}
+
+	ufbx_free_scene(scene);
+}
 #endif

@@ -159,4 +159,23 @@ namespace MeshBucket
 using ModelP = std::shared_ptr<Model>;
 using Armature = std::array<Model::Bone, MaxBones>;
 
+class UfbxMisc
+{
+public:
+	struct Light
+	{
+		glm::vec3 Position;
+		glm::vec4 Color;
+	};
+	struct Camera
+	{
+		glm::vec3 Position;
+		glm::vec3 Direction;
+	};
+	std::vector<Light> Lights;
+	std::vector<Camera> Cameras;
+
+	UfbxMisc(const std::string& modelPath);
+};
+
 #endif
