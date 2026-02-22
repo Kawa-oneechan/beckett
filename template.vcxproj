@@ -144,7 +144,6 @@
     <ClInclude Include="engine\Texture.h" />
     <ClInclude Include="engine\TextUtils.h" />
     <ClInclude Include="engine\Tickable.h" />
-    <ClInclude Include="engine\Tickable2D.h" />
     <ClInclude Include="engine\Tilemap.h" />
     <ClInclude Include="engine\Types.h" />
     <ClInclude Include="engine\Utilities.h" />
@@ -183,6 +182,7 @@
     <ClCompile Include="engine\Texture.cpp" />
     <ClCompile Include="engine\TextUtils.cpp" />
     <ClCompile Include="engine\ThreadedLoader.cpp" />
+    <ClCompile Include="engine\Tickable.cpp" />
     <ClCompile Include="engine\Tilemap.cpp" />
     <ClCompile Include="engine\Utilities.cpp" />
     <ClCompile Include="engine\VFS.cpp" />

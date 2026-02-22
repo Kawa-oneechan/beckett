@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include "Tickable2D.h"
+#include "Tickable.h"
 #include "Texture.h"
 #include "JsonUtils.h"
 

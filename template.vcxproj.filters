@@ -130,6 +130,9 @@
     <ClCompile Include="DebugImgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engine\Tickable.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">
@@ -202,9 +205,6 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\Random.h">
-      <Filter>Engine\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\Tickable2D.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\Game.h">

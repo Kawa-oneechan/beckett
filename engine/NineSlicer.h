@@ -1,5 +1,5 @@
 #pragma once
-#include "Tickable2D.h"
+#include "Tickable.h"
 
 class Texture;
 
