@@ -6,6 +6,8 @@
 #include "Game.h"
 #include "Camera.h"
 
+using namespace Beck;
+
 static void DoCamera()
 {
 	if (ImGui::Begin("Camera"))

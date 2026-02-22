@@ -11,8 +11,13 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/transform.hpp>
 
-extern unsigned int commonBuffer;
-extern bool useOrthographic;
+namespace Beck
+{
+	extern unsigned int commonBuffer;
+	extern bool useOrthographic;
+}
+
+using namespace Beck;
 
 Camera::Camera(glm::vec3 target, glm::vec3 angles, float distance) : _target(target), _angles(angles), _distance(distance), _swapYZ(false), _firstPerson(false)
 {

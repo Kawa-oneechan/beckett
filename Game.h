@@ -48,34 +48,39 @@
 //Makes the same assumption as BECKETT_ANALOGLEFT.
 //#define BECKETT_ANALOGRIGHT Binds::CameraUp
 
-constexpr int MaxLights = 4;
-
-struct Light
+namespace Beck
 {
-	glm::vec4 pos;
-	glm::vec4 color;
-};
 
-struct CommonUniforms
-{
-	//Must match shaders/common.fs
-	float TotalTime;
-	float DeltaTime;
-	glm::uvec2 ScreenRes;
-	glm::mat4 View;
-	glm::mat4 Projection;
-	glm::mat4 InvView;
-	Light Lights[MaxLights];
-	alignas(4) bool Toon;
-	alignas(4) bool Fresnel;
-};
+	constexpr int MaxLights = 4;
 
-extern float scale;
-extern int width, height;
-extern Texture* whiteRect;
-extern CommonUniforms commonUniforms;
+	struct Light
+	{
+		glm::vec4 pos;
+		glm::vec4 color;
+	};
+
+	struct CommonUniforms
+	{
+		//Must match shaders/common.fs
+		float TotalTime;
+		float DeltaTime;
+		glm::uvec2 ScreenRes;
+		glm::mat4 View;
+		glm::mat4 Projection;
+		glm::mat4 InvView;
+		Light Lights[MaxLights];
+		alignas(4) bool Toon;
+		alignas(4) bool Fresnel;
+	};
+
+	extern float scale;
+	extern int width, height;
+	extern Texture* whiteRect;
+	extern CommonUniforms commonUniforms;
+
+}
 
 //BJTS functions that actually change the string content.
-extern const std::map<std::string, BJTSFunc> bjtsPhase1;
+extern const std::map<std::string, Beck::BJTSFunc> bjtsPhase1;
 //BJTS functions loaded from Lua scripts.
 extern std::map<std::string, std::string> bjtsPhase1X;

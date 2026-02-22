@@ -5,105 +5,110 @@
 #include "Texture.h"
 #include "SpriteRenderer.h"
 
-class Tickable;
-class Tickable2D;
-
-class Tickable
+namespace Beck
 {
-private:
-	std::vector<std::shared_ptr<Tickable>> addQueue;
-	bool iterating = false;
 
-protected:
-	std::vector<std::shared_ptr<Tickable>> ChildTickables;
+	class Tickable;
+	class Tickable2D;
 
-public:
-	bool* Mutex{ nullptr };
-	bool Dead{ false };
-	bool Visible{ true };
-	bool Enabled{ true };
-	std::string ID;
+	class Tickable
+	{
+	private:
+		std::vector<std::shared_ptr<Tickable>> addQueue;
+		bool iterating = false;
 
-	virtual ~Tickable() {}
-	virtual bool Tick(float dt);
-	virtual void Draw(float dt);
-	virtual bool Character(unsigned int ch);
-	virtual bool Scancode(unsigned int sc);
+	protected:
+		std::vector<std::shared_ptr<Tickable>> ChildTickables;
 
-	void AddChild(Tickable* newChild);
-	void AddChild(std::shared_ptr<Tickable> newChild);
-	void RemoveChild(size_t i);
-	void RemoveChild(const std::string& n);
-	void RemoveChild(std::shared_ptr<Tickable> c);
-	template<typename T>
-	void RemoveChild();
+	public:
+		bool* Mutex{ nullptr };
+		bool Dead{ false };
+		bool Visible{ true };
+		bool Enabled{ true };
+		std::string ID;
 
-	void RemoveAll();
-	
-	template<typename T>
-	T* GetChild(size_t i) const;
-	template<typename T>
-	T* GetChild(const std::string& n) const;
-	template<typename T>
-	T* GetChild() const;
+		virtual ~Tickable() {}
+		virtual bool Tick(float dt);
+		virtual void Draw(float dt);
+		virtual bool Character(unsigned int ch);
+		virtual bool Scancode(unsigned int sc);
 
-	Tickable* operator[](size_t i) const;
-	Tickable* operator[](const std::string& n) const;
+		void AddChild(Tickable* newChild);
+		void AddChild(std::shared_ptr<Tickable> newChild);
+		void RemoveChild(size_t i);
+		void RemoveChild(const std::string& n);
+		void RemoveChild(std::shared_ptr<Tickable> c);
+		template<typename T>
+		void RemoveChild();
 
-	size_t size() const;
-};
+		void RemoveAll();
 
-using TickableP = std::shared_ptr<Tickable>;
+		template<typename T>
+		T* GetChild(size_t i) const;
+		template<typename T>
+		T* GetChild(const std::string& n) const;
+		template<typename T>
+		T* GetChild() const;
 
-class Tickable2D : public Tickable
-{
-protected:
-	Tickable2D* parent{ nullptr };
-public:
-	glm::vec2 Position;
-	glm::vec2 AbsolutePosition;
+		Tickable* operator[](size_t i) const;
+		Tickable* operator[](const std::string& n) const;
 
-	virtual bool Tick(float dt) override;
+		size_t size() const;
+	};
 
-	virtual glm::vec2 GetMinimalSize();
+	using TickableP = std::shared_ptr<Tickable>;
 
-	virtual glm::vec2 GetSize();
+	class Tickable2D : public Tickable
+	{
+	protected:
+		Tickable2D* parent{ nullptr };
+	public:
+		glm::vec2 Position;
+		glm::vec2 AbsolutePosition;
 
-	void UpdatePosition();
-};
+		virtual bool Tick(float dt) override;
 
-using Tickable2DP = std::shared_ptr<Tickable2D>;
+		virtual glm::vec2 GetMinimalSize();
 
-class TextLabel : public Tickable2D
-{
-public:
-	std::string Text;
-	glm::vec4 Color{ 1, 1, 1, 1 };
-	float Size{ 100.0f };
-	float Angle{ 0.0f };
-	int Font{ 1 };
-	bool Raw{ false };
+		virtual glm::vec2 GetSize();
 
-	TextLabel(const std::string& text, glm::vec2 position);
+		void UpdatePosition();
+	};
 
-	void Draw(float) override;
-};
+	using Tickable2DP = std::shared_ptr<Tickable2D>;
 
-using TextLabelP = std::shared_ptr<TextLabel>;
+	class TextLabel : public Tickable2D
+	{
+	public:
+		std::string Text;
+		glm::vec4 Color{ 1, 1, 1, 1 };
+		float Size{ 100.0f };
+		float Angle{ 0.0f };
+		int Font{ 1 };
+		bool Raw{ false };
 
-class SimpleSprite : public Tickable2D
-{
-private:
-	Texture* texture;
-public:
-	Sprite::SpriteFlags Flags{ Sprite::SpriteFlags::NoFlags };
-	int Frame;
+		TextLabel(const std::string& text, glm::vec2 position);
 
-	SimpleSprite(const std::string& texture, int frame, glm::vec2 position);
+		void Draw(float) override;
+	};
 
-	SimpleSprite(Texture* texture, int frame, glm::vec2 position);
+	using TextLabelP = std::shared_ptr<TextLabel>;
 
-	~SimpleSprite() override;
+	class SimpleSprite : public Tickable2D
+	{
+	private:
+		Texture* texture;
+	public:
+		Sprite::SpriteFlags Flags{ Sprite::SpriteFlags::NoFlags };
+		int Frame;
 
-	void Draw(float) override;
-};
+		SimpleSprite(const std::string& texture, int frame, glm::vec2 position);
+
+		SimpleSprite(Texture* texture, int frame, glm::vec2 position);
+
+		~SimpleSprite() override;
+
+		void Draw(float) override;
+	};
+
+}

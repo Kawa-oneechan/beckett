@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include "engine/Tickable.h"
 
-class Camera : public Tickable
+class Camera : public Beck::Tickable
 {
 protected:
 	glm::vec3 _target{};

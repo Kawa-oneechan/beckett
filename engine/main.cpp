@@ -30,495 +30,502 @@ extern void DoImGui();
 #endif
 ;
 
-constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
-constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
+namespace Beck
+{
 
-glm::mat4 perspectiveProjection, orthographicProjection;
-bool useOrthographic = false;
+	constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
+	constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
-GLFWwindow* window;
-sol::state Sol;
+	glm::mat4 perspectiveProjection, orthographicProjection;
+	bool useOrthographic = false;
 
-Texture* whiteRect = nullptr;
-CursorP cursor = nullptr;
-Console* console = nullptr;
+	GLFWwindow* window;
+	sol::state Sol;
 
-int width = ScreenWidth, height = ScreenHeight;
-float scale = height / (float)ScreenHeight;
+	Texture* whiteRect = nullptr;
+	CursorP cursor = nullptr;
+	Console* console = nullptr;
 
-float lastX = width / 2.0f;
-float lastY = height / 2.0f;
-bool firstMouse = true;
+	int width = ScreenWidth, height = ScreenHeight;
+	float scale = height / (float)ScreenHeight;
 
-bool wireframe = false;
+	float lastX = width / 2.0f;
+	float lastY = height / 2.0f;
+	bool firstMouse = true;
 
-double DeltaTime = 0.0;
-float timeScale = 1.0f;
-float fieldOfView = 45.0f;
-float nearPlane = 0.1f;
-float farPlane = 500.0f;
-bool cheatsEnabled;
+	bool wireframe = false;
+
+	double DeltaTime = 0.0;
+	float timeScale = 1.0f;
+	float fieldOfView = 45.0f;
+	float nearPlane = 0.1f;
+	float farPlane = 500.0f;
+	bool cheatsEnabled;
 
 #ifdef DEBUG
-float uiTime = 0;
-float glTime = 0;
+	float uiTime = 0;
+	float glTime = 0;
 #endif
 
-CommonUniforms commonUniforms;
-unsigned int commonBuffer = 0;
+	CommonUniforms commonUniforms;
+	unsigned int commonBuffer = 0;
 
-__declspec(noreturn)
-	void FatalError(const std::string& message)
-{
-	conprint(1, "Fatal error: {}", message);
-	Platform::MessageBox(message);
-	conprint(1, "Exiting...");
-	exit(1);
-}
-
-//Currently active Tickables.
-Tickable root;
-
-namespace UI
-{
-	std::map<std::string, glm::vec4> themeColors;
-	std::vector<glm::vec4> textColors;
-
-	jsonValue json;
-	jsonValue settings;
-
-	std::string initFile = "init.json";
-
-	void Load()
+	__declspec(noreturn)
+		void FatalError(const std::string& message)
 	{
-		json = VFS::ReadJSON("ui/ui.json");
-		if (!json)
-			FatalError("Could not read ui/ui.json. Something is very wrong.");
-		auto js = json.as_object();
+		conprint(1, "Fatal error: {}", message);
+		Platform::MessageBox(message);
+		conprint(1, "Exiting...");
+		exit(1);
+	}
 
-		auto thC = js["colors"].as_object()["theme"].as_object();
-		std::for_each(thC.cbegin(), thC.cend(), [&](auto ink)
-		{
-			themeColors[ink.first] = GetJSONColor(ink.second);
-		});
-		auto txC = js["colors"].as_object()["text"].as_array();
-		std::for_each(txC.cbegin(), txC.cend(), [&](auto ink)
-		{
-			textColors.push_back(GetJSONColor(ink));
-		});
+	//Currently active Tickables.
+	Tickable root;
 
-		try
-		{
-			settings = VFS::ReadSaveJSON("options.json");
-		}
-		catch (std::runtime_error&)
-		{
-			settings = json5pp::parse5("{}");
-		}
+	namespace UI
+	{
+		std::map<std::string, glm::vec4> themeColors;
+		std::vector<glm::vec4> textColors;
 
-		auto sets = settings.as_object();
+		jsonValue json;
+		jsonValue settings;
+
+		std::string initFile = "init.json";
+
+		void Load()
+		{
+			json = VFS::ReadJSON("ui/ui.json");
+			if (!json)
+				FatalError("Could not read ui/ui.json. Something is very wrong.");
+			auto js = json.as_object();
+
+			auto thC = js["colors"].as_object()["theme"].as_object();
+			std::for_each(thC.cbegin(), thC.cend(), [&](auto ink)
+			{
+				themeColors[ink.first] = GetJSONColor(ink.second);
+			});
+			auto txC = js["colors"].as_object()["text"].as_array();
+			std::for_each(txC.cbegin(), txC.cend(), [&](auto ink)
+			{
+				textColors.push_back(GetJSONColor(ink));
+			});
+
+			try
+			{
+				settings = VFS::ReadSaveJSON("options.json");
+			}
+			catch (std::runtime_error&)
+			{
+				settings = json5pp::parse5("{}");
+			}
+
+			auto sets = settings.as_object();
 
 #define DS(K, V) if (sets[K].is_null()) sets[K] = jsonValue(V)
 #define DA(K, V) if (sets[K].is_null()) sets[K] = json5pp::array(V)
-		DS("screenWidth", ScreenWidth);
-		DS("screenHeight", ScreenHeight);
-		DA("keyBinds", {});
-		DA("gamepadBinds", {});
-		DS("gamepadRunThreshold", Inputs.RunThreshold);
-		DS("gamepadDeadzone", Inputs.Deadzone);
-		DS("language", "USen");
-		DS("musicVolume", 70);
-		DS("soundVolume", 100);
+			DS("screenWidth", ScreenWidth);
+			DS("screenHeight", ScreenHeight);
+			DA("keyBinds", {});
+			DA("gamepadBinds", {});
+			DS("gamepadRunThreshold", Inputs.RunThreshold);
+			DS("gamepadDeadzone", Inputs.Deadzone);
+			DS("language", "USen");
+			DS("musicVolume", 70);
+			DS("soundVolume", 100);
 #ifdef BECKETT_MOREVOLUME
-		DS("ambientVolume", 50);
-		DS("speechVolume", 100);
+			DS("ambientVolume", 50);
+			DS("speechVolume", 100);
 #endif
 #undef DA
 #undef DS
 
-		width = sets["screenWidth"].as_integer();
-		height = sets["screenHeight"].as_integer();
+			width = sets["screenWidth"].as_integer();
+			height = sets["screenHeight"].as_integer();
 
-		Inputs.RunThreshold = sets["gamepadRunThreshold"].as_number();
+			Inputs.RunThreshold = sets["gamepadRunThreshold"].as_number();
 
-		gameLang = Text::GetLangCode(sets["language"].as_string());
+			gameLang = Text::GetLangCode(sets["language"].as_string());
 
-		//Convert from saved integer values to float.
-		Audio::MusicVolume = sets["musicVolume"].as_integer() / 100.0f;
-		Audio::SoundVolume = sets["soundVolume"].as_integer() / 100.0f;
+			//Convert from saved integer values to float.
+			Audio::MusicVolume = sets["musicVolume"].as_integer() / 100.0f;
+			Audio::SoundVolume = sets["soundVolume"].as_integer() / 100.0f;
 #ifdef BECKETT_MOREVOLUME
-		Audio::AmbientVolume = sets["ambientVolume"].as_integer() / 100.0f;
-		Audio::SpeechVolume = sets["speechVolume"].as_integer() / 100.0f;
+			Audio::AmbientVolume = sets["ambientVolume"].as_integer() / 100.0f;
+			Audio::SpeechVolume = sets["speechVolume"].as_integer() / 100.0f;
 #endif
 
-		auto keyBinds = sets["keyBinds"].as_array();
-		if (keyBinds.size() != NumKeyBinds)
-		{
-			keyBinds.reserve(NumKeyBinds);
-			for (auto &k : DefaultInputBindings)
-				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k)));
+			auto keyBinds = sets["keyBinds"].as_array();
+			if (keyBinds.size() != NumKeyBinds)
+			{
+				keyBinds.reserve(NumKeyBinds);
+				for (auto &k : DefaultInputBindings)
+					keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k)));
+			}
+
+			auto padBinds = sets["gamepadBinds"].as_array();
+			if (padBinds.size() != NumKeyBinds)
+			{
+				padBinds.reserve(NumKeyBinds);
+				for (auto &k : DefaultInputGamepadBindings)
+					padBinds.emplace_back(jsonValue(k));
+			}
+
+			for (int i = 0; i < NumKeyBinds; i++)
+			{
+				Inputs.Keys[i].ScanCode = keyBinds[i].as_integer();
+				Inputs.Keys[i].GamepadButton = padBinds[i].as_integer();
+			}
+
+			Game::LoadSettings(sets);
 		}
 
-		auto padBinds = sets["gamepadBinds"].as_array();
-		if (padBinds.size() != NumKeyBinds)
+		void Save()
 		{
-			padBinds.reserve(NumKeyBinds);
-			for (auto &k : DefaultInputGamepadBindings)
-				padBinds.emplace_back(jsonValue(k));
-		}
+			auto set = settings.as_object();
+			set["screenWidth"] = width;
+			set["screenHeight"] = height;
 
-		for (int i = 0; i < NumKeyBinds; i++)
-		{
-			Inputs.Keys[i].ScanCode = keyBinds[i].as_integer();
-			Inputs.Keys[i].GamepadButton = padBinds[i].as_integer();
-		}
+			if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED) || !glfwGetWindowAttrib(window, GLFW_DECORATED))
+			{
+				set["screenWidth"] = ScreenWidth;
+				set["screenHeight"] = ScreenHeight;
+			}
 
-		Game::LoadSettings(sets);
-	}
+			auto binds = json5pp::array({});
+			for (auto& k : Inputs.Keys)
+				binds.as_array().push_back(k.ScanCode);
+			set["keyBinds"] = std::move(binds);
 
-	void Save()
-	{
-		auto set = settings.as_object();
-		set["screenWidth"] = width;
-		set["screenHeight"] = height;
+			auto binds2 = json5pp::array({});
+			for (auto& k : Inputs.Keys)
+				binds2.as_array().push_back(k.GamepadButton);
+			set["gamepadBinds"] = std::move(binds2);
+			set["gamepadRunThreshold"] = Inputs.RunThreshold;
+			set["gamepadDeadzone"] = Inputs.Deadzone;
 
-		if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED) || !glfwGetWindowAttrib(window, GLFW_DECORATED))
-		{
-			set["screenWidth"] = ScreenWidth;
-			set["screenHeight"] = ScreenHeight;
-		}
-
-		auto binds = json5pp::array({});
-		for (auto& k : Inputs.Keys)
-			binds.as_array().push_back(k.ScanCode);
-		set["keyBinds"] = std::move(binds);
-
-		auto binds2 = json5pp::array({});
-		for (auto& k : Inputs.Keys)
-			binds2.as_array().push_back(k.GamepadButton);
-		set["gamepadBinds"] = std::move(binds2);
-		set["gamepadRunThreshold"] = Inputs.RunThreshold;
-		set["gamepadDeadzone"] = Inputs.Deadzone;
-
-		//Convert from float values to easier-to-read integers.
-		set["musicVolume"] = (int)(Audio::MusicVolume * 100.0f);
-		set["soundVolume"] = (int)(Audio::SoundVolume * 100.0f);
+			//Convert from float values to easier-to-read integers.
+			set["musicVolume"] = (int)(Audio::MusicVolume * 100.0f);
+			set["soundVolume"] = (int)(Audio::SoundVolume * 100.0f);
 #ifdef BECKETT_MOREVOLUME
-		set["ambientVolume"] = (int)(Audio::AmbientVolume * 100.0f);
-		set["speechVolume"] = (int)(Audio::SpeechVolume * 100.0f);
+			set["ambientVolume"] = (int)(Audio::AmbientVolume * 100.0f);
+			set["speechVolume"] = (int)(Audio::SpeechVolume * 100.0f);
 #endif
 
-		Game::SaveSettings(set);
+			Game::SaveSettings(set);
 
-		settings.as_object() = set;
+			settings.as_object() = set;
 
-		try
-		{
-			VFS::WriteSaveJSON("options.json", settings);
+			try
+			{
+				VFS::WriteSaveJSON("options.json", settings);
+			}
+			catch (std::exception&)
+			{
+				conprint(2, "Couldn't save settings.");
+			}
 		}
-		catch (std::exception&)
+	};
+
+	void RecalcProjections()
+	{
+		perspectiveProjection = glm::perspective(glm::radians(fieldOfView), (float)width / (float)height, nearPlane, farPlane);
+		constexpr auto orthoScale = 0.025f;
+		orthographicProjection = glm::ortho(-((float)width * orthoScale), ((float)width * orthoScale), -((float)height * orthoScale), ((float)height * orthoScale), -1.0f, 300.0f);
+		commonUniforms.Projection = useOrthographic ? orthographicProjection : perspectiveProjection;
+	}
+
+	static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+	{
+		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED))
+			return;
+
+		Beck::width = width;
+		Beck::height = height;
+		scale = Beck::height / (float)ScreenHeight;
+		glViewport(0, 0, width, height);
+		commonUniforms.ScreenRes = glm::uvec2(width, height);
+
+		RecalcProjections();
+
+		Game::OnResize();
+	}
+
+	static void char_callback(GLFWwindow* window, unsigned int codepoint)
+	{
+		(void)(window);
+		if (console->visible)
 		{
-			conprint(2, "Couldn't save settings.");
+			if (codepoint == '`') return;
+			console->Character(codepoint);
+			return;
+		}
+		for (unsigned int i = (unsigned int)root.size(); i-- > 0; )
+		{
+			auto t = root[i];
+			if (t->Character(codepoint))
+				break;
 		}
 	}
-};
-
-void RecalcProjections()
-{
-	perspectiveProjection = glm::perspective(glm::radians(fieldOfView), (float)width / (float)height, nearPlane, farPlane);
-	constexpr auto orthoScale = 0.025f;
-	orthographicProjection = glm::ortho(-((float)width * orthoScale), ((float)width * orthoScale), -((float)height * orthoScale), ((float)height * orthoScale), -1.0f, 300.0f);
-	commonUniforms.Projection = useOrthographic ? orthographicProjection : perspectiveProjection;
-}
-
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	if (glfwGetWindowAttrib(window, GLFW_ICONIFIED))
-		return;
-
-	::width = width;
-	::height = height;
-	scale = ::height / (float)ScreenHeight;
-	glViewport(0, 0, width, height);
-	commonUniforms.ScreenRes = glm::uvec2(width, height);
-
-	RecalcProjections();
-
-	Game::OnResize();
-}
-
-static void char_callback(GLFWwindow* window, unsigned int codepoint)
-{
-	(void)(window);
-	if (console->visible)
-	{
-		if (codepoint == '`') return;
-		console->Character(codepoint);
-		return;
-	}
-	for (unsigned int i = (unsigned int)root.size(); i-- > 0; )
-	{
-		auto t = root[i];
-		if (t->Character(codepoint))
-			break;
-	}
-}
 
 #ifdef DEBUG
-extern bool debuggerEnabled;
+	extern bool debuggerEnabled;
 #endif
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	window, mods;
-	if (scancode == Inputs.Keys[(int)Binds::Console].ScanCode && action == GLFW_PRESS)
+	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-		if (console->visible)
-			console->Close();
-		else
-			console->Open();
-		return;
-	}
+		window, mods;
+		if (scancode == Inputs.Keys[(int)Binds::Console].ScanCode && action == GLFW_PRESS)
+		{
+			if (console->visible)
+				console->Close();
+			else
+				console->Open();
+			return;
+		}
 
-	Game::OnKey(key, scancode, action, mods);
+		Game::OnKey(key, scancode, action, mods);
 
 #ifdef BECKETT_RESIZABLE
-	if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
-	{
-		auto monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-		auto isWindowed = glfwGetWindowAttrib(window, GLFW_DECORATED) != 0;
-		if (isWindowed)
+		if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
 		{
-			glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-		}
-		else
-		{
-			if (width == mode->width || height == mode->height)
+			auto monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+			auto isWindowed = glfwGetWindowAttrib(window, GLFW_DECORATED) != 0;
+			if (isWindowed)
 			{
-				width = ScreenWidth;
-				height = ScreenHeight;
+				glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 			}
-			glfwSetWindowMonitor(window, nullptr, 0, 0, ScreenWidth, ScreenHeight, mode->refreshRate);
-			glfwSetWindowAttrib(window, GLFW_DECORATED, 1);
-			glfwSetWindowPos(window, (mode->width / 2) - (width / 2), (mode->height / 2) - (height / 2));
+			else
+			{
+				if (width == mode->width || height == mode->height)
+				{
+					width = ScreenWidth;
+					height = ScreenHeight;
+				}
+				glfwSetWindowMonitor(window, nullptr, 0, 0, ScreenWidth, ScreenHeight, mode->refreshRate);
+				glfwSetWindowAttrib(window, GLFW_DECORATED, 1);
+				glfwSetWindowPos(window, (mode->width / 2) - (width / 2), (mode->height / 2) - (height / 2));
+			}
+			return;
 		}
-		return;
-	}
 #endif
 #ifdef DEBUG
-	if (key == GLFW_KEY_D && mods == GLFW_MOD_CONTROL && action == GLFW_PRESS)
-	{
-		debuggerEnabled = !debuggerEnabled;
-		return;
-	}
+		if (key == GLFW_KEY_D && mods == GLFW_MOD_CONTROL && action == GLFW_PRESS)
+		{
+			debuggerEnabled = !debuggerEnabled;
+			return;
+		}
 #endif
 
-	if (console->visible && action == GLFW_PRESS)
-	{
-		console->Scancode(scancode);
-		return;
+		if (console->visible && action == GLFW_PRESS)
+		{
+			console->Scancode(scancode);
+			return;
+		}
+
+		Inputs.Shift = (mods & GLFW_MOD_SHIFT) != 0;
+		Inputs.Control = (mods & GLFW_MOD_CONTROL) != 0;
+		Inputs.Alt = (mods & GLFW_MOD_ALT) != 0;
+
+		Inputs.Process(scancode, action);
+
+		for (unsigned int i = (unsigned int)root.size(); i-- > 0; )
+		{
+			auto t = root[i];
+			if (t->Scancode(scancode))
+				break;
+		}
+
+		if (console->visible)
+			return;
 	}
 
-	Inputs.Shift = (mods & GLFW_MOD_SHIFT) != 0;
-	Inputs.Control = (mods & GLFW_MOD_CONTROL) != 0;
-	Inputs.Alt = (mods & GLFW_MOD_ALT) != 0;
-
-	Inputs.Process(scancode, action);
-
-	for (unsigned int i = (unsigned int)root.size(); i-- > 0; )
+	static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	{
-		auto t = root[i];
-		if (t->Scancode(scancode))
-			break;
-	}
+		(void)(window);
+		float xpos = static_cast<float>(xposIn);
+		float ypos = static_cast<float>(yposIn);
 
-	if (console->visible)
-		return;
-}
+		Inputs.MouseMove(xpos, ypos);
 
-static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-	(void)(window);
-	float xpos = static_cast<float>(xposIn);
-	float ypos = static_cast<float>(yposIn);
+		if (firstMouse)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
 
-	Inputs.MouseMove(xpos, ypos);
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos;
 
-	if (firstMouse)
-	{
 		lastX = xpos;
 		lastY = ypos;
-		firstMouse = false;
+
+		Game::OnMouse(xposIn, yposIn, xoffset, yoffset);
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
-
-	lastX = xpos;
-	lastY = ypos;
-
-	Game::OnMouse(xposIn, yposIn, xoffset, yoffset);
-}
-
-static void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
-{
-	(void)(window); (void)(mods);
+	static void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
+	{
+		(void)(window); (void)(mods);
 
 #ifdef DEBUG
-	if (IsImGuiHovered())
-	{
-		Inputs.MouseLeft = false;
-		return;
-	}
+		if (IsImGuiHovered())
+		{
+			Inputs.MouseLeft = false;
+			return;
+		}
 #endif
 
-	if (button == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		Inputs.MouseHoldLeft = action == GLFW_PRESS;
-		if (!Inputs.MouseLeft && action == GLFW_RELEASE) //-V1051 no I'm pretty sure I meant this
-			Inputs.MouseLeft = true;
+		if (button == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			Inputs.MouseHoldLeft = action == GLFW_PRESS;
+			if (!Inputs.MouseLeft && action == GLFW_RELEASE) //-V1051 no I'm pretty sure I meant this
+				Inputs.MouseLeft = true;
+		}
+		else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+		{
+			Inputs.MouseHoldMiddle = action == GLFW_PRESS;
+			if (!Inputs.MouseMiddle && action == GLFW_RELEASE) //-V1051
+				Inputs.MouseMiddle = true;
+		}
+		else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+		{
+			Inputs.MouseHoldRight = action == GLFW_PRESS;
+			if (!Inputs.MouseRight && action == GLFW_RELEASE) //-V1051
+				Inputs.MouseRight = true;
+		}
 	}
-	else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
-	{
-		Inputs.MouseHoldMiddle = action == GLFW_PRESS;
-		if (!Inputs.MouseMiddle && action == GLFW_RELEASE) //-V1051
-			Inputs.MouseMiddle = true;
-	}
-	else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-	{
-		Inputs.MouseHoldRight = action == GLFW_PRESS;
-		if (!Inputs.MouseRight && action == GLFW_RELEASE) //-V1051
-			Inputs.MouseRight = true;
-	}
-}
 
-static void confirmGamepad(int jid)
-{
-	conprint(0, "Gamepad connected: {}", glfwGetJoystickName(jid));
-	int axes = 0, buttons = 0, hats = 0;
-	glfwGetJoystickAxes(jid, &axes);
-	glfwGetJoystickButtons(jid, &buttons);
-	glfwGetJoystickHats(jid, &hats);
-	if (axes < 2 || buttons < 6 || hats < 1)
+	static void confirmGamepad(int jid)
 	{
-		conprint(2, "Rejecting gamepad: not enough inputs ({}/2 axes, {}/6 buttons, {}/1 hats)", axes, buttons, hats);
-		Inputs.HaveGamePad = false;
+		conprint(0, "Gamepad connected: {}", glfwGetJoystickName(jid));
+		int axes = 0, buttons = 0, hats = 0;
+		glfwGetJoystickAxes(jid, &axes);
+		glfwGetJoystickButtons(jid, &buttons);
+		glfwGetJoystickHats(jid, &hats);
+		if (axes < 2 || buttons < 6 || hats < 1)
+		{
+			conprint(2, "Rejecting gamepad: not enough inputs ({}/2 axes, {}/6 buttons, {}/1 hats)", axes, buttons, hats);
+			Inputs.HaveGamePad = false;
+		}
 	}
-}
 
-static void joystick_callback(int jid, int event)
-{
-	if (event == GLFW_CONNECTED)
+	static void joystick_callback(int jid, int event)
 	{
-		Inputs.HaveGamePad = (jid == GLFW_JOYSTICK_1 && glfwJoystickIsGamepad(jid));
-		if (Inputs.HaveGamePad)
-			confirmGamepad(jid);
+		if (event == GLFW_CONNECTED)
+		{
+			Inputs.HaveGamePad = (jid == GLFW_JOYSTICK_1 && glfwJoystickIsGamepad(jid));
+			if (Inputs.HaveGamePad)
+				confirmGamepad(jid);
+		}
+		else if (event == GLFW_DISCONNECTED)
+		{
+			// The joystick was disconnected
+		}
 	}
-	else if (event == GLFW_DISCONNECTED)
-	{
-		// The joystick was disconnected
-	}
-}
 
-static void InitOpenGL()
-{
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	static void InitOpenGL()
+	{
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef BECKETT_MSAA
-	glfwWindowHint(GLFW_SAMPLES, 4);
+		glfwWindowHint(GLFW_SAMPLES, 4);
 #else
-	glfwWindowHint(GLFW_SAMPLES, 0); //Disable
+		glfwWindowHint(GLFW_SAMPLES, 0); //Disable
 #endif
 
-	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	if (mode->width < width + 32 || mode->height < height + 32)
-	{
-		width = mode->width;
-		height = mode->height;
-	}
-	if (mode->width == width && mode->height == height)
-	{
-		glfwWindowHint(GLFW_DECORATED, 0);
-		glfwWindowHint(GLFW_CENTER_CURSOR, 1);
-	}
-	else
-	{
-		glfwWindowHint(GLFW_POSITION_X, (mode->width / 2) - (width / 2));
-		glfwWindowHint(GLFW_POSITION_Y, (mode->height / 2) - (height / 2));
-	}
+		const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		if (mode->width < width + 32 || mode->height < height + 32)
+		{
+			width = mode->width;
+			height = mode->height;
+		}
+		if (mode->width == width && mode->height == height)
+		{
+			glfwWindowHint(GLFW_DECORATED, 0);
+			glfwWindowHint(GLFW_CENTER_CURSOR, 1);
+		}
+		else
+		{
+			glfwWindowHint(GLFW_POSITION_X, (mode->width / 2) - (width / 2));
+			glfwWindowHint(GLFW_POSITION_Y, (mode->height / 2) - (height / 2));
+		}
 #ifdef BECKETT_RESIZABLE
-	glfwWindowHint(GLFW_RESIZABLE, 1);
+		glfwWindowHint(GLFW_RESIZABLE, 1);
 #else
-	glfwWindowHint(GLFW_RESIZABLE, 0);
+		glfwWindowHint(GLFW_RESIZABLE, 0);
 #endif
 
-	window = glfwCreateWindow(width, height, WindowTitle, NULL, NULL);
-	if (window == NULL)
-	{
-		glfwTerminate();
-		FatalError("Failed to create GLFW window.");
+		window = glfwCreateWindow(width, height, WindowTitle, NULL, NULL);
+		if (window == NULL)
+		{
+			glfwTerminate();
+			FatalError("Failed to create GLFW window.");
+		}
+		glfwMakeContextCurrent(window);
+		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+		glfwSetKeyCallback(window, key_callback);
+		glfwSetCharCallback(window, char_callback);
+		glfwSetCursorPosCallback(window, mouse_callback);
+		glfwSetMouseButtonCallback(window, mousebutton_callback);
+		glfwSetJoystickCallback(joystick_callback);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			FatalError("Failed to initialize GLAD.");
+		}
+
+		framebuffer_size_callback(window, width, height);
+
+		glEnable(GL_CULL_FACE);
+
+		//Required for sprites
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetKeyCallback(window, key_callback);
-	glfwSetCharCallback(window, char_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetMouseButtonCallback(window, mousebutton_callback);
-	glfwSetJoystickCallback(joystick_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		FatalError("Failed to initialize GLAD.");
-	}
-
-	framebuffer_size_callback(window, width, height);
-
-	glEnable(GL_CULL_FACE);
-
-	//Required for sprites
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
 
 #ifdef DEBUG
-void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-{
-	(void)(length); (void)(userParam);
+	void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+	{
+		(void)(length); (void)(userParam);
 
-	static std::map<int, std::string> sources = {
-		{ GL_DEBUG_SOURCE_API, "API" },
-		{ GL_DEBUG_SOURCE_WINDOW_SYSTEM, "window system" },
-		{ GL_DEBUG_SOURCE_SHADER_COMPILER, "shader compiler" },
-		{ GL_DEBUG_SOURCE_THIRD_PARTY, "third party" },
-		{ GL_DEBUG_SOURCE_APPLICATION, "application" },
-	};
-	static std::map<int, std::string> types = {
-		{ GL_DEBUG_TYPE_ERROR, "error" },
-		{ GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, "deprecated behavior" },
-		{ GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR, "undefined behavior" },
-		{ GL_DEBUG_TYPE_PORTABILITY, "portability issue" },
-		{ GL_DEBUG_TYPE_PERFORMANCE, "performance issue" },
-		{ GL_DEBUG_TYPE_MARKER, "marker" },
-		{ GL_DEBUG_TYPE_PUSH_GROUP, "group push" },
-		{ GL_DEBUG_TYPE_POP_GROUP, "group pop" },
-		{ GL_DEBUG_TYPE_OTHER, "other" },
-	};
-	static std::map<int, std::string> severities = {
-		{ GL_DEBUG_SEVERITY_HIGH, "high" },
-		{ GL_DEBUG_SEVERITY_MEDIUM, "medium" },
-		{ GL_DEBUG_SEVERITY_LOW, "low" },
-		{ GL_DEBUG_SEVERITY_NOTIFICATION, "notification" },
-	};
-	if (source == GL_DEBUG_SOURCE_APPLICATION)
-		return;
-	conprint(5, "Message from OpenGL: ID {:X}, source {}, type {}, severity {}:  {}", id, sources[source], types[type], severities[severity], message);
-}
+		static std::map<int, std::string> sources = {
+			{ GL_DEBUG_SOURCE_API, "API" },
+			{ GL_DEBUG_SOURCE_WINDOW_SYSTEM, "window system" },
+			{ GL_DEBUG_SOURCE_SHADER_COMPILER, "shader compiler" },
+			{ GL_DEBUG_SOURCE_THIRD_PARTY, "third party" },
+			{ GL_DEBUG_SOURCE_APPLICATION, "application" },
+		};
+		static std::map<int, std::string> types = {
+			{ GL_DEBUG_TYPE_ERROR, "error" },
+			{ GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, "deprecated behavior" },
+			{ GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR, "undefined behavior" },
+			{ GL_DEBUG_TYPE_PORTABILITY, "portability issue" },
+			{ GL_DEBUG_TYPE_PERFORMANCE, "performance issue" },
+			{ GL_DEBUG_TYPE_MARKER, "marker" },
+			{ GL_DEBUG_TYPE_PUSH_GROUP, "group push" },
+			{ GL_DEBUG_TYPE_POP_GROUP, "group pop" },
+			{ GL_DEBUG_TYPE_OTHER, "other" },
+		};
+		static std::map<int, std::string> severities = {
+			{ GL_DEBUG_SEVERITY_HIGH, "high" },
+			{ GL_DEBUG_SEVERITY_MEDIUM, "medium" },
+			{ GL_DEBUG_SEVERITY_LOW, "low" },
+			{ GL_DEBUG_SEVERITY_NOTIFICATION, "notification" },
+		};
+		if (source == GL_DEBUG_SOURCE_APPLICATION)
+			return;
+		conprint(5, "Message from OpenGL: ID {:X}, source {}, type {}, severity {}:  {}", id, sources[source], types[type], severities[severity], message);
+	}
 #endif
 
-bool skipTitle = false;
+	bool skipTitle = false;
+
+}
+
+using namespace Beck;
 
 int main(int argc, char** argv)
 {

@@ -5,19 +5,25 @@
 #include "Tickable.h"
 #include "Types.h"
 
-//Returns true if point is inside of polygon.
-extern bool PointInPoly(const glm::vec2 point, const polygon& polygon);
-//Returns true if point is in rect.
-extern bool PointInRect(const glm::vec2 point, const glm::vec4 rect);
+namespace Beck
+{
 
-extern void Screenshot();
+	//Returns true if point is inside of polygon.
+	extern bool PointInPoly(const glm::vec2 point, const polygon& polygon);
+	//Returns true if point is in rect.
+	extern bool PointInRect(const glm::vec2 point, const glm::vec4 rect);
 
-//Returns the CRC32 hash for the given text.
-extern hash GetCRC(const std::string& text);
+	extern void Screenshot();
+
+	//Returns the CRC32 hash for the given text.
+	extern hash GetCRC(const std::string& text);
+
+	constexpr extern hash operator ""_crc(const char* text, size_t size);
+}
+
 //Returns the CRC32 hash for the given data.
+//Not in the Beck namespace so stb_image can use it.
 extern hash GetCRC(unsigned char *buffer, int len);
-
-constexpr extern hash operator ""_crc(const char* text, size_t size);
 
 #define arraysize(A) (sizeof(A) / sizeof((A)[0]))
 #define sizeof_member(T, M) sizeof(((T *)0)->M)

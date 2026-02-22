@@ -20,6 +20,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_inverse.hpp>
 
+using namespace Beck;
+
 constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
 constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 

@@ -3,10 +3,12 @@
 #include <ImGUI/imgui_impl_opengl3.h>
 #include "Game.h"
 
-bool debuggerEnabled{ false };
-
-extern float uiTime, glTime;
-extern GLFWwindow* window;
+namespace Beck
+{
+	bool debuggerEnabled{ false };
+	extern float uiTime, glTime;
+	extern GLFWwindow* window;
+}
 
 bool IsImGuiHovered()
 {
@@ -20,13 +22,13 @@ void SetupImGui()
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplGlfw_InitForOpenGL(Beck::window, true);
 	ImGui_ImplOpenGL3_Init("#version 130");
 }
 
 void DoImGui()
 {
-	if (!debuggerEnabled)
+	if (!Beck::debuggerEnabled)
 		return;
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -35,7 +37,7 @@ void DoImGui()
 
 	if (ImGui::Begin("Timing", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
 	{
-		ImGui::Text("UI: %f\nGL: %f", uiTime, glTime);
+		ImGui::Text("UI: %f\nGL: %f", Beck::uiTime, Beck::glTime);
 	}
 	ImGui::End();
 

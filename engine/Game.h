@@ -4,20 +4,23 @@
 #include "JsonUtils.h"
 #include "../Game.h"
 
-class Console;
+namespace Beck
+{
+	class Console;
+}
 
 //Game-specific callback functions.
 class Game
 {
 public:
 	//Registers console commands and variables.
-	static void RegisterConsole(Console* console);
+	static void RegisterConsole(Beck::Console* console);
 	//Processes loading settings from JSON to variables and members.
 	static void LoadSettings(jsonObject& settings);
 	//Processes saving gsettings from variables and members to JSON.
 	static void SaveSettings(jsonObject& settings);
 	static void Initialize();
-	static void Start(Tickable& tickables);
+	static void Start(Beck::Tickable& tickables);
 	static void OnKey(int key, int scancode, int action, int mods);
 	static void OnMouse(double xPosIn, double yPosIn, float xoffset, float yoffset);
 	static void OnResize();

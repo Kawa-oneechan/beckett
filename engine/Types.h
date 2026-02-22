@@ -26,54 +26,59 @@ inline constexpr int operator "" t(unsigned long long v) { return (int)v; }
 inline constexpr float operator "" pt(long double v) { return (float)v; }
 #pragma warning(pop)
 
+namespace Beck
+{
+
 #define BJTSParams const std::vector<std::string>& tags, int start, int len
-typedef void(*BJTSFunc)(std::string& data, BJTSParams);
+	typedef void(*BJTSFunc)(std::string& data, BJTSParams);
 
-struct ColorMap
-{
-	static constexpr int Rows = 32;
-	static constexpr int Cols = 32;
-	unsigned int values[Rows * Cols];
-	int numRows, numCols;
-};
+	struct ColorMap
+	{
+		static constexpr int Rows = 32;
+		static constexpr int Cols = 32;
+		unsigned int values[Rows * Cols];
+		int numRows, numCols;
+	};
 
-struct SpriteAtlas
-{
-	std::vector<glm::vec4> frames;
-	std::map<std::string, int> names;
-	inline bool empty() const { return frames.empty(); }
-	inline size_t size() const { return frames.size(); }
-	inline void push_back(const glm::vec4& frame) { frames.push_back(frame); }
-	inline glm::vec4 operator[](size_t i) const { return frames[i]; }
-	inline glm::vec4 operator[](const std::string& s) const
+	struct SpriteAtlas
 	{
-		auto it = names.find(s);
-		if (it != names.cend())
-			return frames[it->second];
-		return frames[0];
-	}
-	void FromMap(const std::map<std::string, glm::vec4> &x)
-	{
-		this->frames.clear();
-		this->names.clear();
-		this->frames.reserve(x.size());
-		int i = 0;
-		for (const auto& f : x)
+		std::vector<glm::vec4> frames;
+		std::map<std::string, int> names;
+		inline bool empty() const { return frames.empty(); }
+		inline size_t size() const { return frames.size(); }
+		inline void push_back(const glm::vec4& frame) { frames.push_back(frame); }
+		inline glm::vec4 operator[](size_t i) const { return frames[i]; }
+		inline glm::vec4 operator[](const std::string& s) const
 		{
-			this->frames.push_back(f.second);
-			this->names[f.first] = i;
-			i++;
+			auto it = names.find(s);
+			if (it != names.cend())
+				return frames[it->second];
+			return frames[0];
 		}
-	}
-};
+		void FromMap(const std::map<std::string, glm::vec4> &x)
+		{
+			this->frames.clear();
+			this->names.clear();
+			this->frames.reserve(x.size());
+			int i = 0;
+			for (const auto& f : x)
+			{
+				this->frames.push_back(f.second);
+				this->names[f.first] = i;
+				i++;
+			}
+		}
+	};
 
-namespace UI
-{
-	extern std::map<std::string, glm::vec4> themeColors;
-	extern std::vector<glm::vec4> textColors;
+	namespace UI
+	{
+		extern std::map<std::string, glm::vec4> themeColors;
+		extern std::vector<glm::vec4> textColors;
 
-	extern jsonValue json;
-	extern jsonValue settings;
+		extern jsonValue json;
+		extern jsonValue settings;
 
-	extern std::string initFile;
-};
+		extern std::string initFile;
+	};
+
+}
