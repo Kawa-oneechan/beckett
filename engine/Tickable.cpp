@@ -142,7 +142,7 @@ void Tickable::RemoveAll()
 {
 	if (iterating)
 	{
-		for (auto& e : ChildTickables)
+		for (const auto& e : ChildTickables)
 			e->Dead = true;
 	}
 	else
@@ -284,7 +284,7 @@ void TextLabel::Draw(float)
 SimpleSprite::SimpleSprite(const std::string& texture, int frame, glm::vec2 position)
 {
 	parent = nullptr;
-	this->texture = new Texture(texture);
+	this->texture = std::make_shared<Texture>(texture);
 	Position = position;
 	Frame = frame;
 }
@@ -292,14 +292,14 @@ SimpleSprite::SimpleSprite(const std::string& texture, int frame, glm::vec2 posi
 SimpleSprite::SimpleSprite(Texture* texture, int frame, glm::vec2 position)
 {
 	parent = nullptr;
-	this->texture = texture;
+	this->texture = std::shared_ptr<Texture>(texture);
 	Position = position;
 	Frame = frame;
 }
 
 SimpleSprite::~SimpleSprite()
 {
-	delete this->texture;
+	//delete this->texture;
 }
 
 void SimpleSprite::Draw(float)

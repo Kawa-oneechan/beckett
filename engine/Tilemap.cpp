@@ -261,6 +261,7 @@ bool Tilemap::Tick(float dt)
 	return true;
 }
 
+// cppcheck-suppress duplInheritedMember
 std::shared_ptr<Tilemap::MapLayer> Tilemap::operator[](size_t i) const
 {
 	if (i < layers.size()) return layers[i];

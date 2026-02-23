@@ -84,10 +84,10 @@ public:
 	public:
 		unsigned int VAO;
 		TextureArray* Textures[4];
-		bool Visible;
-		hash Hash, MatHash;
 		std::string Name;
 		Shader* Shader;
+		hash Hash, MatHash;
+		bool Visible;
 		int Layer;
 		bool Translucent;
 		bool Opaque;
@@ -175,7 +175,7 @@ public:
 	std::vector<Light> Lights;
 	std::vector<Camera> Cameras;
 
-	UfbxMisc(const std::string& modelPath);
+	explicit UfbxMisc(const std::string& modelPath);
 };
 
 #endif

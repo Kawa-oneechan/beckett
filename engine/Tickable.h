@@ -94,7 +94,7 @@ using TextLabelP = std::shared_ptr<TextLabel>;
 class SimpleSprite : public Tickable2D
 {
 private:
-	Texture* texture;
+	std::shared_ptr<Texture> texture;
 public:
 	Sprite::SpriteFlags Flags{ Sprite::SpriteFlags::NoFlags };
 	int Frame;
