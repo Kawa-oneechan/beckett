@@ -35,17 +35,61 @@ public:
 	void RemoveChild(size_t i);
 	void RemoveChild(const std::string& n);
 	void RemoveChild(std::shared_ptr<Tickable> c);
+
 	template<typename T>
-	void RemoveChild();
+	void RemoveChild()
+	{
+		for (int i = 0; i < ChildTickables.size(); i++)
+		{
+			auto e = std::dynamic_pointer_cast<T>(ChildTickables[i]);
+			if (e)
+			{
+				RemoveChild(i);
+				return;
+			}
+		}
+	}
 
 	void RemoveAll();
-	
+
 	template<typename T>
-	T* GetChild(size_t i) const;
+	T* GetChild(size_t i) const
+	{
+		if (i >= ChildTickables.size())
+			return nullptr;
+		return (T*)ChildTickables[i].get();
+	}
+
 	template<typename T>
-	T* GetChild(const std::string& n) const;
+	T* GetChild(const std::string& n) const
+	{
+		for (auto& i : ChildTickables)
+		{
+			auto e = std::dynamic_pointer_cast<T>(i);
+			if (e)
+			{
+				if (n.empty())
+					return e.get();
+				else if (i->ID == n)
+					return e.get();
+			}
+		}
+
+		return nullptr;
+	}
+
 	template<typename T>
-	T* GetChild() const;
+	T* GetChild() const
+	{
+		for (auto& i : ChildTickables)
+		{
+			auto e = std::dynamic_pointer_cast<T>(i);
+			if (e)
+				return e.get();
+		}
+
+		return nullptr;
+	}
 
 	Tickable* operator[](size_t i) const;
 	Tickable* operator[](const std::string& n) const;
@@ -98,6 +142,8 @@ private:
 public:
 	Sprite::SpriteFlags Flags{ Sprite::SpriteFlags::NoFlags };
 	int Frame;
+	float ImgScale{ 1.0f };
+	glm::vec4 Color{ 1.0f };
 
 	SimpleSprite(const std::string& texture, int frame, glm::vec2 position);
 

@@ -124,20 +124,6 @@ void Tickable::RemoveChild(std::shared_ptr<Tickable> c)
 	}
 }
 
-template<typename T>
-void Tickable::RemoveChild()
-{
-	for (int i = 0; i < ChildTickables.size(); i++)
-	{
-		auto e = std::dynamic_pointer_cast<T>(ChildTickables[i]);
-		if (e)
-		{
-			RemoveChild(i);
-			return;
-		}
-	}
-}
-
 void Tickable::RemoveAll()
 {
 	if (iterating)
@@ -147,45 +133,6 @@ void Tickable::RemoveAll()
 	}
 	else
 		ChildTickables.clear();
-}
-
-template<typename T>
-T* Tickable::GetChild(size_t i) const
-{
-	if (i >= ChildTickables.size())
-		return nullptr;
-	return (T*)ChildTickables[i].get();
-}
-
-template<typename T>
-T* Tickable::GetChild(const std::string& n) const
-{
-	for (auto& i : ChildTickables)
-	{
-		auto e = std::dynamic_pointer_cast<T>(i);
-		if (e)
-		{
-			if (n.empty())
-				return e.get();
-			else if (i->ID == n)
-				return e.get();
-		}
-	}
-
-	return nullptr;
-}
-
-template<typename T>
-T* Tickable::GetChild() const
-{
-	for (auto& i : ChildTickables)
-	{
-		auto e = std::dynamic_pointer_cast<T>(i);
-		if (e)
-			return e.get();
-	}
-
-	return nullptr;
 }
 
 Tickable* Tickable::operator[](size_t i) const
@@ -305,6 +252,6 @@ SimpleSprite::~SimpleSprite()
 void SimpleSprite::Draw(float)
 {
 	auto frame = texture->operator[](Frame);
-	auto size = glm::vec2(frame.z, frame.w);
-	Sprite::DrawSprite(*texture, AbsolutePosition, size, frame, 0.0f, glm::vec4(1), Flags);
+	auto scaledSize = glm::vec2(frame.z, frame.w) * ImgScale;
+	Sprite::DrawSprite(*texture, AbsolutePosition, scaledSize, frame, 0.0f, Color, Flags);
 }
