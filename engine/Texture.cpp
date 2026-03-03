@@ -111,6 +111,7 @@ Texture::Texture(const std::string& texturePath, int repeat, int filter, bool sk
 		conprint(1, "Failed to load texture \"{}\" -- invalid data.", texturePath);
 	}
 	stbi_image_free(data);
+	data = nullptr;
 
 	cache[file] = this;
 }
@@ -180,6 +181,7 @@ void Texture::Use(int slot)
 			return;
 		}
 		delete data;
+		data = nullptr;
 		delayed = false;
 	}
 
@@ -293,6 +295,7 @@ TextureArray::TextureArray(const std::vector<std::string>& entries, int repeat, 
 		stbi_image_free(data[l]);
 	//std::free(data);
 	delete[] data;
+	data = nullptr;
 
 	cacheArray[file] = this;
 }
@@ -366,6 +369,7 @@ TextureArray::TextureArray(const std::string& texturePath, int repeat, int filte
 		stbi_image_free(data[l]);
 	//std::free(data);
 	delete[] data;
+	data = nullptr;
 
 	cacheArray[file] = this;
 }
@@ -407,6 +411,7 @@ void TextureArray::Use(int slot)
 		for (auto l = 0; l < layers; l++)
 			stbi_image_free(data[l]);
 		delete[] data;
+		data = nullptr;
 		delayed = false;
 	}
 
