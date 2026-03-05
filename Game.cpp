@@ -242,8 +242,19 @@ private:
 public:
 	MapScene()
 	{
-		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.5);
-		commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
+		auto misc = UfbxMisc("example/scene.fbx");
+		commonUniforms.Lights[1].pos = glm::vec4(misc.Lights[0].Position, 0.0f);
+		commonUniforms.Lights[1].color = misc.Lights[0].Color;
+
+		//Maybe figure out how to get this from a UfbxMisc camera?
+		fieldOfView = 22.5f;
+		RecalcProjections();
+
+		MainCamera->FirstPerson(true);
+		MainCamera->Target(misc.Cameras[0].Position);
+		MainCamera->Angles(misc.Cameras[0].Direction);
+
+		MainCamera->Distance(0);
 	}
 
 	/*
