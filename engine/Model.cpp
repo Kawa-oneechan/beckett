@@ -10,6 +10,9 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/euler_angles.hpp>
+
 __declspec(noreturn)
 	extern void FatalError(const std::string& message);
 
@@ -508,9 +511,25 @@ UfbxMisc::UfbxMisc(const std::string& modelPath)
 		{
 			auto c = Camera();
 			c.Position = ufbxToGlmVec(node->local_transform.translation);
-			c.Direction = glm::vec3(node->euler_rotation.x, node->euler_rotation.z, node->euler_rotation.y); //ufbxToGlmVec(node->euler_rotation);
 			//c.Direction = glm::vec3(node->euler_rotation.x, node->euler_rotation.y, node->euler_rotation.z);
 			//c.Direction = ufbxToGlmQuat(node->local_transform.rotation) * glm::vec3(0, 0, 1);
+
+			glm::vec3 interest = c.Position;
+			glm::vec3 upVec = glm::vec3(0, 1, 0);
+			for (const auto& prop : node->camera->props.props)
+			{
+				std::string name(prop.name.data);
+				if (name == "InterestPosition")
+					interest = ufbxToGlmVec(prop.value_vec3);
+				if (name == "UpVector")
+					upVec = ufbxToGlmVec(prop.value_vec3);
+			}
+			auto dir = glm::normalize(c.Position - interest);
+			auto quat = glm::quatLookAt(dir, upVec);
+			auto mat = glm::mat4_cast(quat);
+			glm::extractEulerAngleXYZ<float>(mat, c.Direction.x, c.Direction.z, c.Direction.y);
+			c.Direction = glm::degrees(c.Direction);
+			c.Direction.z = glm::mod(c.Direction.z + 90.0f, 360.0f);
 			Cameras.emplace_back(c);
 		}
 	}
