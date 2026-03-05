@@ -294,6 +294,7 @@ private:
 public:
 	TrainScene()
 	{
+		/*
 		MainCamera->Target(glm::vec3(6, 12, -37));
 		MainCamera->Angles(glm::vec3(1, 2, -3));
 		MainCamera->Distance(50);
@@ -305,7 +306,21 @@ public:
 		commonUniforms.Lights[1].pos = glm::vec4(16, 22, -16, 0);
 		commonUniforms.Lights[2].color = glm::vec4(0.75, 0.75, 0.75, 0.04);
 		commonUniforms.Lights[2].pos = glm::vec4(16, 22, -40, 0);
+		*/
 
+		auto misc = UfbxMisc("example/train/train.fbx");
+
+		MainCamera->FirstPerson(true);
+		MainCamera->Target(misc.Cameras[0].Position);
+		MainCamera->Angles(misc.Cameras[0].Direction);
+		for (int i = 0; i < 2; i++)
+		{
+			commonUniforms.Lights[i + 1].pos = glm::vec4(misc.Lights[i].Position, 0.0f);
+			commonUniforms.Lights[i + 1].color = misc.Lights[i].Color;
+		}
+
+		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.0);
+		commonUniforms.Lights[0].pos = glm::vec4(-50, 24, 35, 0);
 		commonUniforms.Toon = false;
 
 		//postFx = new Framebuffer(Shaders["postfx"], width, height);
@@ -620,7 +635,7 @@ void Game::PrepareSaveDirs()
 void Game::Start(Tickable& root)
 {
 	root.AddChild(MainCamera);
-	root.AddChild(std::make_shared<MapScene>());
+	root.AddChild(std::make_shared<TrainScene>());
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)
