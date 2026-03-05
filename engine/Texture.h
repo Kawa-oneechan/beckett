@@ -32,7 +32,7 @@ public:
 	Texture() = default;
 	explicit Texture(const std::string& texturePath, int repeat = GL_REPEAT, int filter = 0, bool skipAtlas = false, ColorMap* colorMaps = nullptr, int colorMapIndex = 0);
 	Texture(const unsigned char* data, int width, int height, int channels, int repeat = GL_REPEAT, int filter = 0);
-	Texture(unsigned int id, int width, int height, int channels) : ID(id), width(width), height(height), channels(channels), data(nullptr), filter(0), repeat(GL_REPEAT) {}
+	Texture(unsigned int id, int width, int height, int channels) : data(nullptr), filter(0), repeat(GL_REPEAT), ID(id), width(width), height(height), channels(channels) {}
 
 	virtual ~Texture();
 	virtual void Use();

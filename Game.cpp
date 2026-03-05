@@ -53,13 +53,12 @@ public:
 	std::function<void()> OnClick{};
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ FrameDrawer };
 
-	Button(const std::string& text, glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Text(text)
+	Button(const std::string& text, glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Text(text), Size(size)
 	{
 		parent = nullptr;
 		Position = position;
-		Size = size;
 
-		auto minSize = GetMinimalSize();
+		auto minSize = Sprite::MeasureText(Font, Text, TextSize, Raw) + glm::vec2(16, 8);
 		if (Size.x == -1)
 			Size.x = minSize.x;
 		if (Size.y == -1)
@@ -120,11 +119,10 @@ public:
 public:
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ FrameDrawer };
 
-	TestPanel(glm::vec2 position, glm::vec2 size = glm::vec2(-1))
+	explicit TestPanel(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Size(size)
 	{
 		parent = nullptr;
 		Position = position;
-		Size = size;
 
 		//auto minSize = GetMinimalSize();
 		if (Size.x == -1)
@@ -233,6 +231,9 @@ public:
 	}
 };
 
+extern float fieldOfView;
+extern void RecalcProjections();
+
 class MapScene : public Tickable
 {
 private:
@@ -245,12 +246,14 @@ public:
 		commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
 	}
 
+	/*
 	bool Tick(float dt) override
 	{
 		commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 0.5f);
 		commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 0.5f);
 		return Tickable::Tick(dt);
 	}
+	*/
 
 	void Draw(float dt) override
 	{
@@ -272,7 +275,7 @@ class TrainScene : public Tickable
 private:
 	Model model{ "example/train/train.fbx" };
 	float bumpTimer{ 0.0f };
-	Framebuffer* postFx{ nullptr };
+	//Framebuffer* postFx{ nullptr };
 
 	//Model bob{ "example/bob/bob.fbx" };
 	Model* bob{ nullptr };
@@ -297,7 +300,7 @@ public:
 		//postFx = new Framebuffer(Shaders["postfx"], width, height);
 	}
 
-	~TrainScene()
+	~TrainScene() override
 	{
 		//delete postFx;
 	}
@@ -418,7 +421,7 @@ class TestScreen : public Tickable
 {
 private:
 	TilemapP tilemapMgr;
-	std::string text;
+	//std::string text;
 	DropLabelP labelTest;
 
 	Audio* bgm = nullptr;

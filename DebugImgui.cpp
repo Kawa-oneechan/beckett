@@ -91,10 +91,10 @@ static void DoCamera()
 
 static void DoLights()
 {
-	static int lightIndex = 0;
 	static const char lightLabels[] = "S\0" "2\0" "3\0" "4\0" "5\0" "6\0" "7\0" "8\0";
 	if (ImGui::Begin("Lighting"))
 	{
+		static int lightIndex = 0;
 		for (int i = 0; i < MaxLights; i++)
 		{
 			bool selected = lightIndex == i;
