@@ -285,7 +285,7 @@ class TrainScene : public Tickable
 {
 private:
 	Model model{ "example/train/train.fbx" };
-	float bumpTimer{ 0.0f };
+	//float bumpTimer{ 0.0f };
 	//Framebuffer* postFx{ nullptr };
 
 	//Model bob{ "example/bob/bob.fbx" };
@@ -324,6 +324,22 @@ public:
 		commonUniforms.Toon = false;
 
 		//postFx = new Framebuffer(Shaders["postfx"], width, height);
+
+		auto testButton = std::make_shared<Button>("Toggle Bob", glm::vec2(0));
+		testButton->OnClick = [&]()
+		{
+			if (!bob)
+			{
+				bob = new Model("example/bob/bob.fbx");
+			}
+			else
+			{
+				delete bob;
+				bob = nullptr;
+			}
+		};
+		testButton->AbsolutePosition = testButton->Position;
+		AddChild(testButton);
 	}
 
 	~TrainScene() override
@@ -333,14 +349,16 @@ public:
 
 	bool Tick(float dt) override
 	{
-		//bumpTimer += dt;
+		/*
+		bumpTimer += dt;
 		auto t = MainCamera->Target();
-		//t.y = Random::GetFloat(12.0f, 12.1f);
+		t.y = Random::GetFloat(12.0f, 12.1f);
 		if (bumpTimer > 2.0f)
 			t.y = 12.4f;
 		MainCamera->Target(t);
 		if (bumpTimer > 2.1f)
 			bumpTimer = 0.0f;
+		*/
 
 		if (Inputs.KeyDown(Binds::WalkN))
 		{
@@ -374,12 +392,15 @@ public:
 		//commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 1.0f);
 
 		if (bob != nullptr)
-			bob->Draw(glm::vec3(3, 4, -14));
+			bob->Draw(glm::vec3(6, 4, -14), -2.0f);
 		model.Draw(glm::vec3(0));
 
 		MeshBucket::Flush();
 
 		glDisable(GL_DEPTH_TEST);
+
+		Tickable::Draw(dt);
+		Sprite::FlushBatch();
 
 		//postFx->Drop();
 		//postFx->Draw(glm::vec2(0), glm::vec2(width, height));

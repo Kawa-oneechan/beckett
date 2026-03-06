@@ -255,7 +255,7 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 	cache[file] = std::make_tuple(this, 1);
 }
 
-#if 0
+#if 1
 Model::~Model()
 {
 	conprint(5, "Destructing model {}", this->file);

@@ -114,7 +114,7 @@ public:
 
 	Model() = default;
 	explicit Model(const std::string& modelPath);
-#if 0
+#if 1
 	~Model(); 
 #endif
 
