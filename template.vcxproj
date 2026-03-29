@@ -135,6 +135,7 @@
     <ClInclude Include="engine\JsonUtils.h" />
     <ClInclude Include="engine\Model.h" />
     <ClInclude Include="engine\NineSlicer.h" />
+    <ClInclude Include="engine\Particles.h" />
     <ClInclude Include="engine\Platform.h" />
     <ClInclude Include="engine\Random.h" />
     <ClInclude Include="engine\Shader.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="engine\MeshBucket.cpp" />
     <ClCompile Include="engine\Model.cpp" />
     <ClCompile Include="engine\NineSlicer.cpp" />
+    <ClCompile Include="engine\Particles.cpp" />
     <ClCompile Include="engine\PlatformWin32.cpp" />
     <ClCompile Include="engine\Random.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
