@@ -166,14 +166,23 @@ public:
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
+		std::string Name;
 	};
 	struct Camera
 	{
 		glm::vec3 Position;
 		glm::vec3 Direction;
+		std::string Name;
+	};
+	struct Empty
+	{
+		glm::vec3 Position;
+		glm::vec3 Direction;
+		std::string Name;
 	};
 	std::vector<Light> Lights;
 	std::vector<Camera> Cameras;
+	std::vector<Empty> Empties;
 
 	explicit UfbxMisc(const std::string& modelPath);
 };

@@ -532,6 +532,13 @@ UfbxMisc::UfbxMisc(const std::string& modelPath)
 			c.Direction.z = glm::mod(c.Direction.z + 90.0f, 360.0f);
 			Cameras.emplace_back(c);
 		}
+		else if (node->attrib && !node->mesh && !node->bone && !node->bind_pose)
+		{
+			auto e = Empty();
+			e.Position = ufbxToGlmVec(node->local_transform.translation);
+			e.Direction = glm::vec3(node->euler_rotation.x, node->euler_rotation.y, node->euler_rotation.z);
+			Empties.emplace_back(e);
+		}
 	}
 
 	ufbx_free_scene(scene);
