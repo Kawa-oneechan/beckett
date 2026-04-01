@@ -10,7 +10,7 @@ Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
 {
 	auto lo = doc.as_object();
 
-	layerName = lo["name"].as_string();
+	ID = lo["name"].as_string();
 	width = lo["width"].as_integer();
 	height = lo["height"].as_integer();
 
@@ -215,9 +215,15 @@ Tilemap::Tilemap(const std::string& source)
 	{
 		auto lo = l.as_object();
 		if (lo["type"].as_string() == "tilelayer")
-			layers.push_back(std::make_shared<MapLayer>(l, this));
+			ChildTickables.push_back(std::make_shared<MapLayer>(l, this));
 		if (lo["type"].as_string() == "objectgroup")
 		{
+			if (lo["name"].as_string() == "Sprites")
+			{
+				ChildTickables.push_back(std::make_shared<MapSpriteLayer>());
+				continue;
+			}
+
 			for (auto ob : lo["objects"].as_array())
 			{
 				auto o = ob.as_object();
@@ -239,8 +245,6 @@ Tilemap::Tilemap(const std::string& source)
 
 bool Tilemap::Tick(float dt)
 {
-	Tickable2D::Tick(dt);
-
 	for (auto& a : tileset.animations)
 	{
 		a.second.durationLeft -= (int)(dt * 1000);
@@ -253,67 +257,146 @@ bool Tilemap::Tick(float dt)
 		}
 	}
 
-	for (const auto& l : layers)
+	for (const auto& l : ChildTickables)
 	{
-		l->Scale = Scale;
-		l->Camera = Camera;
+		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(l);
+		if (mapLayer)
+		{
+			mapLayer->Scale = Scale;
+			mapLayer->Camera = Camera;
+			continue;
+		}
+		auto spriteLayer = std::dynamic_pointer_cast<MapSpriteLayer>(l);
+		if (spriteLayer)
+		{
+			spriteLayer->Scale = Scale;
+			spriteLayer->Position = -Camera;
+			continue;
+		}
 	}
-	return true;
+
+	return Tickable2D::Tick(dt);
 }
 
-// cppcheck-suppress duplInheritedMember
-std::shared_ptr<Tilemap::MapLayer> Tilemap::operator[](size_t i) const
+void Tilemap::Draw(float dt)
 {
-	if (i < layers.size()) return layers[i];
-	return layers[0];
+	Tickable2D::Draw(dt);
 }
 
-std::shared_ptr<Tilemap::MapLayer> Tilemap::GetLayer(size_t i)
+std::shared_ptr<Tickable> Tilemap::GetLayer(size_t i)
 {
-	if (i < layers.size()) return layers[i];
-	return layers[0];
+	if (i < ChildTickables.size()) return ChildTickables[i];
+	return ChildTickables[0];
 }
 
 void Tilemap::SetTile(int row, int col, int tile)
 {
-	for (auto& l : layers)
-		l->SetTile(row, col, tile);
+	for (auto& l : ChildTickables)
+	{
+		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(l);
+		if (mapLayer)
+			mapLayer->SetTile(row, col, tile);
+	}
 }
 
 void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles)
 {
-	for (int i = 0; i < layers.size() && i < tiles.size(); i++)
+	for (int i = 0; i < ChildTickables.size() && i < tiles.size(); i++)
 	{
 		auto t = *(tiles.begin() + i);
 		if (t == -2)
 			continue;
-		layers[i]->SetTile(row, col, t);
+		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(ChildTickables[i]);
+		if (mapLayer)
+		{
+			mapLayer->SetTile(row, col, t);
+		}
 	}
 }
 
 const int Tilemap::GetTile(int layer, int row, int col) const
 {
-	return layers[layer]->GetTile(row, col);
+	auto mapLayer = std::dynamic_pointer_cast<MapLayer>(ChildTickables[layer]);
+	if (mapLayer)
+		return mapLayer->GetTile(row, col);
+	return -1;
 }
 
 const int Tilemap::GetTile(int layer, const glm::vec2& position) const
 {
-	return layers[layer]->GetTile(position);
+	auto mapLayer = std::dynamic_pointer_cast<MapLayer>(ChildTickables[layer]);
+	if (mapLayer)
+		return mapLayer->GetTile(position);
+	return -1;
 }
 
 glm::vec2 Tilemap::GetPixelSize()
 {
-	auto ret = layers[0]->GetPixelSize();
-	return ret;
+	for (auto& l : ChildTickables)
+	{
+		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(l);
+		if (mapLayer)
+		{
+			auto ret = mapLayer->GetPixelSize();
+			return ret;
+		}
+	}
+	return glm::vec2(16);
 }
 
 glm::vec2 Tilemap::GetTileSize()
 {
-	auto ret = layers[0]->GetTileSize();
-	return ret;
+	for (auto& l : ChildTickables)
+	{
+		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(l);
+		if (mapLayer)
+		{
+			auto ret = mapLayer->GetTileSize();
+			return ret;
+		}
+	}
+	return glm::vec2(16);
 }
 
 glm::vec4 Tilemap::GetCollision(int layer, int row, int col)
 {
-	return layers[layer]->GetCollision(row, col);
+	auto mapLayer = std::dynamic_pointer_cast<MapLayer>(ChildTickables[layer]);
+	if (mapLayer)
+		return mapLayer->GetCollision(row, col);
+	return glm::vec4(-1);
+}
+
+bool MapSpriteLayer::Tick(float dt)
+{
+	Tickable2D::Tick(dt);
+
+	for (const auto& s : ChildTickables)
+	{
+		auto ms = std::dynamic_pointer_cast<MapSprite>(s);
+		if (ms)
+		{
+			ms->Scale = Scale;
+		}
+	}
+	return true;
+}
+
+void MapSpriteLayer::Draw(float dt)
+{
+	std::vector<Tickable2D*> sorted;
+	sorted.reserve(ChildTickables.size());
+	for (const auto& l : ChildTickables)
+	{
+		auto t2D = std::dynamic_pointer_cast<Tickable2D>(l);
+		if (t2D)
+			sorted.push_back(t2D.get());
+	}
+	std::sort(sorted.begin(), sorted.end(), [](const Tickable2D* a, const Tickable2D* b)
+	{
+		return a->Position.y < b->Position.y;
+	});
+	for (auto l : sorted)
+	{
+		l->Draw(dt);
+	}
 }

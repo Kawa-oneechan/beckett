@@ -42,14 +42,13 @@ class Tilemap : public Tickable2D
 		std::map<int, Shape> collisions;
 	};
 
-	class MapLayer : public Tickable
+	class MapLayer : public Tickable2D
 	{
 	private:
 		int width{ 0 };
 		int height{ 0 };
 		glm::vec2 Parallax{ 1, 1 };
 		glm::vec4 Tint{ 1, 1, 1, 1 };
-		std::string layerName;
 		std::unique_ptr<int[]> data{ nullptr };
 		Tilemap* owner{ nullptr };
 
@@ -69,7 +68,6 @@ class Tilemap : public Tickable2D
 	};
 
 private:
-	std::vector<std::shared_ptr<MapLayer>> layers;
 	std::vector<Shape> shapes;
 	Tileset tileset;
 	bool isometric{ false };
@@ -79,11 +77,11 @@ public:
 	float Scale{ 1.0f };
 
 	explicit Tilemap(const std::string& source);
-	void Draw(float dt) override {}
+	void Draw(float) override;
 	bool Tick(float) override;
 
-	std::shared_ptr<MapLayer> operator[](size_t i) const;
-	std::shared_ptr<MapLayer> GetLayer(size_t i);
+	//std::shared_ptr<Tickable2D> operator[](size_t i) const; // cppcheck-suppress duplInheritedMember
+	std::shared_ptr<Tickable> GetLayer(size_t i);
 	void Tilemap::SetTile(int row, int col, int tile);
 	void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles);
 	const int GetTile(int layer, int row, int col) const;
@@ -94,3 +92,18 @@ public:
 };
 
 using TilemapP = std::shared_ptr<Tilemap>;
+
+class MapSpriteLayer : public Tickable2D
+{
+public:
+	float Scale{ 1.0f };
+	MapSpriteLayer() = default;
+	bool Tick(float) override;
+	void Draw(float dt) override;
+};
+
+class MapSprite : public Tickable2D
+{
+public:
+	float Scale{ 1.0f };
+};
