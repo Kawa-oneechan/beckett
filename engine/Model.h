@@ -167,18 +167,21 @@ public:
 		glm::vec3 Position;
 		glm::vec4 Color;
 		std::string Name;
+		std::map<std::string, jsonValue> Properties;
 	};
 	struct Camera
 	{
 		glm::vec3 Position;
 		glm::vec3 Direction;
 		std::string Name;
+		std::map<std::string, jsonValue> Properties;
 	};
 	struct Empty
 	{
 		glm::vec3 Position;
 		glm::vec3 Direction;
 		std::string Name;
+		std::map<std::string, jsonValue> Properties;
 	};
 	std::vector<Light> Lights;
 	std::vector<Camera> Cameras;
