@@ -174,8 +174,131 @@ static void DoLights()
 	ImGui::End();
 }
 
+extern Tickable root;
+Tickable* tickable = &root;
+int blankIDs = 0;
+
+static void TraverseTree(Tickable* origin)
+{
+	int flags = ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
+	if (origin->size() == 0)
+		flags |= ImGuiTreeNodeFlags_Leaf;
+	if (tickable == origin)
+		flags |= ImGuiTreeNodeFlags_Selected;
+	
+	auto name = std::string(origin->ID);
+	if (name.empty())
+		name = fmt::format("{}", blankIDs);
+	name += fmt::format("##{}", blankIDs);
+	blankIDs++;
+
+	if (ImGui::TreeNodeEx(name.c_str(), flags))
+	{
+		if (ImGui::IsItemClicked())
+		{
+			tickable = origin;
+		}
+		for (int i = 0; i < origin->size(); i++)
+		{
+			TraverseTree(origin->operator[](i));
+		}
+		ImGui::TreePop();
+	}
+}
+
+static void DoSceneTree()
+{
+	if (ImGui::Begin("Scene Tree"))
+	{
+		ImGui::BeginChild("left pane", ImVec2(200, 0), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+		{
+			blankIDs = 0;
+			ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 4);
+			TraverseTree(&root);
+			ImGui::PopStyleVar();
+		}
+		ImGui::EndChild();
+
+		ImGui::SameLine();
+
+		ImGui::BeginChild("item view", ImVec2(0, 0)); //-ImGui::GetFrameHeightWithSpacing()));
+		{
+			if (auto tgen = dynamic_cast<Tickable*>(tickable))
+			{
+				ImGui::SeparatorText("Tickable");
+				ImGui::Checkbox("Visible", &tgen->Visible);
+				ImGui::Checkbox("Enabled", &tgen->Enabled);
+			}
+
+			if (auto t2d = dynamic_cast<Tickable2D*>(tickable))
+			{
+				ImGui::SeparatorText("Tickable2D");
+				ImGui::DragFloat2("Position", &t2d->Position.x);
+			}
+
+			if (auto cam = dynamic_cast<Camera*>(tickable))
+			{
+				ImGui::SeparatorText("Camera");
+				auto first = cam->FirstPerson();
+				ImGui::Text(first ? "Position" : "Target");
+				{
+					auto& tar = cam->GetTarget();
+					if (ImGui::DragFloat("X", &tar.x, 1.0, -50, 50))
+						cam->Update();
+					if (ImGui::DragFloat("Y", &tar.y, 1.0, -50, 50))
+						cam->Update();
+					if (ImGui::DragFloat("Z", &tar.z, 1.0, -100, 100))
+						cam->Update();
+				}
+
+				ImGui::Text("Angles");
+				{
+					auto& ang = cam->GetAngles();
+					if (ImGui::DragFloat("Roll", &ang.x, 1.0, -359, 359))
+						cam->Update();
+					if (ImGui::DragFloat("Pitch", &ang.y, 1.0, -359, 359))
+						cam->Update();
+					if (ImGui::DragFloat("Yaw", &ang.z, 1.0, -359, 359))
+						cam->Update();
+				}
+
+				ImGui::Separator();
+				if (first) ImGui::BeginDisabled();
+				if (ImGui::DragFloat("Distance", &cam->GetDistance(), 1.0, -100, 100, "%.3f", ImGuiSliderFlags_Logarithmic))
+					cam->Update();
+				if (first) ImGui::EndDisabled();
+
+
+				ImGui::Text("Settings");
+				ImGui::Checkbox("Locked", &cam->Locked);
+				if (ImGui::Checkbox("First", &first))
+					cam->FirstPerson(first);
+
+				if (ImGui::Button("Reset"))
+				{
+					cam->Target(glm::vec3(0, 0, 0));
+					cam->Angles(glm::vec3(0, 46, 0));
+					cam->Distance(70);
+					cam->Update();
+				}
+			}
+
+			if (auto spr = dynamic_cast<SimpleSprite*>(tickable))
+			{
+				ImGui::SeparatorText("SimpleSprite");
+				ImGui::InputInt("Frame", &spr->Frame);
+				ImGui::DragFloat("Scale", &spr->ImgScale);
+				ImGui::ColorEdit4("Color", &spr->Color.r);
+			}
+		}
+		ImGui::EndChild();
+	}
+	ImGui::End();
+}
+
 void Game::ImGui()
 {
 	DoCamera();
 	DoLights();
+	DoSceneTree();
 }
