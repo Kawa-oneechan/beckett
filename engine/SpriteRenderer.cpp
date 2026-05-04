@@ -336,7 +336,7 @@ namespace Sprite
 		if (texture.channels == 1)
 			DrawSprite(Shaders["red8"], texture, position, size, srcRect, rotate, color, flags);
 		else
-		DrawSprite(Shaders["sprite"], texture, position, size, srcRect, rotate, color, flags);
+			DrawSprite(Shaders["sprite"], texture, position, size, srcRect, rotate, color, flags);
 	}
 
 	void DrawSprite(Shader* shader, Texture& texture, const glm::vec2& position, const glm::vec4& srcRect, float rotate, const glm::vec4& color, SpriteFlags flags)
@@ -776,7 +776,7 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 
 		auto adv = (float)celWidth;
 
-		auto chPos = position + glm::vec2(1.0f * scaleF, 1.0f * scaleF);
+		auto chPos = position - glm::vec2(0, h) * scaleF;
 		toDraw.push_back({ ch, 0, angle, stringScale, chPos, srcRect, textRenderColor });
 
 		//position.x += adv * scaleF;
@@ -860,18 +860,17 @@ glm::vec2 BitmapFont::Measure(const std::string& text, float size, bool raw)
 	measureIt:
 #endif
 
-		auto w = celWidth + 0.5f;
-		auto h = celHeight + 0.5f;
-		auto stringScale = glm::vec2(w * scaleF, h * scaleF);
+		auto w = (float)celWidth;
+		auto h = (float)celHeight;
 
-		thisLine += celWidth * scaleF;
+		thisLine += celWidth;
 
 		if (thisLine > result.x)
 			result.x = thisLine;
 	}
 
 	auto h = (float)celHeight;
-	result.y += (h + (h / 2)) * (originalTextRenderSize / 100.0f);
+	result.y += h * (originalTextRenderSize / 100.0f);
 
 	return result;
 }

@@ -1,16 +1,16 @@
 [
+	/*
 	{	//System
 		"type": "truetype",
 		"file": "fonts/fixedsex.ttf",
 		"size": 16,
 		"e0": "fonts/kenney_input_xbox_series.otf"
 	},
-	/*
+	*/
 	{	//System
 		"type": "bitmap",
-		"file": "fonts/fixedsex{:02X}.png"
+		"file": "fonts/unifont_{:02X}.png"
 	},
-	*/
 	{	//Dialogue
 		"type": "truetype",
 		"file": "fonts/pixelmix_bold.ttf",
