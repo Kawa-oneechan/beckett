@@ -547,7 +547,7 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 		if (ch == '\n')
 		{
 			pos.x = 0.0f;
-			pos.y += (cdata['A'].x1 - cdata['A'].x0) * scaleF;
+			pos.y += (cdata['A'].x1 - cdata['A'].x0) * 1.5f * scaleF;
 			continue;
 		}
 
@@ -600,7 +600,7 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 	for (const auto& letter : toDraw)
 	{
 		auto bank = letter.codepoint >> 8;
-		Sprite::DrawSprite(fontShader, *fontTextures[bank], letter.position + position, letter.scale, letter.srcRect, letter.angle, letter.color);
+		Sprite::DrawSprite(fontShader, *fontTextures[bank], letter.position + position, letter.scale, letter.srcRect, letter.angle, letter.color, Sprite::SpriteFlags::RotateTopLeft);
 	}
 }
 
