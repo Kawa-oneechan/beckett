@@ -1,23 +1,26 @@
 [
-	{	//0 - System
-		"file": "fixedsex.ttf",
+	{	//System
+		"type": "truetype",
+		"file": "fonts/fixedsex.ttf",
 		"size": 16,
-		"grid": true,
-		"inputs": 3
+		"e0": "fonts/kenney_input_xbox_series.otf"
 	},
-	{	//1 - Dialogue
-		"file": "pixelmix_bold.ttf",
+	/*
+	{	//System
+		"type": "bitmap",
+		"file": "fonts/fixedsex{:02X}.png"
+	},
+	*/
+	{	//Dialogue
+		"type": "truetype",
+		"file": "fonts/pixelmix_bold.ttf",
 		"size": 16,
-		"grid": true,
-		"inputs": 3
+		"e0": "fonts/kenney_input_xbox_series.otf"
 	},
-	{	//2 - Test
-		"file": "backissues.otf",
+	{	//Test
+		"type": "truetype",
+		"file": "fonts/backissues.otf",
 		"size": 32,
-		"inputs": 3
-	},
-	{	//3 - Input Prompts
-		"file": "kenney_input_xbox_series.otf",
-		"size": 32
+		"e0": "fonts/kenney_input_xbox_series.otf"
 	}
 ]

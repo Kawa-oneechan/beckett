@@ -473,10 +473,13 @@ private:
 
 	Audio* bgm = nullptr;
 
+	BeckettFont* testFont = nullptr;
+
 public:
 	TestScreen()
 	{
 		//AddChild(std::make_shared<Background>());
+		testFont = new BitmapFont("fonts/toho.png");
 		//AddChild(std::make_shared<RoryNite>());
 
 		/*
@@ -574,6 +577,8 @@ public:
 		Tickable::Draw(dt);
 		//Sprite::DrawLine(glm::vec2(width * 0.5f, height * 0.5f), Inputs.MousePosition, glm::vec4(1, 0, 1, 1));
 		Sprite::FlushBatch();
+
+		testFont->Draw("FANCY bitmap font!\nTag test: <color:1>yo</color>", glm::vec2(128), glm::vec4(1), 200.0f);
 	}
 
 	bool Character(unsigned int ch) override
