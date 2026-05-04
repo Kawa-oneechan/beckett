@@ -3,6 +3,8 @@
 #include <sstream>
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
 
 #include <format.h>
 #include <stb_truetype.h>
@@ -46,7 +48,6 @@ static int instanceCursor = 0;
 struct letterToDraw
 {
 	unsigned int codepoint;
-	int font;
 	float angle;
 	glm::vec2 scale;
 	glm::vec2 position;
@@ -437,6 +438,18 @@ namespace Sprite
 
 
 
+static void applyRotation(std::vector<letterToDraw>& toDraw, float angle)
+{
+	if (angle == 0.0f)
+		return;
+	//TODO: RO-RO-ROTATE YOUR OWL
+
+	for (auto& letter : toDraw)
+	{
+		letter.position = glm::rotate(letter.position, glm::radians(angle));
+	}
+}
+
 TrueTypeFont::TrueTypeFont(const std::string& font, float size)
 {
 	cdata = new stbtt_bakedchar[0x10000]{ 0 };
@@ -498,14 +511,16 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 	if (text.empty())
 		return;
 
+	auto pos = glm::vec2(0);
+
 	textRenderColor = originalTextRenderColor = color;
 	//textRenderSize = originalTextRenderSize = size;
 	originalTextRenderSize = size;
 	textRenderSize = 1.0; //percentage of originalTextRenderSize!
 	position.y += this->size * (originalTextRenderSize / 100.0f);
 
-	auto ogX = position.x;
-	auto ogY = position.y;
+	auto ogX = 0.0f; //position.x;
+	auto ogY = 0.0f; // position.y;
 	size_t i = 0;
 
 	std::vector<letterToDraw> toDraw;
@@ -526,17 +541,13 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 
 		if (ch == ' ')
 		{
-			auto adv = cdata[' '].xadvance;
-			position.x += cosf(glm::radians(angle)) * adv * scaleF;
-			position.y += sinf(glm::radians(angle)) * adv * scaleF;
+			pos.x += cdata[' '].xadvance * scaleF;
 			continue;
 		}
 		if (ch == '\n')
 		{
-			position.x = ogX;
-			auto h = cdata['A'].x1 - cdata['A'].x0;
-			ogY += (h + (h / 1)) * scaleF;
-			position.y = ogY;
+			pos.x = 0.0f;
+			pos.y += (cdata['A'].x1 - cdata['A'].x0) * scaleF;
 			continue;
 		}
 
@@ -568,14 +579,10 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 		auto stringScale = glm::vec2(w * scaleF, h * scaleF);
 		auto srcRect = glm::vec4(bakedChar.x0, bakedChar.y0 * -1.0f, w, h * -1.0f);
 
-		auto adv = bakedChar.xadvance;
+		auto chPos = pos + glm::vec2(bakedChar.xoff * scaleF, bakedChar.yoff * scaleF);
+		toDraw.push_back({ ch, angle, stringScale, chPos, srcRect, textRenderColor });
 
-		auto chPos = position + glm::vec2(bakedChar.xoff * scaleF, bakedChar.yoff * scaleF);
-		toDraw.push_back({ ch, 0, angle, stringScale, chPos, srcRect, textRenderColor });
-
-		//position.x += adv * scaleF;
-		position.x += cosf(glm::radians(angle)) * adv * scaleF;
-		position.y += sinf(glm::radians(angle)) * adv * scaleF;
+		pos.x += bakedChar.xadvance * scaleF;
 	}
 
 	if (toDraw.empty()) return;
@@ -588,10 +595,12 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 
 	//TODO: clip
 
+	applyRotation(toDraw, angle);
+
 	for (const auto& letter : toDraw)
 	{
 		auto bank = letter.codepoint >> 8;
-		Sprite::DrawSprite(fontShader, *fontTextures[bank], letter.position, letter.scale, letter.srcRect, letter.angle, letter.color);
+		Sprite::DrawSprite(fontShader, *fontTextures[bank], letter.position + position, letter.scale, letter.srcRect, letter.angle, letter.color);
 	}
 }
 
@@ -673,10 +682,10 @@ glm::vec2 TrueTypeFont::Measure(const std::string& text, float size, bool raw)
 }
 
 
-BitmapFont::BitmapFont(const std::string& font)
+
+BitmapFont::BitmapFont(const std::string& font) : file(font)
 {
 	fontTextures = new Texture*[256]{ 0 };
-	file = font;
 }
 
 BitmapFont::~BitmapFont()
@@ -695,7 +704,7 @@ void BitmapFont::loadBank(int bank)
 	
 	if (celHeight == -1)
 	{
-		auto tex = fontTextures[bank];
+		const Texture* tex = fontTextures[bank];
 		celWidth = tex->width / 16;
 		celHeight = tex->height / 16;
 		size = (float)celHeight;
@@ -707,14 +716,16 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 	if (text.empty())
 		return;
 
+	auto pos = glm::vec2(0);
+
 	textRenderColor = originalTextRenderColor = color;
 	//textRenderSize = originalTextRenderSize = size;
 	originalTextRenderSize = size;
 	textRenderSize = 2.0; //percentage of originalTextRenderSize!
 	position.y += this->size * (originalTextRenderSize / 100.0f);
 
-	auto ogX = position.x;
-	auto ogY = position.y;
+	auto ogX = 0.0f; //position.x;
+	auto ogY = 0.0f; //position.y;
 	size_t i = 0;
 
 	std::vector<letterToDraw> toDraw;
@@ -735,17 +746,13 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 
 		if (ch == ' ')
 		{
-			auto adv = (float)celWidth;
-			position.x += cosf(glm::radians(angle)) * adv * scaleF;
-			position.y += sinf(glm::radians(angle)) * adv * scaleF;
+			pos.x += celWidth * scaleF;
 			continue;
 		}
 		if (ch == '\n')
 		{
-			position.x = ogX;
-			auto h = (float)celHeight;
-			ogY += h * scaleF;
-			position.y = ogY;
+			pos.x = 0;
+			pos.y += celHeight * scaleF;
 			continue;
 		}
 
@@ -769,19 +776,13 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 
 	renderIt:
 #endif
-		auto w = (float)celWidth;
-		auto h = (float)celHeight;
-		auto stringScale = glm::vec2(w * scaleF, h * scaleF);
-		auto srcRect = glm::vec4((ch % 16) * w, (ch / 16) * h, w, h);
+		auto stringScale = glm::vec2(celWidth * scaleF, celHeight * scaleF);
+		auto srcRect = glm::vec4((ch % 16) * celWidth, (ch / 16) * celHeight, celWidth, celHeight);
 
-		auto adv = (float)celWidth;
+		auto chPos = pos - glm::vec2(0, celHeight) * scaleF;
+		toDraw.push_back({ ch, angle, stringScale, chPos, srcRect, textRenderColor });
 
-		auto chPos = position - glm::vec2(0, h) * scaleF;
-		toDraw.push_back({ ch, 0, angle, stringScale, chPos, srcRect, textRenderColor });
-
-		//position.x += adv * scaleF;
-		position.x += cosf(glm::radians(angle)) * adv * scaleF;
-		position.y += sinf(glm::radians(angle)) * adv * scaleF;
+		pos.x += celWidth * scaleF;
 	}
 
 	if (toDraw.empty()) return;
@@ -794,10 +795,12 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 
 	//TODO: clip
 
+	applyRotation(toDraw, angle);
+
 	for (const auto& letter : toDraw)
 	{
 		auto bank = letter.codepoint >> 8;
-		Sprite::DrawSprite(*fontTextures[bank], letter.position, letter.scale, letter.srcRect, letter.angle, letter.color);
+		Sprite::DrawSprite(*fontTextures[bank], letter.position + position, letter.scale, letter.srcRect, letter.angle, letter.color);
 	}
 }
 
@@ -830,8 +833,7 @@ glm::vec2 BitmapFont::Measure(const std::string& text, float size, bool raw)
 		if (ch == '\n')
 		{
 			thisLine = 0.0f;
-			auto h = (float)celHeight;
-			result.y += h * scaleF;
+			result.y += celHeight * scaleF;
 			continue;
 		}
 
@@ -860,17 +862,13 @@ glm::vec2 BitmapFont::Measure(const std::string& text, float size, bool raw)
 	measureIt:
 #endif
 
-		auto w = (float)celWidth;
-		auto h = (float)celHeight;
-
 		thisLine += celWidth;
 
 		if (thisLine > result.x)
 			result.x = thisLine;
 	}
 
-	auto h = (float)celHeight;
-	result.y += h * (originalTextRenderSize / 100.0f);
+	result.y += celHeight * (originalTextRenderSize / 100.0f);
 
 	return result;
 }

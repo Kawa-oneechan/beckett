@@ -43,12 +43,12 @@ namespace Sprite
 	void FlushBatch();
 }
 
+//TODO: can we not?
 #include <stb_truetype.h>
+
 class BeckettFont
 {
 public:
-	const bool SupportsUnicode() const { return false; }
-
 	virtual void Draw(const std::string& text, glm::vec2 position, const glm::vec4& color = glm::vec4(1), float size = 100, float angle = 0.0f, bool raw = false) = 0;
 	virtual glm::vec2 Measure(const std::string& text, float size, bool raw = false) = 0;
 };
@@ -66,22 +66,25 @@ private:
 	void loadBank(int bank);
 
 public:
-	explicit TrueTypeFont(const std::string& file, float size);
-	TrueTypeFont(const jsonValue& json);
+	TrueTypeFont(const std::string& file, float size);
+	explicit TrueTypeFont(const jsonValue& json);
 	~TrueTypeFont();
 
 	virtual void Draw(const std::string& text, glm::vec2 position, const glm::vec4& color = glm::vec4(1), float size = 100, float angle = 0.0f, bool raw = false) override;
 	virtual glm::vec2 Measure(const std::string& text, float size, bool raw = false) override;
+
+	TrueTypeFont(const TrueTypeFont&) = delete;
+	TrueTypeFont &operator=(const TrueTypeFont&) = delete;
 };
 
 class BitmapFont : public BeckettFont
 {
 private:
 	std::string file;
-	float size;
+	float size{ -1 };
 	Texture** fontTextures;
 
-	int celWidth, celHeight{ -1 };
+	int celWidth{ -1 }, celHeight{ -1 };
 
 	void loadBank(int bank);
 
@@ -92,4 +95,6 @@ public:
 	virtual void Draw(const std::string& text, glm::vec2 position, const glm::vec4& color = glm::vec4(1), float size = 100, float angle = 0.0f, bool raw = false) override;
 	virtual glm::vec2 Measure(const std::string& text, float size, bool raw = false) override;
 
+	BitmapFont(const BitmapFont&) = delete;
+	BitmapFont &operator=(const BitmapFont&) = delete;
 };
