@@ -87,79 +87,6 @@ static void LoadFonts()
 	}
 }
 
-#ifndef BECKETT_NOBJTS
-static void bjtsColor(BJTSParams)
-{
-	(void)(start); (void)(len);
-	if (tags[0] == "/color")
-		textRenderColor = originalTextRenderColor;
-	else if (tags.size() < 2)
-	{
-		//conprint(2, "Missing parameter in BJTS Color");
-		return;
-	}
-	else
-	{
-		int id = std::stoi(tags[1]);
-		if (id == -1 || id >= UI::textColors.size())
-			textRenderColor = originalTextRenderColor;
-		else
-			textRenderColor = UI::textColors[id];
-	}
-}
-
-static void bjtsSize(BJTSParams)
-{
-	(void)(start); (void)(len);
-	if (tags[0] == "/size")
-		textRenderSize = 1.0f; //originalTextRenderSize;
-	else if (tags.size() < 2)
-	{
-		//conprint(2, "Missing parameter in BJTS Size");
-		return;
-	}
-	else
-	{
-		int size = std::stoi(tags[1]);
-		if (size == -1)
-			textRenderSize = 1.0f; //originalTextRenderSize;
-		else
-			textRenderSize = (float)size / 100.0f;
-	}
-}
-
-static void bjtsFont(BJTSParams)
-{
-	(void)(start); (void)(len);
-	if (tags[0] == "/font")
-		textRenderFont = originalTextRenderFont;
-	else if (tags.size() < 2)
-	{
-		//conprint(2, "Missing parameter in BJTS Font");
-		return;
-	}
-	else
-	{
-		int num = std::stoi(tags[1]);
-		if (num == -1 || num >= numFonts)
-			textRenderFont = originalTextRenderFont;
-		else
-			textRenderFont = num;
-	}
-}
-
-using bjtsFunc = void(*)(BJTSParams);
-const std::map<std::string, bjtsFunc> bjtsPhase3
-{
-	{ "color", &bjtsColor },
-	{ "/color", &bjtsColor },
-	{ "size", &bjtsSize },
-	{ "/size", &bjtsSize },
-	{ "font", &bjtsFont },
-	{ "/font", &bjtsFont },
-};
-#endif
-
 namespace Sprite
 {
 	static void Initialize()
@@ -437,7 +364,6 @@ namespace Sprite
 }
 
 
-
 static void applyRotation(std::vector<letterToDraw>& toDraw, float angle)
 {
 	if (angle == 0.0f)
@@ -449,6 +375,111 @@ static void applyRotation(std::vector<letterToDraw>& toDraw, float angle)
 		letter.position = glm::rotate(letter.position, glm::radians(angle));
 	}
 }
+
+
+#ifndef BECKETT_NOBJTS
+static void bjtsColor(BJTSParams)
+{
+	(void)(start); (void)(len);
+	if (tags[0] == "/color")
+		textRenderColor = originalTextRenderColor;
+	else if (tags.size() < 2)
+	{
+		//conprint(2, "Missing parameter in BJTS Color");
+		return;
+	}
+	else
+	{
+		int id = std::stoi(tags[1]);
+		if (id == -1 || id >= UI::textColors.size())
+			textRenderColor = originalTextRenderColor;
+		else
+			textRenderColor = UI::textColors[id];
+	}
+}
+
+static void bjtsSize(BJTSParams)
+{
+	(void)(start); (void)(len);
+	if (tags[0] == "/size")
+		textRenderSize = 1.0f; //originalTextRenderSize;
+	else if (tags.size() < 2)
+	{
+		//conprint(2, "Missing parameter in BJTS Size");
+		return;
+	}
+	else
+	{
+		int size = std::stoi(tags[1]);
+		if (size == -1)
+			textRenderSize = 1.0f; //originalTextRenderSize;
+		else
+			textRenderSize = (float)size / 100.0f;
+	}
+}
+
+static void bjtsFont(BJTSParams)
+{
+	(void)(start); (void)(len);
+	if (tags[0] == "/font")
+		textRenderFont = originalTextRenderFont;
+	else if (tags.size() < 2)
+	{
+		//conprint(2, "Missing parameter in BJTS Font");
+		return;
+	}
+	else
+	{
+		int num = std::stoi(tags[1]);
+		if (num == -1 || num >= numFonts)
+			textRenderFont = originalTextRenderFont;
+		else
+			textRenderFont = num;
+	}
+}
+
+using bjtsFunc = void(*)(BJTSParams);
+const std::map<std::string, bjtsFunc> bjtsPhase3
+{
+	{ "color", &bjtsColor },
+	{ "/color", &bjtsColor },
+	{ "size", &bjtsSize },
+	{ "/size", &bjtsSize },
+	{ "font", &bjtsFont },
+	{ "/font", &bjtsFont },
+};
+
+enum class handleBJTSresult
+{
+	NoTagHere, //No BJTS tag was found at the current position.
+	Continue, //A tag was found and the loop should be continue.
+	BreakHere //A break or clr tag was found. Measurement should reset and the loop continued.
+};
+
+static handleBJTSresult handleBJTS(const std::string& text, size_t& i, rune ch, bool raw, bool withBreak)
+{
+	if (ch == '<' && !raw)
+	{
+		auto bjtsEnd = text.find_first_of('>', i);
+		if (bjtsEnd == std::string::npos) return handleBJTSresult::Continue;
+		auto bjtsStart = i;
+		i = bjtsEnd + 1;
+
+		auto bjtsWhole = text.substr(bjtsStart, bjtsEnd - bjtsStart);
+		auto bjts = Split(bjtsWhole, ':');
+		if (bjts[0] == "break" || bjts[0] == "clr")
+			return handleBJTSresult::BreakHere;
+		auto func = bjtsPhase3.find(bjts[0]);
+		if (func != bjtsPhase3.end())
+		{
+			std::invoke(func->second, bjts, (int)bjtsStart - 1, (int)(bjtsEnd - bjtsStart) + 2);
+		}
+		return handleBJTSresult::Continue;
+	}
+	return handleBJTSresult::NoTagHere;
+}
+#endif
+
 
 TrueTypeFont::TrueTypeFont(const std::string& font, float size)
 {
@@ -467,6 +498,7 @@ TrueTypeFont::TrueTypeFont(const jsonValue& json)
 	auto obj = json.as_object();
 	file = obj["file"].as_string();
 	size = obj["size"].as_number();
+	lineHeight = obj["lineHeight"].is_number() ? obj["lineHeight"].as_number() : lineHeight;
 	e0 = obj["e0"].is_string() ? obj["e0"].as_string() : "";
 	e1 = obj["e1"].is_string() ? obj["e1"].as_string() : "";
 }
@@ -519,8 +551,6 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 	textRenderSize = 1.0; //percentage of originalTextRenderSize!
 	position.y += this->size * (originalTextRenderSize / 100.0f);
 
-	auto ogX = 0.0f; //position.x;
-	auto ogY = 0.0f; // position.y;
 	size_t i = 0;
 
 	std::vector<letterToDraw> toDraw;
@@ -547,29 +577,13 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 		if (ch == '\n')
 		{
 			pos.x = 0.0f;
-			pos.y += (cdata['A'].x1 - cdata['A'].x0) * 1.5f * scaleF;
+			pos.y += (cdata['A'].x1 - cdata['A'].x0) * lineHeight * scaleF;
 			continue;
 		}
 
 #ifndef BECKETT_NOBJTS
-		if (ch == '<' && !raw)
-		{
-			auto bjtsEnd = text.find_first_of('>', i);
-			if (bjtsEnd == std::string::npos) goto renderIt;
-			auto bjtsStart = i;
-			i = bjtsEnd + 1;
-
-			auto bjtsWhole = text.substr(bjtsStart, bjtsEnd - bjtsStart);
-			auto bjts = Split(bjtsWhole, ':');
-			auto func = bjtsPhase3.find(bjts[0]);
-			if (func != bjtsPhase3.end())
-			{
-				std::invoke(func->second, bjts, (int)bjtsStart - 1, (int)(bjtsEnd - bjtsStart) + 2);
-			}
+		if (handleBJTS(text, i, ch, raw, false) == handleBJTSresult::Continue)
 			continue;
-		}
-
-	renderIt:
 #endif
 
 		auto bakedChar = cdata[ch];
@@ -633,34 +647,20 @@ glm::vec2 TrueTypeFont::Measure(const std::string& text, float size, bool raw)
 		if (ch == '\n')
 		{
 			thisLine = 0.0f;
-			auto h = cdata['A'].x1 - cdata['A'].x0;
-			result.y += (h + (h / 1)) * scaleF;
+			result.y += cdata['A'].x1 - cdata['A'].x0 * lineHeight * scaleF;
 			continue;
 		}
 
 #ifndef BECKETT_NOBJTS
-		if (ch == '<' && !raw)
+		auto bjts = handleBJTS(text, i, ch, raw, true);
+		if (bjts == handleBJTSresult::BreakHere)
 		{
-			auto bjtsEnd = text.find_first_of('>', i);
-			if (bjtsEnd == std::string::npos) goto measureIt;
-			auto bjtsStart = i;
-			i = bjtsEnd + 1;
-
-			auto bjtsWhole = text.substr(bjtsStart, bjtsEnd - bjtsStart);
-			auto bjts = Split(bjtsWhole, ':');
-			if (bjts[0] == "break" || bjts[0] == "clr")
-			{
-				thisLine = 0.0f;
-				result.y = 0;
-				continue;
-			}
-			auto func = bjtsPhase3.find(bjts[0]);
-			if (func != bjtsPhase3.end())
-				std::invoke(func->second, bjts, (int)bjtsStart - 1, (int)(bjtsEnd - bjtsStart) + 2);
+			thisLine = 0.0f;
+			result.y = 0;
 			continue;
 		}
-
-	measureIt:
+		else if (bjts == handleBJTSresult::Continue)
+			continue;
 #endif
 
 		auto bakedChar = cdata[ch];
@@ -676,11 +676,10 @@ glm::vec2 TrueTypeFont::Measure(const std::string& text, float size, bool raw)
 	}
 
 	auto h = cdata['A'].x1 - cdata['A'].x0;
-	result.y += (h + (h / 2)) * (originalTextRenderSize / 100.0f);
+	result.y += (h * lineHeight) * (originalTextRenderSize / 100.0f);
 
 	return result;
 }
-
 
 
 BitmapFont::BitmapFont(const std::string& font) : file(font)
@@ -724,8 +723,6 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 	textRenderSize = 2.0; //percentage of originalTextRenderSize!
 	position.y += this->size * (originalTextRenderSize / 100.0f);
 
-	auto ogX = 0.0f; //position.x;
-	auto ogY = 0.0f; //position.y;
 	size_t i = 0;
 
 	std::vector<letterToDraw> toDraw;
@@ -757,25 +754,10 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 		}
 
 #ifndef BECKETT_NOBJTS
-		if (ch == '<' && !raw)
-		{
-			auto bjtsEnd = text.find_first_of('>', i);
-			if (bjtsEnd == std::string::npos) goto renderIt;
-			auto bjtsStart = i;
-			i = bjtsEnd + 1;
-
-			auto bjtsWhole = text.substr(bjtsStart, bjtsEnd - bjtsStart);
-			auto bjts = Split(bjtsWhole, ':');
-			auto func = bjtsPhase3.find(bjts[0]);
-			if (func != bjtsPhase3.end())
-			{
-				std::invoke(func->second, bjts, (int)bjtsStart - 1, (int)(bjtsEnd - bjtsStart) + 2);
-			}
+		if (handleBJTS(text, i, ch, raw, false) == handleBJTSresult::Continue)
 			continue;
-		}
-
-	renderIt:
 #endif
+
 		auto stringScale = glm::vec2(celWidth * scaleF, celHeight * scaleF);
 		auto srcRect = glm::vec4((ch % 16) * celWidth, (ch / 16) * celHeight, celWidth, celHeight);
 
@@ -838,28 +820,15 @@ glm::vec2 BitmapFont::Measure(const std::string& text, float size, bool raw)
 		}
 
 #ifndef BECKETT_NOBJTS
-		if (ch == '<' && !raw)
+		auto bjts = handleBJTS(text, i, ch, raw, true);
+		if (bjts == handleBJTSresult::BreakHere)
 		{
-			auto bjtsEnd = text.find_first_of('>', i);
-			if (bjtsEnd == std::string::npos) goto measureIt;
-			auto bjtsStart = i;
-			i = bjtsEnd + 1;
-
-			auto bjtsWhole = text.substr(bjtsStart, bjtsEnd - bjtsStart);
-			auto bjts = Split(bjtsWhole, ':');
-			if (bjts[0] == "break" || bjts[0] == "clr")
-			{
-				thisLine = 0.0f;
-				result.y = 0;
-				continue;
-			}
-			auto func = bjtsPhase3.find(bjts[0]);
-			if (func != bjtsPhase3.end())
-				std::invoke(func->second, bjts, (int)bjtsStart - 1, (int)(bjtsEnd - bjtsStart) + 2);
+			thisLine = 0.0f;
+			result.y = 0;
 			continue;
 		}
-
-	measureIt:
+		else if (bjts == handleBJTSresult::Continue)
+			continue;
 #endif
 
 		thisLine += celWidth;

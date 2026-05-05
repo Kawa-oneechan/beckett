@@ -75,6 +75,8 @@ public:
 
 	TrueTypeFont(const TrueTypeFont&) = delete;
 	TrueTypeFont &operator=(const TrueTypeFont&) = delete;
+
+	float lineHeight{ 1.5f };
 };
 
 class BitmapFont : public BeckettFont
