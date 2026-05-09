@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "Texture.h"
 #include "SpriteRenderer.h"
+#include "Font.h"
 
 class Tickable;
 class Tickable2D;
