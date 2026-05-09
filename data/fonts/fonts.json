@@ -9,7 +9,7 @@
 	*/
 	{	//System
 		"type": "bitmap",
-		"file": "fonts/unifont_{:02X}.png"
+		"file": "fonts/fixedsex_{:02X}.png"
 	},
 	{	//Dialogue
 		"type": "truetype",
