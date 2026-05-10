@@ -10,6 +10,12 @@ extern bool PointInPoly(const glm::vec2 point, const polygon& polygon);
 //Returns true if point is in rect.
 extern bool PointInRect(const glm::vec2 point, const glm::vec4 rect);
 
+//Converts a linear sRGB color value to OkLab color space.
+extern glm::vec3 LinearSRGBtoOkLab(const glm::vec3& c);
+//Converts an OkLab color to linear sRGB
+extern glm::vec3 OkLabToLinearSRGB(const glm::vec3& c);
+
+//Takes a screenshot, saving as a timestamped PNG.
 extern void Screenshot();
 
 //Returns the CRC32 hash for the given text.
