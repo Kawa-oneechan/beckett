@@ -47,7 +47,8 @@ public:
 
 	void Update();
 
-	bool Locked = false;
+	bool Locked{ false };
+	glm::vec3 Shake{ 0.0f, 0.0f, 0.0f };
 	
 	void Target(glm::vec3* target);
 

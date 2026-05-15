@@ -349,16 +349,13 @@ public:
 
 	bool Tick(float dt) override
 	{
-		/*
 		bumpTimer += dt;
-		auto t = MainCamera->Target();
-		t.y = Random::GetFloat(12.0f, 12.1f);
-		if (bumpTimer > 2.0f)
-			t.y = 12.4f;
-		MainCamera->Target(t);
-		if (bumpTimer > 2.1f)
+		if (bumpTimer < 2.0f)
+			MainCamera->Shake.y = 0.003f;
+		else if (bumpTimer < 2.2f)
+			MainCamera->Shake.y = 0.010f;
+		else
 			bumpTimer = 0.0f;
-		*/
 
 		if (Inputs.KeyDown(Binds::WalkN))
 		{

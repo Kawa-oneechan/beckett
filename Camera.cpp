@@ -1,6 +1,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "Camera.h"
 #include "Game.h"
+#include "engine/Random.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
@@ -72,10 +73,18 @@ void Camera::Set(
 
 void Camera::Update()
 {
+	auto t = _target;
+	if (Shake.x + Shake.y + Shake.z > 0.0f)
+	{
+		t.x += Random::GetFloat() * Shake.x;
+		t.y += Random::GetFloat() * Shake.y;
+		t.z += Random::GetFloat() * Shake.z;
+	}
+
 	if (!_firstPerson)
 	{
 		commonUniforms.InvView = (
-			glm::translate(_target)
+			glm::translate(t)
 			* (glm::eulerAngleY(glm::radians(_angles.z)))
 			* (glm::eulerAngleX(glm::radians(-_angles.y)))
 			* (glm::eulerAngleZ(glm::radians(_angles.x)))
@@ -85,7 +94,7 @@ void Camera::Update()
 	else
 	{
 		commonUniforms.InvView = (
-			glm::lookAt(-_target, -_target + glm::vec3(0, 0, -1), glm::vec3(0, 1, 0))
+			glm::lookAt(-t, -_target + glm::vec3(0, 0, -1), glm::vec3(0, 1, 0))
 			* (glm::eulerAngleY(glm::radians(_angles.z)))
 			* (glm::eulerAngleX(glm::radians(-_angles.y)))
 			* (glm::eulerAngleZ(glm::radians(_angles.x)))

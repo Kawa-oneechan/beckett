@@ -15,29 +15,22 @@ static void DoCamera()
 		ImGui::SeparatorText(first ? "Position" : "Target");
 		{
 			auto& tar = MainCamera->GetTarget();
-			if (ImGui::DragFloat("X", &tar.x, 1.0, -50, 50))
-				MainCamera->Update();
-			if (ImGui::DragFloat("Y", &tar.y, 1.0, -50, 50))
-				MainCamera->Update();
-			if (ImGui::DragFloat("Z", &tar.z, 1.0, -100, 100))
-				MainCamera->Update();
+			ImGui::DragFloat("X", &tar.x, 1.0, -50, 50);
+			ImGui::DragFloat("Y", &tar.y, 1.0, -50, 50);
+			ImGui::DragFloat("Z", &tar.z, 1.0, -100, 100);
 		}
 
 		ImGui::SeparatorText("Angles");
 		{
 			auto& ang = MainCamera->GetAngles();
-			if (ImGui::DragFloat("Roll", &ang.x, 1.0, -359, 359))
-				MainCamera->Update();
-			if (ImGui::DragFloat("Pitch", &ang.y, 1.0, -359, 359))
-				MainCamera->Update();
-			if (ImGui::DragFloat("Yaw", &ang.z, 1.0, -359, 359))
-				MainCamera->Update();
+			ImGui::DragFloat("Roll", &ang.x, 1.0, -359, 359);
+			ImGui::DragFloat("Pitch", &ang.y, 1.0, -359, 359);
+			ImGui::DragFloat("Yaw", &ang.z, 1.0, -359, 359);
 		}
 
 		ImGui::Separator();
 		if (first) ImGui::BeginDisabled();
-		if (ImGui::DragFloat("Distance", &MainCamera->GetDistance(), 1.0, -100, 100, "%.3f", ImGuiSliderFlags_Logarithmic))
-			MainCamera->Update();
+		ImGui::DragFloat("Distance", &MainCamera->GetDistance(), 1.0, -100, 100, "%.3f", ImGuiSliderFlags_Logarithmic);
 		if (first) ImGui::EndDisabled();
 
 
@@ -45,6 +38,8 @@ static void DoCamera()
 		ImGui::Checkbox("Locked", &MainCamera->Locked);
 		if (ImGui::Checkbox("First", &first))
 			MainCamera->FirstPerson(first);
+
+		ImGui::DragFloat3("Shake", &MainCamera->Shake.x, 0.001f, 0.0f, 1.0f);
 
 		if (ImGui::Button("Reset"))
 		{
