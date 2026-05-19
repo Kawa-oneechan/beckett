@@ -1,4 +1,5 @@
 #include "Game.h"
+﻿#include "Game.h"
 #include "engine/Game.h"
 #include "engine/Console.h"
 #include "engine/Cursor.h"
@@ -14,6 +15,8 @@
 #include "engine//Random.h"
 #include "Camera.h"
 #include "engine/Framebuffer.h"
+#include "engine/Particles.h"
+#include "Camera.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
@@ -286,6 +289,7 @@ class TrainScene : public Tickable
 private:
 	Model model{ "example/train/train.fbx" };
 	//float bumpTimer{ 0.0f };
+	float bumpTimer{ 0.0f };
 	//Framebuffer* postFx{ nullptr };
 
 	//Model bob{ "example/bob/bob.fbx" };
@@ -346,6 +350,9 @@ public:
 	{
 		//delete postFx;
 	}
+
+	TrainScene(const TrainScene&) = delete;
+	TrainScene &operator=(const TrainScene&) = delete;
 
 	bool Tick(float dt) override
 	{
@@ -660,8 +667,15 @@ void Game::PrepareSaveDirs()
 
 void Game::Start(Tickable& root)
 {
+	MainCamera->ID = "Camera";
+
+	root.ID = "Root";
 	root.AddChild(MainCamera);
 	root.AddChild(std::make_shared<TrainScene>());
+
+	MainCamera->FirstPerson(true);
+	root.AddChild(std::make_shared<FirstPersonController>());
+
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)
