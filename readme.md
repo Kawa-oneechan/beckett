@@ -48,3 +48,4 @@ The Beckett Engine uses several third-party libraries:
 * [STB](https://github.com/nothings/stb)
 * [UFBX](https://ufbx.github.io/)
 
+This project rejects AI contributions. See [NOAI.md](NOAI.md).
