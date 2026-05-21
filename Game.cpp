@@ -1,4 +1,3 @@
-#include "Game.h"
 ﻿#include "Game.h"
 #include "engine/Game.h"
 #include "engine/Console.h"
@@ -13,7 +12,6 @@
 #include "engine/Audio.h"
 #include "engine/Shader.h"
 #include "engine//Random.h"
-#include "Camera.h"
 #include "engine/Framebuffer.h"
 #include "engine/Particles.h"
 #include "Camera.h"
@@ -187,8 +185,8 @@ public:
 class Farrah : public Tickable
 {
 private:
-	Texture sprite{ "example/farrah.png" };
-	Texture stage{ "example/stage.png" };
+	Texture sprite{ "examples/2dscene/farrah.png" };
+	Texture stage{ "examples/2dscene/stage.png" };
 
 public:
 	void Draw(float dt) override
@@ -214,7 +212,7 @@ public:
 class Teapot : public Tickable
 {
 private:
-	Model model{ "example/teapot.fbx" };
+	Model model{ "examples/teapot.fbx" };
 
 public:
 	void Draw(float dt) override
@@ -240,12 +238,17 @@ extern void RecalcProjections();
 class MapScene : public Tickable
 {
 private:
-	Model model{ "example/scene.fbx" };
+	Model model{ "examples/3dscene/scene.fbx" };
+	//Model teapot{ "examples/teapot.fbx" };
 
 public:
 	MapScene()
 	{
-		auto misc = UfbxMisc("example/scene.fbx");
+		ID = "Map Scene";
+
+		auto misc = UfbxMisc("examples/3dscene/scene.fbx");
+		//commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.5);
+		//commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
 		commonUniforms.Lights[1].pos = glm::vec4(misc.Lights[0].Position, 0.0f);
 		commonUniforms.Lights[1].color = misc.Lights[0].Color;
 
@@ -263,8 +266,8 @@ public:
 	/*
 	bool Tick(float dt) override
 	{
-		commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 0.5f);
-		commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 0.5f);
+		//commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 0.5f);
+		//commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 0.5f);
 		return Tickable::Tick(dt);
 	}
 	*/
@@ -274,25 +277,20 @@ public:
 		(void)(dt);
 
 		Sprite::FlushBatch();
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
 
 		model.Draw(glm::vec3(0));
+		//teapot.Draw(glm::vec3(0));
 		MeshBucket::Flush();
-
-		glDisable(GL_DEPTH_TEST);
 	}
 };
 
 class TrainScene : public Tickable
 {
 private:
-	Model model{ "example/train/train.fbx" };
-	//float bumpTimer{ 0.0f };
+	Model model{ "examples/train/train.fbx" };
 	float bumpTimer{ 0.0f };
 	//Framebuffer* postFx{ nullptr };
 
-	//Model bob{ "example/bob/bob.fbx" };
 	Model* bob{ nullptr };
 
 public:
@@ -312,7 +310,7 @@ public:
 		commonUniforms.Lights[2].pos = glm::vec4(16, 22, -40, 0);
 		*/
 
-		auto misc = UfbxMisc("example/train/train.fbx");
+		auto misc = UfbxMisc("examples/train/train.fbx");
 
 		MainCamera->FirstPerson(true);
 		MainCamera->Target(misc.Cameras[0].Position);
@@ -334,7 +332,7 @@ public:
 		{
 			if (!bob)
 			{
-				bob = new Model("example/bob/bob.fbx");
+				bob = new Model("examples/bob/bob.fbx");
 			}
 			else
 			{
@@ -364,10 +362,11 @@ public:
 		else
 			bumpTimer = 0.0f;
 
+		/*
 		if (Inputs.KeyDown(Binds::WalkN))
 		{
 			if (!bob)
-				bob = new Model("example/bob/bob.fbx");
+				bob = new Model("examples/bob/bob.fbx");
 		}
 		else if (Inputs.KeyDown(Binds::WalkS))
 		{
@@ -377,6 +376,7 @@ public:
 				bob = nullptr;
 			}
 		}
+		*/
 
 		return Tickable::Tick(dt);
 	}
@@ -410,13 +410,14 @@ public:
 		//postFx->Draw(glm::vec2(0), glm::vec2(width, height));
 	}
 };
-
 #endif
 
+//TODO: Make this a Tickable2D that spawns SimpleSprites, more like
+//how Deltarune does the effect.
 class RoryNite : public Tickable
 {
 private:
-	Texture sprite{ "rorynite.png" };
+	Texture sprite{ "examples/rorynite.png" };
 	static constexpr int trailCt = 8;
 public:
 	glm::vec2 position = glm::vec2(ScreenWidth / 2, ScreenHeight / 2);
@@ -471,7 +472,7 @@ class FirstPersonController : public Tickable
 class TestScreen : public Tickable
 {
 private:
-	TilemapP tilemapMgr;
+	//TilemapP tilemapMgr;
 	//std::string text;
 	DropLabelP labelTest;
 
@@ -482,12 +483,21 @@ private:
 public:
 	TestScreen()
 	{
-		//AddChild(std::make_shared<Background>());
-		testFont = new BitmapFont("fonts/toho.png");
+		ID = "Test Screen";
+
+		//TODO: split all these into a TiledScreen demo, and maybe some others.
+
+		//testFont = new TrueTypeFont("fonts/cc-pulp-fiction-medium.ttf", 32.0f);
+		//testFont->SetPUAFallback(0xE0, "fonts/kenney_input_xbox_series.otf");
+		//testFont = new TrueTypeFont(json5pp::parse5("{\"file\":\"fonts/cc-pulp-fiction-medium.ttf\",\"size\":16,\"e0\":\"fonts/kenney_input_xbox_series.otf\",\"lineHeight\":2.0}"));
+		//testFont = new BitmapFont("fonts/unifont_{:02X}.png");
+		testFont = new BitmapFont("fonts/doom.png");
+		
+		AddChild(std::make_shared<Background>());
 		//AddChild(std::make_shared<RoryNite>());
 
 		/*
-		tilemapMgr = std::make_shared<Tilemap>("maps/test3.json");
+		tilemapMgr = std::make_shared<Tilemap>("examples/tiled/maps/test3.json");
 		tilemapMgr->Scale = 2.0f;
 		tilemapMgr->Position = glm::vec2(16);
 		//tilemapMgr->Camera = glm::vec2(-(tilemapMgr->GetPixelSize().x / 5), 0);
@@ -503,53 +513,55 @@ public:
 		AddChild(std::make_shared<Farrah>());
 
 		//AddChild(std::make_shared<BoingBall>());
-
-		auto panel = std::make_shared<NineSlicer>("example/panel1.png", 8, 8, 240, 64);
+		*/
+		auto panel = std::make_shared<NineSlicer>("ui/panels/panel1.png", 212, 16, 240, 64);
 		panel->ID = "Test Panel";
-		auto panelText = std::make_shared<Subtitle>("gadunkadunk", glm::vec2(16));
+		auto panelText = std::make_shared<Subtitle>("...", glm::vec2(16));
 		panel->AddChild(panelText);
 		AddChild(panel);
-
-		AddChild(std::make_shared<SimpleSprite>("rorynite.png", 0, glm::vec2(480, 32)));
-
+		/*
 		labelTest = std::make_shared<DropLabel>("Does this have a blurry\noutline?\n    ... yes yes it do", 2,75.0f, UI::themeColors["white"], DropLabel::Style::Blur);
 		labelTest->Position = glm::vec2(32);
 		AddChild(labelTest);
 		//*/
 
 		//AddChild(std::make_shared<Teapot>());
+		//AddChild(std::make_shared<SimpleSprite>("examples/rorynite.png", 0, glm::vec2(480, 32)));
+		auto rory = std::make_shared<RoryNite>();
+		rory->position = glm::vec2(480, 32);
+		AddChild(rory);
 
-		//bgm = new Audio("example/dontforget.ogg");
-		//bgm->RegisterListener((AudioEventListener*)panelText.get());
-		//bgm->Play(false, false);
+		bgm = new Audio("audio/music/retrobeat.ogg");
+		bgm->SetLoop(true);
+		bgm->RegisterListener((AudioEventListener*)panelText.get());
+		bgm->Play(false, false);
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
 
-		AddChild(std::make_shared<TrainScene>());
-
-		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(8), glm::vec2(160, -1));
+		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(0), glm::vec2(160, -1));
 		testButton->OnClick = []()
 		{
-			//conprint(0, "Yowza!");
+			//TODO: replace effect, this makes no effect without a 3D camera.
 			MainCamera->Angles(MainCamera->Angles() + glm::vec3(0, 0, 1));
 		};
 		testButton->AbsolutePosition = testButton->Position;
 		//AddChild(testButton);
 
-		auto testPanel = std::make_shared<TestPanel>(glm::vec2(4));
+		auto testPanel = std::make_shared<TestPanel>(glm::vec2(16));
 		testPanel->AddChild(testButton);
-		testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(8), glm::vec2(160, -1)));
+		testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(0), glm::vec2(160, -1)));
 		testPanel->Reflow();
 		AddChild(testPanel);
 
-		//MainCamera->FirstPerson(true);
-		//AddChild(std::make_shared<FirstPersonController>());
+		auto particles = std::make_shared<ParticleEmitter>();
+		particles->prototype.position = glm::vec3(width * 0.5, 0, height * 0.5);
+		AddChild(particles);
 	}
 
 	bool Tick(float dt) override
 	{
 		//tilemapMgr->Camera = glm::vec2(glm::sin(commonUniforms.TotalTime * 10.0f) * 5, 0);
 
-		/*&
+		/*
 		if (Inputs.MouseHoldLeft)
 		{
 			auto panel = GetChild<Tickable2D>("Test Panel");
@@ -558,7 +570,8 @@ public:
 		}
 		*/
 
-		Audio::SetListenerPosition(glm::vec3(Inputs.MousePosition.x / width, 0, Inputs.MousePosition.y / height));
+		//TODO: replace with another sound, since retrobeat isn't 3D-enabled.
+		//Audio::SetListenerPosition(glm::vec3(Inputs.MousePosition.x / width, 0, Inputs.MousePosition.y / height));
 
 		/*
 		text = fmt::format("{}x{} --> tile {}",
@@ -582,7 +595,8 @@ public:
 		//Sprite::DrawLine(glm::vec2(width * 0.5f, height * 0.5f), Inputs.MousePosition, glm::vec4(1, 0, 1, 1));
 		Sprite::FlushBatch();
 
-		testFont->Draw("FANCY bitmap font!\nTag test: <color:1>yo</color>", glm::vec2(128), glm::vec4(1), 200.0f);
+		//testFont->Draw("UMMM WAHOO?\n\naf42 ef16 bf1\n\nABCDEFGHIJKLM\nNOPQRSTUVWXYZ\n0123456789", glm::vec2(128), glm::vec4(1), 200.0f, 45.0f);
+		testFont->Draw("Jackdaws love my big <color:1>sphinx</color> of quartz\nYou know, as one does.\nABCDEFGHIJKLMNOPQRSTUVWXYZ", glm::vec2(128), glm::vec4(1), 200.0f, 0.0f);
 	}
 
 	bool Character(unsigned int ch) override
@@ -671,7 +685,8 @@ void Game::Start(Tickable& root)
 
 	root.ID = "Root";
 	root.AddChild(MainCamera);
-	root.AddChild(std::make_shared<TrainScene>());
+	//TODO: build a List control of sorts to switch between MapScreen, TestScreen, TrainScene, and TiledScreen.
+	root.AddChild(std::make_shared<TestScreen>());
 
 	MainCamera->FirstPerson(true);
 	root.AddChild(std::make_shared<FirstPersonController>());

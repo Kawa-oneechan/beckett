@@ -6,6 +6,102 @@
 #include "Game.h"
 #include "Camera.h"
 
+#pragma region ImGui string stuff
+namespace ImGui
+{
+	void Text(const std::string &text)
+	{
+		Text(text.c_str());
+	}
+
+	bool Selectable(const std::string &label, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size_arg = ImVec2(0, 0))
+	{
+		return Selectable(label.c_str(), selected, flags, size_arg);
+	}
+
+	bool Selectable(const std::string &label, bool* selected, ImGuiSelectableFlags flags = 0, const ImVec2& size_arg = ImVec2(0, 0))
+	{
+		return Selectable(label.c_str(), selected, flags, size_arg);
+	}
+
+	struct InputTextCallback_UserData
+	{
+		std::string* Str;
+		ImGuiInputTextCallback ChainCallback;
+		void* ChainCallbackUserData;
+	};
+
+	static int InputTextCallback(ImGuiInputTextCallbackData* data)
+	{
+		InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+		{
+			// Resize string callback
+			// If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+			std::string* str = user_data->Str;
+			IM_ASSERT(data->Buf == str->c_str());
+			str->resize(data->BufTextLen);
+			data->Buf = (char*)str->c_str();
+		}
+		else if (user_data->ChainCallback)
+		{
+			// Forward to user callback, if any
+			data->UserData = user_data->ChainCallbackUserData;
+			return user_data->ChainCallback(data);
+		}
+		return 0;
+	}
+
+	bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr)
+	{
+		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+		flags |= ImGuiInputTextFlags_CallbackResize;
+
+		InputTextCallback_UserData cb_user_data;
+		cb_user_data.Str = str;
+		cb_user_data.ChainCallback = callback;
+		cb_user_data.ChainCallbackUserData = user_data;
+		return InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
+	}
+
+	bool InputTextMultiline(const char* label, std::string* str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr)
+	{
+		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+		flags |= ImGuiInputTextFlags_CallbackResize;
+
+		InputTextCallback_UserData cb_user_data;
+		cb_user_data.Str = str;
+		cb_user_data.ChainCallback = callback;
+		cb_user_data.ChainCallbackUserData = user_data;
+		return InputTextMultiline(label, (char*)str->c_str(), str->capacity() + 1, size, flags, InputTextCallback, &cb_user_data);
+	}
+
+	bool InputTextWithHint(const char* label, const char* hint, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr)
+	{
+		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+		flags |= ImGuiInputTextFlags_CallbackResize;
+
+		InputTextCallback_UserData cb_user_data;
+		cb_user_data.Str = str;
+		cb_user_data.ChainCallback = callback;
+		cb_user_data.ChainCallbackUserData = user_data;
+		return InputTextWithHint(label, hint, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
+	}
+
+	bool InputTextWithHint(const char* label, std::string hint, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = nullptr, void* user_data = nullptr)
+	{
+		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+		flags |= ImGuiInputTextFlags_CallbackResize;
+
+		InputTextCallback_UserData cb_user_data;
+		cb_user_data.Str = str;
+		cb_user_data.ChainCallback = callback;
+		cb_user_data.ChainCallbackUserData = user_data;
+		return InputTextWithHint(label, (char*)hint.c_str(), (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
+	}
+}
+#pragma endregion
+
 static void DoCamera()
 {
 	if (ImGui::Begin("Camera"))
@@ -229,6 +325,23 @@ static void DoSceneTree()
 			{
 				ImGui::SeparatorText("Tickable2D");
 				ImGui::DragFloat2("Position", &t2d->Position.x);
+
+				if (auto lbl = dynamic_cast<TextLabel*>(tickable))
+				{
+					ImGui::SeparatorText("TextLabel");
+					//ImGui::Text(lbl->Text.c_str());
+					ImGui::InputText("Text", &lbl->Text);
+					ImGui::ColorEdit4("Color", &lbl->Color.r);
+					ImGui::DragFloat("Size", &lbl->Size, 0.5f, 10.0, 300.f, "%.3f", ImGuiSliderFlags_Logarithmic);
+				}
+				else if (auto spr = dynamic_cast<SimpleSprite*>(tickable))
+				{
+					ImGui::SeparatorText("SimpleSprite");
+					ImGui::InputInt("Frame", &spr->Frame);
+					ImGui::DragFloat("Scale", &spr->ImgScale);
+					ImGui::ColorEdit4("Color", &spr->Color.r);
+				}
+
 			}
 
 			if (auto cam = dynamic_cast<Camera*>(tickable))
@@ -276,14 +389,6 @@ static void DoSceneTree()
 					cam->Distance(70);
 					cam->Update();
 				}
-			}
-
-			if (auto spr = dynamic_cast<SimpleSprite*>(tickable))
-			{
-				ImGui::SeparatorText("SimpleSprite");
-				ImGui::InputInt("Frame", &spr->Frame);
-				ImGui::DragFloat("Scale", &spr->ImgScale);
-				ImGui::ColorEdit4("Color", &spr->Color.r);
 			}
 		}
 		ImGui::EndChild();
