@@ -25,6 +25,7 @@ constexpr int ScreenWidth = BECKETT_SCREENWIDTH;
 constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 
 std::shared_ptr<Camera> MainCamera;
+extern Tickable root;
 
 static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color, int flags)
 {
@@ -45,7 +46,7 @@ class Button : public Tickable2D
 public:
 	std::string Text;
 	glm::vec4 Color{ 1, 1, 1, 1 };
-	glm::vec4 BackColor{ 0, 0, 0.75, 0.5 };
+	glm::vec4 BackColor{ 0.35, 0.35, 0.35, 0.5 };
 	glm::vec2 Size{ 128, 32 };
 	float TextSize{ 100.0f };
 	float Angle{ 0.0f };
@@ -115,8 +116,10 @@ class TestPanel : public Tickable2D
 {
 public:
 	glm::vec4 Color{ 1, 1, 1, 1 };
-	glm::vec4 BackColor{ 0.75, 0, 0, 0.5 };
+	glm::vec4 BackColor{ 0.75, 0.75, 0.75, 0.5 };
 	glm::vec2 Size;
+	float Margin{ 6.0f };
+	float Spacing{ 4.0f };
 public:
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ FrameDrawer };
 
@@ -145,20 +148,19 @@ public:
 
 	void Reflow()
 	{
-		constexpr auto margin = 8.0f;
 		UpdatePosition();
 		Tick(0.0f);
-		auto pos = glm::vec2(margin);
+		auto pos = glm::vec2(Margin);
 		for (int i = 0; i < ChildTickables.size(); i++)
 		{
 			if (auto t2D = std::dynamic_pointer_cast<Tickable2D>(ChildTickables[i]))
 			{
 				t2D->Position = pos;
 				t2D->UpdatePosition();
-				pos.y += t2D->GetSize().y + margin;
+				pos.y += t2D->GetSize().y + Spacing;
 			}
 		}
-		Size = GetMinimalSize() + glm::vec2(margin);
+		Size = GetMinimalSize() + glm::vec2(Margin);
 	}
 };
 
@@ -278,9 +280,17 @@ public:
 
 		Sprite::FlushBatch();
 
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+
 		model.Draw(glm::vec3(0));
 		//teapot.Draw(glm::vec3(0));
 		MeshBucket::Flush();
+
+		glDisable(GL_DEPTH_TEST);
+
+		Tickable::Draw(dt);
+		Sprite::FlushBatch();
 	}
 };
 
@@ -534,7 +544,7 @@ public:
 		bgm = new Audio("audio/music/retrobeat.ogg");
 		bgm->SetLoop(true);
 		bgm->RegisterListener((AudioEventListener*)panelText.get());
-		bgm->Play(false, false);
+		//bgm->Play(false, false);
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
 
 		auto testButton = std::make_shared<Button>("Click me?", glm::vec2(0), glm::vec2(160, -1));
@@ -679,18 +689,49 @@ void Game::PrepareSaveDirs()
 }
 #endif
 
-void Game::Start(Tickable& root)
+template<typename T>
+static std::shared_ptr<Button> makeSceneButton(const std::string& caption)
+{
+	auto currentScene = root.GetChild<Tickable>("Current Scene");
+	auto theButton = std::make_shared<Button>(caption, glm::vec2(0), glm::vec2(160, -1));
+	theButton->OnClick = [currentScene]()
+	{
+		currentScene->RemoveAll();
+		currentScene->AddChild(std::make_shared<T>());
+	};
+	return theButton;
+}
+
+void Game::Start()
 {
 	MainCamera->ID = "Camera";
 
 	root.ID = "Root";
 	root.AddChild(MainCamera);
+	
 	//TODO: build a List control of sorts to switch between MapScreen, TestScreen, TrainScene, and TiledScreen.
-	root.AddChild(std::make_shared<TestScreen>());
+	//root.AddChild(std::make_shared<TestScreen>());
+	auto currentScene = std::make_shared<Tickable>();
+	currentScene->ID = "Current Scene";
+	currentScene->AddChild(std::make_shared<TestScreen>());
+	root.AddChild(currentScene);
 
 	MainCamera->FirstPerson(true);
 	root.AddChild(std::make_shared<FirstPersonController>());
 
+	auto menuPanel = std::make_shared<TestPanel>(glm::vec2(8));
+	menuPanel->Spacing = 2.0f;
+	menuPanel->AddChild(makeSceneButton<MapScene>("Map (3D)"));
+	menuPanel->AddChild(makeSceneButton<TestScreen>("Test (2D)"));
+	menuPanel->AddChild(makeSceneButton<TrainScene>("Train (3D)"));
+	auto exitButton = std::make_shared<Button>("Exit", glm::vec2(0), glm::vec2(160, -1));
+	exitButton->OnClick = [currentScene]() { Game::ShouldClose = true; };
+	exitButton->BackColor = glm::vec4(1.0, 0.0, 0.0, 0.5);
+	menuPanel->AddChild(exitButton);
+	menuPanel->Reflow();
+	menuPanel->Position.y = height - menuPanel->Size.y - 8;
+	menuPanel->Reflow();
+	root.AddChild(menuPanel);
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)
