@@ -133,7 +133,6 @@ static void applyRotation(std::vector<letterToDraw>& toDraw, float angle)
 {
 	if (angle == 0.0f)
 		return;
-	//TODO: RO-RO-ROTATE YOUR OWL
 
 	for (auto& letter : toDraw)
 	{
