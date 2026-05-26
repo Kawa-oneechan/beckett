@@ -1,0 +1,18 @@
+{
+	//Keys are hexadecimal offsets to start
+	//copying values from. This allows you
+	//to skip SO MANY blank bits.
+
+	//So this block then starts at U+0020
+	//SPACE and goes up to U+007F DELETE.
+	"0020": [
+		6,5,7,8,7,9,8,3,5,5,8,7,4,7,4,7,
+		7,6,7,7,8,7,7,7,7,7,4,4,7,7,7,7,
+		
+		9,7,7,7,7,7,7,7,7,5,7,7,7,8,8,7,
+		7,7,7,7,7,7,7,7,8,7,7,5,7,5,7,8,
+		
+		5,7,7,7,7,7,7,7,7,7,6,7,7,8,7,7,
+		7,7,7,7,7,7,7,7,8,7,7,6,3,6,9,8
+	]
+}

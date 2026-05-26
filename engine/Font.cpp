@@ -71,7 +71,7 @@ static void LoadFonts()
 		}
 		else if (type == "bitmap")
 		{
-			fonts[i] = new BitmapFont(thisFont["file"].as_string());
+			fonts[i] = new BitmapFont(fontSettings[i]);
 		}
 	}
 }
@@ -450,12 +450,53 @@ glm::vec2 TrueTypeFont::Measure(const std::string& text, float size, bool raw)
 }
 
 
-BitmapFont::BitmapFont(const std::string& font) : file(font)
+BitmapFont::BitmapFont(const std::string& font, int dummy) : file(font)
 {
+	(void)(dummy);
 	if (!initialized) Initialize();
 
 	fontTextures = new Texture*[256]{ 0 };
+	cdata[0] = -1;
 }
+
+BitmapFont::BitmapFont(const jsonValue& json)
+{
+	if (!initialized) Initialize();
+
+	if (json.is_string())
+	{
+		file = json.as_string();
+		fontTextures = new Texture*[256]{ 0 };
+		cdata[0] = -1;
+		return;
+	}
+
+	fontTextures = new Texture*[256]{ 0 };
+
+	auto obj = json.as_object();
+	file = obj["file"].as_string();
+	if (!obj["width"].is_null())
+	{
+		auto w = obj["width"];
+		if (w.is_object())
+		{
+			loadWidths(w.as_object());
+		}
+		else if (w.is_string())
+		{
+			loadWidths(VFS::ReadJSON(w.as_string()).as_object());
+		}
+		else if (w.is_integer())
+		{
+			std::fill(cdata, cdata + 0xFFFF, w.as_integer());
+		}
+	}
+	else
+	{
+		cdata[0] = -1;
+	}
+}
+
 
 BitmapFont::~BitmapFont()
 {
@@ -478,7 +519,24 @@ void BitmapFont::loadBank(int bank)
 		celHeight = tex->height / 16;
 		size = (float)celHeight;
 	}
+
+	if (cdata[0] == -1)
+	{
+		std::fill(cdata, cdata + 0xFFFF, celWidth);
+	}
 }
+
+void BitmapFont::loadWidths(const jsonObject& json)
+{
+	for (auto& wl : json)
+	{
+		auto offset = std::stoi(wl.first, nullptr, 16);
+		auto wi = wl.second.as_array();
+		for (int i = 0; i < wi.size(); i++)
+			cdata[offset + i] = wi[i].as_integer();
+	}
+}
+
 
 void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::vec4& color, float size, float angle, bool raw)
 {
@@ -513,7 +571,7 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 
 		if (ch == ' ')
 		{
-			pos.x += celWidth * scaleF;
+			pos.x += cdata[' '] * scaleF;
 			continue;
 		}
 		if (ch == '\n')
@@ -534,7 +592,7 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 		auto chPos = pos - glm::vec2(0, celHeight) * scaleF;
 		toDraw.push_back({ ch, angle, stringScale, chPos, srcRect, textRenderColor });
 
-		pos.x += celWidth * scaleF;
+		pos.x += cdata[ch] * scaleF;
 	}
 
 	if (toDraw.empty()) return;

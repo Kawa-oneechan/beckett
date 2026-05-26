@@ -606,7 +606,7 @@ public:
 		Sprite::FlushBatch();
 
 		//testFont->Draw("UMMM WAHOO?\n\naf42 ef16 bf1\n\nABCDEFGHIJKLM\nNOPQRSTUVWXYZ\n0123456789", glm::vec2(128), glm::vec4(1), 200.0f, 45.0f);
-		testFont->Draw("Jackdaws love my big <color:1>sphinx</color> of quartz\nYou know, as one does.\nABCDEFGHIJKLMNOPQRSTUVWXYZ", glm::vec2(128), glm::vec4(1), 200.0f, 0.0f);
+		Sprite::DrawText(3, "Jackdaws love my big <color:1>sphinx</color> of quartz\nYou know, as one does.\nABCDEFGHIJKLMNOPQRSTUVWXYZ", glm::vec2(128), glm::vec4(1), 200.0f, 0.0f);
 	}
 
 	bool Character(unsigned int ch) override

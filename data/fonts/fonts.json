@@ -22,5 +22,12 @@
 		"file": "fonts/backissues.otf",
 		"size": 32,
 		"e0": "fonts/kenney_input_xbox_series.otf"
-	}
+	},
+	{	//Variable-width bitmap font test
+		"type": "bitmap",
+		"file": "fonts/variabletest.png",
+		"width": "fonts/variabletest.json"
+		//"width" can also be a single integer or the content
+		//of that json file.
+	}	
 ]
