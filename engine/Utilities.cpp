@@ -10,6 +10,7 @@
 
 extern int width, height;
 
+#pragma region Point in Shape detection
 bool PointInPoly(const glm::vec2 point, const polygon& polygon)
 {
 	int crossings = 0;
@@ -38,7 +39,9 @@ bool PointInRect(const glm::vec2 point, const glm::vec4 rect)
 		(point.y >= rect.y) &&
 		(point.y < rect.w);
 }
+#pragma endregion
 
+#pragma region Color spaces
 //From https://bottosson.github.io/posts/oklab/
 glm::vec3 LinearSRGBtoOkLab(const glm::vec3& c)
 {
@@ -74,6 +77,104 @@ glm::vec3 OkLabToLinearSRGB(const glm::vec3& c)
 		);
 }
 
+//From https://gist.github.com/flowb/6325155c7cb5f8e07cc9837e845fe780
+glm::vec3 RGBtoHSV(const glm::vec3& c)
+{
+	auto max = glm::max(c.r, glm::max(c.g, c.b)); //Value
+	auto min = glm::min(c.r, glm::min(c.g, c.b));
+
+	auto delta = max - min;
+
+	auto sat = delta / (max + glm::step(max, 0.0f)); //Saturation
+
+	/*
+	This is a vec3 wrapped around 3 boolean evaluations
+	cast to floats. it's used to figure out which third
+	of the hue cycle we are in. Only one of the three 
+	components should be true and be cast to 1.0.
+	*/
+	auto isMax = glm::vec3(
+		float(c.r >= c.g && c.r >= c.b), //Yellow to magenta
+		float(c.g > c.r && c.g >= c.b),  //Yellow to cyan
+		float(c.b > c.r && c.b > c.g)	 //Magenta to cyan
+	);
+
+	/*
+	For each channel: get the difference between the other
+	two channels. then divide all by the overall delta.
+	*/
+	auto secondary = glm::vec3(
+		(c.g - c.b),
+		(c.b - c.r),
+		(c.r - c.g))
+		/ (delta + glm::step(delta, 0.0f));
+
+	/*
+	Pad the G and B channels to make a 1/3 phase offset in
+	a [0-5] domain.
+	*/
+	secondary += glm::vec3(0.0f, 2.0f, 4.0f);
+
+	/*
+	The ternary catches achromatic input colors and 
+	returns hue = 0.0 instead. this could be probably be 
+	done with funky step/mix voodoo instead but IMHO the 
+	branch here is a small price to pay for readibility.
+	the dot product performs componentwise multiplication 
+	and sums all components. this lets us take all three
+	secondary deltas, scales the ones we don't need to
+	zero and retain the result we actually need.
+	*/
+	auto hue = sat > 0.0f ?
+		glm::fract(dot(isMax, secondary) / 6.0f) :
+		0.0f;
+
+	return glm::vec3(hue, sat, max);
+}
+
+glm::vec3 HSVtoRGB(const glm::vec3& hsv)
+{
+	/*E
+	valuates three phase-shifted triangle wave functions
+	for the input of hue to get fully saturated R, G and B.
+	*/
+	auto rgb = glm::clamp(
+		glm::abs(
+			glm::mod(
+				hsv.x * 6.0f + glm::vec3(0.0f, 4.0f, 2.0f),
+				6.0f) -
+			3.0f) -
+		1.0f, 0.0f, 1.0f);
+
+	/*
+	Mixes between white and fully saturated RGB
+	then scales by value
+	*/
+	return glm::mix(glm::vec3(1.0f), rgb, hsv.y) * hsv.z;
+}
+
+//From various places
+glm::vec3 RGBtoHSL(const glm::vec3& c)
+{
+	auto hsv = RGBtoHSV(c);
+	auto l = hsv.z * (1.0f - (hsv.y * 0.5f));
+	return glm::vec3(hsv.x, (l == 0.0f || l == 1.0f) ? 0 : (hsv.z - l) / glm::min(l, 1.0f - l), l);
+}
+
+glm::vec3 HSLtoRGB(const glm::vec3& hsl)
+{
+	auto rgb = glm::clamp(
+		glm::abs(
+			glm::mod(
+				hsl.x * 6.0f + glm::vec3(0.0f, 4.0f, 2.0f),
+				6.0f) -
+			3.0f) -
+		1.0f, 0.0f, 1.0f);
+	auto c = (1.0f - glm::abs(2.0f * hsl.z - 1.0f)) * hsl.y;
+	return (rgb - 0.5f) * c + hsl.z;
+}
+#pragma endregion
+
 void Screenshot()
 {
 	auto pixels = new unsigned char[3 * width * height];
@@ -90,6 +191,7 @@ void Screenshot()
 	conprint(0, "Screenshot taken: {}", filename);
 }
 
+#pragma region CRC32
 static constexpr unsigned int crcLut[256] =
 {
 	0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA,	0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
@@ -174,3 +276,4 @@ extern "C"
 		return crc ^ 0xFFFFFFFFL;
 	}
 }
+#pragma endregion
