@@ -88,7 +88,7 @@ public:
 	const int GetTile(int layer, const glm::vec2& position) const;
 	glm::vec2 GetPixelSize();
 	glm::vec2 GetTileSize();
-	glm::vec4 GetCollision(int layer, int row, int col);
+	glm::vec4 GetCollision(int row, int col);
 };
 
 using TilemapP = std::shared_ptr<Tilemap>;

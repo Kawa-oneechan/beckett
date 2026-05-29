@@ -122,6 +122,8 @@ glm::vec2 Tilemap::MapLayer::GetTileSize()
 
 glm::vec4 Tilemap::MapLayer::GetCollision(int row, int col)
 {
+	if (col < 0 || col >= width || row < 0 || row >= height)
+		return glm::vec4(0, 0, owner->tileset.tileWidth, owner->tileset.tileHeight);
 	col = glm::clamp(col, 0, width - 1);
 	row = glm::clamp(row, 0, height - 1);
 	auto tile = owner->tileset.collisions.find(data[(row * width) + col]);
@@ -358,11 +360,18 @@ glm::vec2 Tilemap::GetTileSize()
 	return glm::vec2(16);
 }
 
-glm::vec4 Tilemap::GetCollision(int layer, int row, int col)
+glm::vec4 Tilemap::GetCollision(int row, int col)
 {
-	auto mapLayer = std::dynamic_pointer_cast<MapLayer>(ChildTickables[layer]);
-	if (mapLayer)
-		return mapLayer->GetCollision(row, col);
+	for (auto& l : ChildTickables)
+	{
+		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(l);
+		if (mapLayer)
+		{
+			auto ret = mapLayer->GetCollision(row, col);
+			if (ret.x != -1)
+				return ret;
+		}
+	}
 	return glm::vec4(-1);
 }
 
