@@ -267,6 +267,7 @@ TrueTypeFont::TrueTypeFont(const jsonValue& json)
 	file = obj["file"].as_string();
 	size = obj["size"].as_number();
 	lineHeight = obj["lineHeight"].is_number() ? obj["lineHeight"].as_number() : lineHeight;
+	kerning = obj["kerning"].is_number() ? obj["kerning"].as_number() : 0.0f;
 	e0 = obj["e0"].is_string() ? obj["e0"].as_string() : "";
 	e1 = obj["e1"].is_string() ? obj["e1"].as_string() : "";
 }
@@ -339,7 +340,7 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 
 		if (ch == ' ')
 		{
-			pos.x += cdata[' '].xadvance * scaleF;
+			pos.x += (cdata[' '].xadvance + kerning) * scaleF;
 			continue;
 		}
 		if (ch == '\n')
@@ -364,7 +365,7 @@ void TrueTypeFont::Draw(const std::string& text, glm::vec2 position, const glm::
 		auto chPos = pos + glm::vec2(bakedChar.xoff * scaleF, bakedChar.yoff * scaleF);
 		toDraw.push_back({ ch, angle, stringScale, chPos, srcRect, textRenderColor });
 
-		pos.x += bakedChar.xadvance * scaleF;
+		pos.x += (bakedChar.xadvance + kerning) * scaleF;
 	}
 
 	if (toDraw.empty()) return;
@@ -437,7 +438,7 @@ glm::vec2 TrueTypeFont::Measure(const std::string& text, float size, bool raw)
 		auto h = bakedChar.y1 - bakedChar.y0 + 0.5f;
 		auto stringScale = glm::vec2(w * scaleF, h * scaleF);
 
-		thisLine += bakedChar.xadvance * scaleF;
+		thisLine += (bakedChar.xadvance + kerning) * scaleF;
 
 		if (thisLine > result.x)
 			result.x = thisLine;
@@ -475,6 +476,7 @@ BitmapFont::BitmapFont(const jsonValue& json)
 
 	auto obj = json.as_object();
 	file = obj["file"].as_string();
+	kerning = obj["kerning"].is_integer() ? obj["kerning"].as_integer() : 0;
 	if (!obj["width"].is_null())
 	{
 		auto w = obj["width"];
@@ -571,7 +573,7 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 
 		if (ch == ' ')
 		{
-			pos.x += cdata[' '] * scaleF;
+			pos.x += (cdata[' '] + kerning) * scaleF;
 			continue;
 		}
 		if (ch == '\n')
@@ -592,7 +594,7 @@ void BitmapFont::Draw(const std::string& text, glm::vec2 position, const glm::ve
 		auto chPos = pos - glm::vec2(0, celHeight) * scaleF;
 		toDraw.push_back({ ch, angle, stringScale, chPos, srcRect, textRenderColor });
 
-		pos.x += cdata[ch] * scaleF;
+		pos.x += (cdata[ch] + kerning) * scaleF;
 	}
 
 	if (toDraw.empty()) return;
@@ -659,7 +661,7 @@ glm::vec2 BitmapFont::Measure(const std::string& text, float size, bool raw)
 			continue;
 #endif
 
-		thisLine += celWidth;
+		thisLine += cdata[ch] + kerning;
 
 		if (thisLine > result.x)
 			result.x = thisLine;
