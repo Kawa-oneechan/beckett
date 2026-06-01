@@ -67,7 +67,7 @@ public:
 			Size.y = minSize.y;
 	}
 
-	bool Tick(float) override
+	bool Tick(float dt) override
 	{
 		if (!Inputs.MouseLeft)
 			return true;
@@ -92,6 +92,9 @@ public:
 			Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
 			Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
 			color.a = 1.0f;
+
+		//color = glm::vec4(HSLtoRGB((glm::cos(commonUniforms.TotalTime * 0.75f) * 0.5f) + 0.5f, 0.75f, 0.5f), 1.0f);
+
 		//Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, color);
 		//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
 		FrameDrawer(AbsolutePosition, Size, color, 0);
@@ -704,6 +707,16 @@ static std::shared_ptr<Button> makeSceneButton(const std::string& caption)
 
 void Game::Start()
 {
+	//Trying to convert [1,0,0] (red) from RGB to HSV
+	auto red = glm::vec3(1, 0, 0);
+	auto hsv = RGBtoHSV(red); //expected: 0, 1, 1
+	auto hsl = RGBtoHSL(red); //expected: 0, 1, 0.5
+	auto lab = LinearSRGBtoOkLab(red); //expected: 0.628 0.225 0.126, get more precise than that
+	auto hsvtored = HSVtoRGB(hsv);
+	auto hsltored = HSLtoRGB(hsl);
+	auto labtored = OkLabToLinearSRGB(lab); //has infinitesimal non-zero results but OKAY!
+	auto labtored2 = OkLabToLinearSRGB(0.628f, 0.225f, 0.126f); //same problem but CLOSE ENOUGH!
+
 	MainCamera->ID = "Camera";
 
 	root.ID = "Root";
@@ -731,7 +744,7 @@ void Game::Start()
 	menuPanel->Reflow();
 	menuPanel->Position.y = height - menuPanel->Size.y - 8;
 	menuPanel->Reflow();
-	root.AddChild(menuPanel);
+	root.AddChild(menuPanel);	
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)
