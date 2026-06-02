@@ -24,4 +24,5 @@ void main()
 	gl_Position = projection * model[gl_InstanceID] * vec4(vx, 0.0, 1.0);
 	TexCoords = vx * vec2(1.0, -1.0);
 #endif
+	gl_Position.z = gl_Position.w;
 }
