@@ -41,20 +41,22 @@ static void Initialize()
 	if (initialized)
 		return;
 
+	glGenVertexArrays(1, &quadVAO);
+
+#ifndef BECKETT_PULLEDPORK
 	unsigned int VBO, EBO;
 	float vertices[] = {
 		//pos	tex
+		0, 0,	0,  0,	//top left
 		0, 1,	0, -1,	//bottom left
 		1, 0,	1,  0,	//top right
-		0, 0,	0,  0,	//top left
 		1, 1,	1, -1,	//bottom right
 	};
 	int indices[] = {
-		0, 1, 2,
-		0, 3, 1,
+		2, 1, 0,
+		2, 3, 1,
 	};
 
-	glGenVertexArrays(1, &quadVAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 
@@ -70,6 +72,9 @@ static void Initialize()
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+#else
+	//If we're pulling, quadVAO is merely a placeholder.
+#endif
 
 	initialized = true;
 }
@@ -103,7 +108,11 @@ namespace Sprite
 			currentVAO = quadVAO;
 		}
 		glDisable(GL_CULL_FACE); //so flipped sprites still show up
+#ifndef BECKETT_PULLEDPORK
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instanceCursor);
+#else
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, instanceCursor);
+#endif
 		glEnable(GL_CULL_FACE);
 		instanceCursor = 0;
 	}
