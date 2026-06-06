@@ -1,7 +1,7 @@
 # ![Beckett Engine logo](docs/logo.png) Beckett Engine
 
 ## Features
-Not a whole lot just yet lol
+(TODO: finish this bit.)
 
 ## Installation
 (TODO: finish this bit.)
@@ -19,15 +19,18 @@ Provide the following in `Game.h` (*not* `engine/Game.h`):
 * `BECKETT_NO3DMODELS` define, if you want to completely disable 3D model support.
 * `BECKETT_NOBJTS` define, if you want to use only plain untagged text.
 * `BECKETT_ONLYMURCAN` define, if you want to disable localization.
-* `BECKETT_MSAA` define, if you want to use that.
+* `BECKETT_MSAA` define, if you want to use that. Useless if you plan to have HDR and/or post-processing effects.
 * `BECKETT_ANALOGLEFT` and/or `RIGHT` defines, set to a "north" `Binds` value, if you want to use analog stick controls.
+* `BECKETT_PULLEDPORK` define, if you want sprite quads to use vertex pulling.
 * The `CommonUniforms` struct, which must match `shaders/common.fs`
  * Must at least have `float TotalTime`, `float DeltaTime`, `glm::uvec2 ScreenRes`, `glm::mat4 View`, `glm::mat4 Projection`, and `glm::mat4 InvView` fields.
 * `extern CommonUniforms commonUniforms` (the actual one is in `engine/main.cpp`)
 
 ## Building
 
-## Usage
+As of right now, the Beckett Engine is developed with [Microsoft Visual Studio 2015](https://go.microsoft.com/fwlink/?LinkId=615448), and is known to compile in [VS 2017](http://aka.ms/vs/15/release/vs_WDExpress.exe) as well. All dependencies should be included.
+
+We welcome any contributions that let this and [Project Special K](https://github.com/Kawa-oneechan/psk) compile on later versions of Visual Studio and other compilers such as clang, and run on operating systems other than Windows, so long as it remains possible to build on VS 2015. The preprocessor is your friend.
 
 ## Acknowledgements
 Script support would not be possible without [Siapran](https://siapran.tumblr.com).
@@ -48,4 +51,5 @@ The Beckett Engine uses several third-party libraries:
 * [STB](https://github.com/nothings/stb)
 * [UFBX](https://ufbx.github.io/)
 
-This project rejects AI contributions. See [NOAI.md](NOAI.md).
+This project **absolutely rejects** AI contributions.
+
