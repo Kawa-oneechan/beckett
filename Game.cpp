@@ -707,6 +707,7 @@ static std::shared_ptr<Button> makeSceneButton(const std::string& caption)
 
 void Game::Start()
 {
+	/*
 	//Trying to convert [1,0,0] (red) from RGB to HSV
 	auto red = glm::vec3(1, 0, 0);
 	auto hsv = RGBtoHSV(red); //expected: 0, 1, 1
@@ -716,6 +717,7 @@ void Game::Start()
 	auto hsltored = HSLtoRGB(hsl);
 	auto labtored = OkLabToLinearSRGB(lab); //has infinitesimal non-zero results but OKAY!
 	auto labtored2 = OkLabToLinearSRGB(0.628f, 0.225f, 0.126f); //same problem but CLOSE ENOUGH!
+	*/
 
 	MainCamera->ID = "Camera";
 

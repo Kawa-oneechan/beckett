@@ -139,6 +139,15 @@
     <ClCompile Include="engine\Font.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="engine\ShapeUtils.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ColorUtils.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\CrcUtils.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">
@@ -223,6 +232,15 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\Font.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\CrcUtils.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ShapeUtils.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ColorUtils.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>

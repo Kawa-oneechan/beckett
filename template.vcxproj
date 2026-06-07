@@ -126,7 +126,9 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="engine\Audio.h" />
+    <ClInclude Include="engine\ColorUtils.h" />
     <ClInclude Include="engine\Console.h" />
+    <ClInclude Include="engine\CrcUtils.h" />
     <ClInclude Include="engine\Cursor.h" />
     <ClInclude Include="engine\DropLabel.h" />
     <ClInclude Include="engine\Font.h" />
@@ -140,6 +142,7 @@
     <ClInclude Include="engine\Platform.h" />
     <ClInclude Include="engine\Random.h" />
     <ClInclude Include="engine\Shader.h" />
+    <ClInclude Include="engine\ShapeUtils.h" />
     <ClInclude Include="engine\SpriteRenderer.h" />
     <ClInclude Include="engine\Text.h" />
     <ClInclude Include="engine\TextField.h" />
@@ -160,7 +163,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="engine\Audio.cpp" />
+    <ClCompile Include="engine\ColorUtils.cpp" />
     <ClCompile Include="engine\Console.cpp" />
+    <ClCompile Include="engine\CrcUtils.cpp" />
     <ClCompile Include="engine\Cursor.cpp" />
     <ClCompile Include="engine\DropLabel.cpp" />
     <ClCompile Include="engine\Font.cpp" />
@@ -180,6 +185,7 @@
     <ClCompile Include="engine\PlatformWin32.cpp" />
     <ClCompile Include="engine\Random.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
+    <ClCompile Include="engine\ShapeUtils.cpp" />
     <ClCompile Include="engine\SpriteRenderer.cpp" />
     <ClCompile Include="engine\Text.cpp" />
     <ClCompile Include="engine\TextField.cpp" />
