@@ -1,0 +1,413 @@
+{
+	//Hey, ain't no rule a file can't host both an atlas *and* a cinematic!
+
+	//Atlas part
+	"type": "atlas",
+	"rects": [
+		[	 1,	 1, 742, 356 ], //backing plate, parent node
+		[ 745,	 1, 117, 196 ], //S
+		[ 864,	 1,	85, 118 ], //P
+		[ 951,	 1,	71,	76 ], //E
+		[ 864, 121,	73,	82 ], //C
+		[ 951,	79,	45, 102 ], //I
+		[ 745, 205,	73,	78 ], //A
+		[ 820, 205,	67, 121 ], //L
+		[ 889, 205, 125, 169 ],	//K
+		[   1, 358, 335, 159 ], //Project
+	],
+
+	//Panel Layout part
+	"cinematic": {
+		"textures": {
+			"main": "cinematics/logo/logo.png"
+		},
+		"polygons": [
+			[
+				[ 0.340, 0.030 ],
+				[ 0.995, 0.030 ],
+				[ 0.655, 0.960 ],
+				[ 0.005, 0.960 ]
+			]
+		],
+
+		"panels": [
+			{
+				"id": "woodBack",
+				"type": "image",
+				"texture": "main",
+				"frame": 0, //backing plate
+				"color": "primary",
+				"alpha": 0.0,
+				"position": [ 100, -256 ]
+				//"position": [ "middle", 32 ] //automatically figure out that this is (SCREENWIDTH/2)-(747/2).
+			},
+			{
+				"id": "logoProject",
+				"type": "image",
+				"frame": 9,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 108, 10 ] //relative to the parent panel.
+			},
+			{
+				"id": "logoS",
+				"type": "image",
+				"frame": 1,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"polygon": 0,
+				"position": [ 54, 62 ]
+			},
+			{
+				"id": "logoP",
+				"type": "image",
+				"frame": 2,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 174, 116 ]
+			},
+			{
+				"id": "logoE",
+				"type": "image",
+				"frame": 3,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 257, 141 ]
+			},
+			{
+				"id": "logoC",
+				"type": "image",
+				"frame": 4,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 330, 147 ]
+			},
+			{
+				"id": "logoI",
+				"type": "image",
+				"frame": 5,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 396, 91 ]
+			},
+			{
+				"id": "logoA",
+				"type": "image",
+				"frame": 6,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 440, 149 ]
+			},
+			{
+				"id": "logoL",
+				"type": "image",
+				"frame": 7,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 491, 92 ]
+			},
+			{
+				"id": "logoK",
+				"type": "image",
+				"frame": 8,
+				"alpha": 0.0,
+				"parent": "woodBack",
+				"position": [ 564, 125 ]
+			},
+			{
+				"id": "logoJoke",
+				"parent": "woodBack",
+				"position": [ 564, 300 ],
+				"type": "text",
+				"text": "Why are we here? Just to suffer?",
+				"size": 100,
+				"angle": -3,
+				"alpha": 0.0,
+				"alignment": "center"
+			},
+		],
+		"anims": [
+			{
+				"name": "wait",
+				"next": "",
+				"bits": []
+			},
+			{
+				"name": "open",
+				"next": "",
+				"bits": [
+					{
+						"panel": "woodBack",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 0.0,
+						"toTime": 0.80, "toVal": 1.0
+					},
+					{
+						//Slightly move the panel down as it appears
+						"panel": "woodBack",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": -32,
+						"toTime": 0.80, "toVal": 64,
+						"easing": "bounceOut"
+					},
+
+					//Letters appear staggered
+					{
+						"panel": "logoC",
+						"property": "alpha",
+						"fromTime": 0.70, "fromVal": 0.0,
+						"toTime": 1.40, "toVal": 1.0
+					},
+					{
+						"panel": "logoC",
+						"property": "y",
+						"fromTime": 0.70, "fromVal": 99,
+						"toTime": 1.40, "toVal": 147
+					},
+
+					{
+						"panel": "logoE",
+						"property": "alpha",
+						"fromTime": 0.90, "fromVal": 0.0,
+						"toTime": 1.50, "toVal": 1.0
+					},
+					{
+						"panel": "logoE",
+						"property": "y",
+						"fromTime": 0.90, "fromVal": 93,
+						"toTime": 1.50, "toVal": 141
+					},
+					{
+						"panel": "logoI",
+						"property": "alpha",
+						"fromTime": 0.90, "fromVal": 0.0,
+						"toTime": 1.50, "toVal": 1.0
+					},
+					{
+						"panel": "logoI",
+						"property": "y",
+						"fromTime": 0.90, "fromVal": 43,
+						"toTime": 1.50, "toVal": 91
+					},
+
+					{
+						"panel": "logoP",
+						"property": "alpha",
+						"fromTime": 1.00, "fromVal": 0.0,
+						"toTime": 1.60, "toVal": 1.0
+					},
+					{
+						"panel": "logoP",
+						"property": "y",
+						"fromTime": 1.00, "fromVal": 68,
+						"toTime": 1.60, "toVal": 116
+					},
+					{
+						"panel": "logoA",
+						"property": "alpha",
+						"fromTime": 1.00, "fromVal": 0.0,
+						"toTime": 1.60, "toVal": 1.0
+					},
+					{
+						"panel": "logoA",
+						"property": "y",
+						"fromTime": 1.00, "fromVal": 149,
+						"toTime": 1.60, "toVal": 101
+					},
+
+					{
+						"panel": "logoS",
+						"property": "alpha",
+						"fromTime": 1.10, "fromVal": 0.0,
+						"toTime": 1.70, "toVal": 1.0
+					},
+					{
+						"panel": "logoS",
+						"property": "y",
+						"fromTime": 1.10, "fromVal": 14,
+						"toTime": 1.70, "toVal": 62
+					},
+					{
+						"panel": "logoL",
+						"property": "alpha",
+						"fromTime": 1.10, "fromVal": 0.0,
+						"toTime": 1.70, "toVal": 1.0
+					},
+					{
+						"panel": "logoL",
+						"property": "y",
+						"fromTime": 1.10, "fromVal": 44,
+						"toTime": 1.70, "toVal": 92
+					},
+
+
+					{
+						"panel": "logoK",
+						"property": "alpha",
+						"fromTime": 2.00, "fromVal": 0.0,
+						"toTime": 2.50, "toVal": 1.0
+					},
+					{
+						"panel": "logoK",
+						"property": "y",
+						"fromTime": 2.00, "fromVal": 77,
+						"toTime": 2.50, "toVal": 125,
+						"easing": "bounceOut"
+					},
+					
+					{
+						"panel": "logoProject",
+						"property": "alpha",
+						"fromTime": 2.00, "fromVal": 0.0,
+						"toTime": 2.50, "toVal": 1.0,
+					},
+
+					{
+						"panel": "logoJoke",
+						"property": "alpha",
+						"fromTime": 3.00, "fromVal": 0.0,
+						"toTime": 3.50, "toVal": 1.0
+					}
+				]
+			},
+			{
+				"name": "idle",
+				"next": "",
+				"bits": [
+					{
+						"panel": "woodBack",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "woodBack",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 64,
+						"toTime": 0.1, "toVal": 64,
+						"easing": "bounceOut"
+					},
+					{
+						"panel": "logoC",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoC",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 147,
+						"toTime": 0.1, "toVal": 147
+					},
+
+					{
+						"panel": "logoE",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoE",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 141,
+						"toTime": 0.1, "toVal": 141
+					},
+					{
+						"panel": "logoI",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoI",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 91,
+						"toTime": 0.1, "toVal": 91
+					},
+
+					{
+						"panel": "logoP",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoP",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 116,
+						"toTime": 0.1, "toVal": 116
+					},
+					{
+						"panel": "logoA",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoA",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 101,
+						"toTime": 0.1, "toVal": 101
+					},
+					{
+						"panel": "logoS",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoS",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 62,
+						"toTime": 0.1, "toVal": 62
+					},
+					{
+						"panel": "logoL",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoL",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 92,
+						"toTime": 0.1, "toVal": 92
+					},
+					{
+						"panel": "logoK",
+						"property": "alpha",
+						"fromTime": 0.0, "fromVal": 1.0,
+						"toTime": 0.1, "toVal": 1.0
+					},
+					{
+						"panel": "logoK",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 125,
+						"toTime": 0.1, "toVal": 125
+					},
+
+					{
+						"panel": "logoJoke",
+						"property": "alpha",
+						"fromTime": 3.00, "fromVal": 1.0,
+						"toTime": 3.50, "toVal": 1.0
+					}
+				]
+			},
+			{
+				"name": "bounce",
+				"next": "",
+				"bits": [
+					{
+						//Slightly move the panel down as it appears
+						"panel": "woodBack",
+						"property": "y",
+						"fromTime": 0.0, "fromVal": 32,
+						"toTime": 1.0, "toVal": 64,
+						"easing": "bounceOut"
+					}
+				]
+			}
+		]
+	}
+}

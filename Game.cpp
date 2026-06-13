@@ -15,6 +15,7 @@
 #include "engine/Framebuffer.h"
 #include "engine/Particles.h"
 #include "Camera.h"
+#include "PanelLayout.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.
@@ -568,6 +569,11 @@ public:
 		auto particles = std::make_shared<ParticleEmitter>();
 		particles->prototype.position = glm::vec3(width * 0.5, 0, height * 0.5);
 		AddChild(particles);
+
+
+		auto logoAnim = std::make_shared<PanelLayout>(VFS::ReadJSON("cinematics/logo/logo.json").as_object()["cinematic"]);
+		logoAnim->Play("open");
+		AddChild(logoAnim);
 	}
 
 	bool Tick(float dt) override

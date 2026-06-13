@@ -148,6 +148,12 @@
     <ClCompile Include="engine\CrcUtils.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="PanelLayout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">

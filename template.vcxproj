@@ -197,6 +197,7 @@
     <ClCompile Include="engine\Utilities.cpp" />
     <ClCompile Include="engine\VFS.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="PanelLayout.cpp" />
     <ClCompile Include="support\format.cc" />
     <ClCompile Include="support\glad\glad.c" />
     <ClCompile Include="support\ImGUI\imgui.cpp">
@@ -222,6 +223,7 @@
     <ClCompile Include="support\stb_image_write.cpp" />
     <ClCompile Include="support\stb_truetype.cpp" />
     <ClCompile Include="support\ufbx.c" />
+    <ClCompile Include="Utilties.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data\shaders\common.fs" />
