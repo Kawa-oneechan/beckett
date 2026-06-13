@@ -37,6 +37,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 			polygon poly;
 			//TODO: std::transform, once figured out.
 			for (const auto& point : p.as_array())
+				// cppcheck-suppress useStlAlgorithm
 				poly.emplace_back(GetJSONVec2(point));
 
 			//ensure a closed loop
@@ -298,6 +299,7 @@ bool PanelLayout::Tick(float dt)
 			auto const size = glm::vec2(frame.z, frame.w);
 			//TODO: std::transform, once figured out.
 			for (const auto& point : polygons[panel->Polygon])
+				// cppcheck-suppress useStlAlgorithm
 				poly.emplace_back(((point * size) + Position + parentPos + panel->Position) * scale);
 
 			//prevPoly = panel->Polygon;
