@@ -56,21 +56,20 @@ PanelLayout::PanelLayout(jsonValue& source)
 
 		panel->Polygon = -1;
 		panel->Shader = nullptr;
+		panel->Texture = nullptr;
 
 		auto const& type = pnl["type"].as_string();
 		if (type == "image") panel->Type = Panel::Type::Image;
 		else if (type == "text") panel->Type = Panel::Type::Text;
-		/* else if (type == "itemicon") panel->Type = Panel::Type::ItemIcon; */
 
 		if (panel->Type == Panel::Type::Image)
 		{
 			panel->Texture = pnl["texture"].is_string() ? textures[pnl["texture"].as_string()] : textures.begin()->second;
 			panel->Frame = GetJSONVal(pnl["frame"], 0);
 			panel->Polygon = pnl["polygon"].is_integer() ? pnl["polygon"].as_integer() : -1;
-
 			panel->Enabled = pnl["enabled"].is_boolean() ? pnl["enabled"].as_boolean() : panel->Polygon != -1;
-			
 			panel->Shader = pnl["shader"].is_string() ? Shaders[pnl["shader"].as_string()] : nullptr;
+			panel->Size = GetJSONVal(pnl["size"], 100.0f);
 		}
 		else if (panel->Type == Panel::Type::Text)
 		{
@@ -87,14 +86,6 @@ PanelLayout::PanelLayout(jsonValue& source)
 					panel->Alignment = 2;
 			}
 		}
-		/*
-		else if (panel->Type == Panel::Type::ItemIcon)
-		{
-			panel->Text = GetJSONVal(pnl["text"], "");
-			panel->Size = GetJSONVal(pnl["size"], 100.0f);
-			panel->Polygon = pnl["polygon"].is_integer() ? pnl["polygon"].as_integer() : -1;
-		}
-		*/
 
 		{
 			auto pos = pnl["position"].as_array();
@@ -347,7 +338,7 @@ void PanelLayout::Draw(float dt)
 		if (color.a == 0)
 			continue;
 
-		if (panel->Type == Panel::Type::Image)
+		if (panel->Type == Panel::Type::Image && panel->Texture != nullptr)
 		{
 			auto texture = panel->Texture;
 			auto frame = texture->operator[](panel->Frame);
@@ -357,7 +348,7 @@ void PanelLayout::Draw(float dt)
 			Sprite::DrawSprite(
 				shader, *texture,
 				finalPos * scale,
-				glm::vec2(frame.z, frame.w) * scale,
+				glm::vec2(frame.z, frame.w) * (panel->Size / 100.0f) * scale,
 				frame,
 				panel->Angle,
 				color
@@ -396,26 +387,6 @@ void PanelLayout::Draw(float dt)
 				panel->Angle
 			);
 		}
-		/*
-		else if (panel->Type == Panel::Type::ItemIcon)
-		{
-			if (panel->Text.empty())
-				continue;
-
-			auto& texture = *Database::ItemIcons;
-			auto frame = texture[panel->Text];
-			auto shader = Shaders["sprite"];
-
-			Sprite::DrawSprite(
-				shader, texture,
-				(Position + parentPos + panel->Position) * scale,
-				glm::vec2(frame.z, frame.w) * (panel->Size / 100.0f) * scale,
-				frame,
-				panel->Angle,
-				color
-			);
-		}
-		*/
 	}
 }
 
@@ -443,4 +414,14 @@ void PanelLayout::Play(const std::string& anim)
 	}
 
 	conprint(2, "Tried to play animation {} on a PanelLayout with no such animation.", anim);
+}
+
+void PanelLayout::Panel::SetFrame(const std::string& name)
+{
+	if (Type != Type::Image || Texture == nullptr)
+		return;
+	auto atlas = Texture->Atlas();
+	auto it = atlas.names.find(name);
+	if (it != atlas.names.end())
+		Frame = it->second;
 }
