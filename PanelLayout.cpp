@@ -124,23 +124,21 @@ PanelLayout::PanelLayout(jsonValue& source)
 
 		panel->Angle = GetJSONVal(pnl["angle"], 0.0f);
 
-		panel->Parent = -1;
+		panel->Parent = nullptr;
 		if (!pnl["parent"].is_null())
 		{
 			if (pnl["parent"].is_string())
 			{
 				const auto& prt = pnl["parent"].as_string();
-				for (int i = 0; i < panels.size(); i++)
+				auto parent = std::find_if(panels.cbegin(), panels.cend(), [&](auto const& p)
 				{
-					if (panels[i]->ID == prt)
-					{ // cppcheck-suppress useStlAlgorithm
-						panel->Parent = i;
-						break;
-					}
-				}
+					return p->ID == prt;
+				});
+				if (parent != panels.cend())
+					panel->Parent = *parent;
 			}
 			else if(pnl["parent"].is_integer())
-				panel->Parent = pnl["parent"].as_integer();
+				panel->Parent = panels[pnl["parent"].as_integer()];
 		}
 
 		panel->Color = glm::vec4(1, 1, 1, 1);
@@ -283,12 +281,11 @@ bool PanelLayout::Tick(float dt)
 		//	continue;
 
 		auto parentPos = glm::vec2(0);
-		auto parentID = panel->Parent;
-		while (parentID != -1)
+		auto parent = panel->Parent;
+		while (parent != nullptr)
 		{
-			const auto* parent = panels[parentID];
 			parentPos += parent->Position;
-			parentID = parent->Parent;
+			parent = parent->Parent;
 		}
 
 		//if (panel->Polygon != prevPoly)
@@ -339,12 +336,11 @@ void PanelLayout::Draw(float dt)
 		if (Origin == CornerOrigin::TopRight || Origin == CornerOrigin::BottomRight) parentPos.x = 1920; //(float)width;
 		else if (Origin == CornerOrigin::BottomLeft) parentPos.y = 1080; //(float)height;
 
-		auto parentID = panel->Parent;
-		while (parentID != -1)
+		const auto* parent = panel->Parent;
+		while (parent != nullptr)
 		{
-			const auto* parent = panels[parentID];
 			parentPos += parent->Position;
-			parentID = parent->Parent;
+			parent = parent->Parent;
 		}
 
 		color.a = glm::clamp(Alpha * panel->Alpha, 0.0f, 1.0f);
