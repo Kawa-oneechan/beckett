@@ -34,14 +34,13 @@ PanelLayout::PanelLayout(jsonValue& source)
 	{
 		for (const auto& p : src["polygons"].as_array())
 		{
-			polygon poly;
-			//TODO: std::transform, once figured out.
-			for (const auto& point : p.as_array())
-				// cppcheck-suppress useStlAlgorithm
-				poly.emplace_back(GetJSONVec2(point));
+			auto& pArr = p.as_array();
+			auto poly = std::vector<glm::vec2>(pArr.size() + 1);
+			std::transform(pArr.cbegin(), pArr.cend(), poly.begin(),
+				[](const auto& point) { return GetJSONVec2(point); });
 
 			//ensure a closed loop
-			if (!poly.empty() && poly[0] != poly[poly.size() - 1])
+			if (poly[0] != poly[poly.size() - 1])
 				poly.emplace_back(glm::vec2(poly[0]));
 
 			polygons.emplace_back(poly);
@@ -297,10 +296,10 @@ bool PanelLayout::Tick(float dt)
 			poly.clear();
 			auto const frame = panel->Texture->operator[](panel->Frame);
 			auto const size = glm::vec2(frame.z, frame.w);
-			//TODO: std::transform, once figured out.
-			for (const auto& point : polygons[panel->Polygon])
-				// cppcheck-suppress useStlAlgorithm
-				poly.emplace_back(((point * size) + Position + parentPos + panel->Position) * scale);
+			auto& thisPoly = polygons[panel->Polygon];
+			poly.resize(thisPoly.size());
+			std::transform(thisPoly.cbegin(), thisPoly.cend(), poly.begin(),
+				[&](const auto& point) { return ((point * size) + Position + parentPos + panel->Position) * scale; });
 
 			//prevPoly = panel->Polygon;
 		}
@@ -374,7 +373,7 @@ void PanelLayout::Draw(float dt)
 				const auto plen = poly.size();
 				const auto size = glm::vec2(frame.z, frame.w);
 				for (auto i = 0; i < plen; i++)
-					Sprite::DrawLine((poly[i] * size) + finalPos, (poly[(i + 1) % plen] * size) + finalPos, glm::vec4(1));
+					Sprite::DrawLine(((poly[i] * size) + finalPos) * scale, ((poly[(i + 1) % plen] * size) + finalPos) * scale, glm::vec4(1));
 			}
 		}
 		else if (panel->Type == Panel::Type::Text)

@@ -156,17 +156,17 @@ namespace UI
 		auto keyBinds = sets["keyBinds"].as_array();
 		if (keyBinds.size() != NumKeyBinds)
 		{
-			keyBinds.reserve(NumKeyBinds);
-			for (auto &k : DefaultInputBindings)
-				keyBinds.emplace_back(jsonValue(glfwGetKeyScancode(k))); // cppcheck-suppress useStlAlgorithm
+			keyBinds.resize(NumKeyBinds);
+			std::transform(DefaultInputBindings, DefaultInputBindings + 32, keyBinds.begin(),
+				[](const auto& k) { return jsonValue(glfwGetKeyScancode(k)); });
 		}
 
 		auto padBinds = sets["gamepadBinds"].as_array();
 		if (padBinds.size() != NumKeyBinds)
 		{
-			padBinds.reserve(NumKeyBinds);
-			for (auto &k : DefaultInputGamepadBindings)
-				padBinds.emplace_back(jsonValue(k)); // cppcheck-suppress useStlAlgorithm
+			padBinds.resize(NumKeyBinds);
+			std::transform(DefaultInputGamepadBindings, DefaultInputGamepadBindings + 32, padBinds.begin(),
+				[](const auto& k) { return jsonValue(k); });
 		}
 
 		for (int i = 0; i < NumKeyBinds; i++)

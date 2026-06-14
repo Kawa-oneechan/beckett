@@ -628,6 +628,7 @@ public:
 std::string testString;
 glm::vec2 testVector;
 glm::vec4 testColor;
+extern bool debugPanelLayoutPolygons;
 
 void Game::RegisterConsole(Console* console)
 {
@@ -646,6 +647,7 @@ void Game::RegisterConsole(Console* console)
 	RV("testvec", CVar::Type::Vec2, &testVector);
 	RV("testcol", CVar::Type::Color, &testColor);
 	RV("callback", CVar::Type::String, &testString, false, -1, -1, [](CVar* c) { StringToUpper(*c->asString); });
+	RV("panels", CVar::Type::Bool, &debugPanelLayoutPolygons);
 
 #undef RV
 }
