@@ -30,12 +30,12 @@ PanelLayout::PanelLayout(jsonValue& source)
 		}
 	}
 
-	if (src["polygons"].is_array())
+	if (src["polygons"].is_object())
 	{
-		for (const auto& p : src["polygons"].as_array())
+		for (const auto& p : src["polygons"].as_object())
 		{
-			auto& pArr = p.as_array();
-			auto poly = std::vector<glm::vec2>(pArr.size() + 1);
+			auto& pArr = p.second.as_array();
+			auto poly = polygon(pArr.size());
 			std::transform(pArr.cbegin(), pArr.cend(), poly.begin(),
 				[](const auto& point) { return GetJSONVec2(point); });
 
@@ -43,7 +43,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 			if (poly[0] != poly[poly.size() - 1])
 				poly.emplace_back(glm::vec2(poly[0]));
 
-			polygons.emplace_back(poly);
+			polygons[p.first] = poly;
 		}
 	}
 
@@ -54,7 +54,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 
 		panel->ID = GetJSONVal(pnl["id"], "");
 
-		panel->Polygon = -1;
+		panel->Polygon = nullptr;
 		panel->Shader = nullptr;
 		panel->Texture = nullptr;
 
@@ -66,8 +66,8 @@ PanelLayout::PanelLayout(jsonValue& source)
 		{
 			panel->Texture = pnl["texture"].is_string() ? textures[pnl["texture"].as_string()] : textures.begin()->second;
 			panel->Frame = GetJSONVal(pnl["frame"], 0);
-			panel->Polygon = pnl["polygon"].is_integer() ? pnl["polygon"].as_integer() : -1;
-			panel->Enabled = pnl["enabled"].is_boolean() ? pnl["enabled"].as_boolean() : panel->Polygon != -1;
+			panel->Polygon = pnl["polygon"].is_string() ? &polygons[pnl["polygon"].as_string()] : nullptr;
+			panel->Enabled = pnl["enabled"].is_boolean() ? pnl["enabled"].as_boolean() : panel->Polygon != nullptr;
 			panel->Shader = pnl["shader"].is_string() ? Shaders[pnl["shader"].as_string()] : nullptr;
 			panel->Size = GetJSONVal(pnl["size"], 100.0f);
 		}
@@ -265,7 +265,7 @@ bool PanelLayout::Tick(float dt)
 	//auto prevPoly = -1;
 	for (const auto& panel : panels)
 	{
-		if (panel->Polygon == -1)
+		if (panel->Polygon == nullptr)
 			continue;
 
 		//if (!panel->Enabled)
@@ -284,7 +284,7 @@ bool PanelLayout::Tick(float dt)
 			poly.clear();
 			auto const frame = panel->Texture->operator[](panel->Frame);
 			auto const size = glm::vec2(frame.z, frame.w);
-			auto& thisPoly = polygons[panel->Polygon];
+			auto thisPoly = *panel->Polygon;
 			poly.resize(thisPoly.size());
 			std::transform(thisPoly.cbegin(), thisPoly.cend(), poly.begin(),
 				[&](const auto& point) { return ((point * size) + Position + parentPos + panel->Position) * scale; });
@@ -354,9 +354,9 @@ void PanelLayout::Draw(float dt)
 				color
 			);
 
-			if (debugPanelLayoutPolygons && panel->Polygon != -1)
+			if (debugPanelLayoutPolygons && panel->Polygon != nullptr)
 			{
-				auto poly = polygons[panel->Polygon];
+				auto poly = *panel->Polygon;
 				const auto plen = poly.size();
 				const auto size = glm::vec2(frame.z, frame.w);
 				for (auto i = 0; i < plen; i++)

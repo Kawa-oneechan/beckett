@@ -32,7 +32,7 @@ class PanelLayout : public Tickable
 		float Angle;
 		std::string Text;
 		glm::vec4 Color;
-		int Polygon;
+		polygon* Polygon;
 		struct Panel* Parent;
 		bool Enabled;
 
@@ -58,7 +58,7 @@ private:
 	std::vector<Panel*> panels;
 	std::map<std::string, Texture*> textures;
 	//std::vector<Shader*> shaders;
-	std::vector<polygon> polygons;
+	std::map<std::string, polygon> polygons;
 
 	bool hasAnimations{ false };
 	float animationTime{ 0.0f };
