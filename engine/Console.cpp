@@ -108,7 +108,9 @@ void Console::Print(int color, const std::string& str)
 		return;
 	}
 
-	buffer.emplace_back(std::make_pair(glm::clamp(color, 0, 8), str));
+	if (color >= 0)
+		buffer.emplace_back(std::make_pair(glm::clamp(color, 0, 8), str));
+
 	if (hardcopy.good())
 	{
 		hardcopy.write(str.c_str(), str.length());
