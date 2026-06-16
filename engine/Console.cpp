@@ -116,6 +116,11 @@ void Console::Print(int color, const std::string& str)
 	}
 }
 
+void Console::Print(int color, fmt::string_view fmt, fmt::format_args args)
+{
+	Print(color, fmt::vformat(fmt, args));
+}
+
 void Console::Print(const std::string& str)
 {
 	Print(0, str);
@@ -535,10 +540,10 @@ static void CCmdVersion(const jsonArray& args)
 #ifdef _MSC_VER
 	conprint(7, "Microsoft Visual C++ version {}.{}.", (_MSC_VER / 100), (_MSC_VER % 100));
 #endif
-	conprint(7, "OpenGL: {}", glGetString(GL_VERSION));
-	conprint(7, "Vendor: {}", glGetString(GL_VENDOR));
-	conprint(7, "GLSL {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	conprint(7, "Renderer: {}", glGetString(GL_RENDERER));
+	conprint(7, "OpenGL: {}", std::string((char*)glGetString(GL_VERSION)));
+	conprint(7, "Vendor: {}", std::string((char*)glGetString(GL_VENDOR)));
+	conprint(7, "GLSL {}", std::string((char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+	conprint(7, "Renderer: {}", std::string((char*)glGetString(GL_RENDERER)));
 	conprint(7, "GLFW: {}", glfwGetVersionString());
 #ifndef BECKETT_NO3DMODELS
 	conprint(7, "UFBX: {}.{}.{}", ufbx_version_major(UFBX_VERSION), ufbx_version_minor(UFBX_VERSION), ufbx_version_patch(UFBX_VERSION));
