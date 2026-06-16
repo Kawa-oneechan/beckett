@@ -49,7 +49,7 @@ class Tilemap : public Tickable2D
 		int height{ 0 };
 		glm::vec2 Parallax{ 1, 1 };
 		glm::vec4 Tint{ 1, 1, 1, 1 };
-		std::unique_ptr<int[]> data{ nullptr };
+		std::unique_ptr<unsigned int[]> data{ nullptr };
 		Tilemap* owner{ nullptr };
 
 	public:
@@ -82,8 +82,8 @@ public:
 
 	//std::shared_ptr<Tickable2D> operator[](size_t i) const; // cppcheck-suppress duplInheritedMember
 	std::shared_ptr<Tickable> GetLayer(size_t i);
-	void Tilemap::SetTile(int row, int col, int tile);
-	void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles);
+	void SetTile(int row, int col, int tile);
+	void SetTile(int row, int col, std::initializer_list<int> tiles);
 	const int GetTile(int layer, int row, int col) const;
 	const int GetTile(int layer, const glm::vec2& position) const;
 	glm::vec2 GetPixelSize();

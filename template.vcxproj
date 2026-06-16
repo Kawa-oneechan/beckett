@@ -198,6 +198,7 @@
     <ClCompile Include="engine\VFS.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="PanelLayout.cpp" />
+    <ClCompile Include="support\base64.c" />
     <ClCompile Include="support\format.cc" />
     <ClCompile Include="support\glad\glad.c" />
     <ClCompile Include="support\ImGUI\imgui.cpp">

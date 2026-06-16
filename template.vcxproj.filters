@@ -154,6 +154,9 @@
     <ClCompile Include="Utilties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="support\base64.c">
+      <Filter>Engine\Third-party</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">

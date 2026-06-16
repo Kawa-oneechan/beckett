@@ -5,6 +5,7 @@
 #include "../Game.h"
 
 extern float scale;
+extern "C" unsigned char* unbase64(const char* ascii, int len, int *flen);
 
 Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
 {
@@ -27,11 +28,23 @@ Tilemap::MapLayer::MapLayer(jsonValue& doc, Tilemap* owner) : owner(owner)
 
 	auto totalSize = this->width * this->height;
 
-	data = std::make_unique<int[]>(totalSize);
-	int i = 0;
-	for (const auto& di : lo["data"].as_array())
+	data = std::make_unique<unsigned int[]>(totalSize);
+	if (lo["data"].is_array())
 	{
-		data[i++] = di.as_integer() - 1;
+		int i = 0;
+		for (const auto& di : lo["data"].as_array())
+			data[i++] = (unsigned int)di.as_integer();
+	}
+	else if (lo["data"].is_string())
+	{
+		//Assume base64, no compression.
+		auto b64 = lo["data"].as_string();
+		int len = 0;
+		auto result = unbase64(b64.c_str(), (int)b64.length(), &len);
+		if (len != totalSize * sizeof(unsigned int))
+			throw std::runtime_error("Oh SHIT");
+		std::memcpy(data.get(), result, len);
+		free(result);
 	}
 }
 
@@ -62,8 +75,12 @@ void Tilemap::MapLayer::Draw(float dt)
 		for (auto col = left; col < right; col++)
 		{
 			auto tile = data[row * width + col];
-			if (tile == -1)
+			if (tile == 0)
 				continue;
+
+			auto flips = (tile >> 28) & 0x0F;
+			tile &= 0x00FF'FFFF;
+			tile--;
 
 			auto anim = tiles.animations.find(tile);
 			if (anim != tiles.animations.end())
@@ -80,7 +97,16 @@ void Tilemap::MapLayer::Draw(float dt)
 					((row + col) * (tiles.tileGridHeight / 2))
 				);
 
-			Sprite::DrawSprite(*tiles.texture, ((dest - cam - tiles.tileOffset) * s) + owner->Position, tileSize, srcRect, 0.0, Tint);
+			auto flags = (int)Sprite::SpriteFlags::RotateCenter;
+			auto angle = 0.0f;
+			if ((flips & 0x08) == 0x08)
+				flags |= Sprite::SpriteFlags::FlipX;
+			if ((flips & 0x04) == 0x04)
+				flags |= Sprite::SpriteFlags::FlipY;
+			if ((flips & 0x02) == 0x02)
+				angle = 90.0f;
+
+			Sprite::DrawSprite(*tiles.texture, ((dest - cam - tiles.tileOffset) * s) + owner->Position, tileSize, srcRect, angle, Tint, (Sprite::SpriteFlags)flags);
 		}
 	}
 }
@@ -89,14 +115,14 @@ void Tilemap::MapLayer::SetTile(int row, int col, int tile)
 {
 	col = glm::clamp(col, 0, width - 1);
 	row = glm::clamp(row, 0, height - 1);
-	data[(row * width) + col] = tile;
+	data[(row * width) + col] = tile + 1;
 }
 
 const int Tilemap::MapLayer::GetTile(int row, int col) const
 {
 	col = glm::clamp(col, 0, width - 1);
 	row = glm::clamp(row, 0, height - 1);
-	return data[(row * width) + col];
+	return data[(row * width) + col] - 1;
 }
 
 const int Tilemap::MapLayer::GetTile(const glm::vec2& position) const
@@ -126,7 +152,7 @@ glm::vec4 Tilemap::MapLayer::GetCollision(int row, int col)
 		return glm::vec4(0, 0, owner->tileset.tileWidth, owner->tileset.tileHeight);
 	col = glm::clamp(col, 0, width - 1);
 	row = glm::clamp(row, 0, height - 1);
-	auto tile = owner->tileset.collisions.find(data[(row * width) + col]);
+	auto tile = owner->tileset.collisions.find(data[(row * width) + col] - 1);
 	if (tile != owner->tileset.collisions.end())
 		return tile->second.rectP;
 	return glm::vec4(-1);
@@ -297,7 +323,10 @@ void Tilemap::SetTile(int row, int col, int tile)
 	{
 		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(l);
 		if (mapLayer)
+		{
 			mapLayer->SetTile(row, col, tile);
+			break;
+		}
 	}
 }
 
