@@ -2,7 +2,7 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in vec3 aTangent;
-layout (location = 4) in ivec4 aBones; 
+layout (location = 4) in ivec4 aBones;
 layout (location = 5) in vec4 aWeights;
 
 out vec2 TexCoord;
@@ -24,14 +24,13 @@ void main()
 {
 	vec4 totalPosition = vec4(0.0);
 	vec3 totalNormal = vec3(0.0);
-	vec4 aPos4 = vec4(aPos, 1.0f);
+	vec4 aPos4 = vec4(aPos, 1.0);
 	for(int i = 0; i < MaxWeights; i++)
 	{
 		if (aBones[i] == -1) continue;
-		
+
 		vec4 localPosition = finalBonesMatrices[aBones[i]] * aPos4;
 		totalPosition += localPosition * aWeights[i];
-
 		vec3 localNormal = mat3(finalBonesMatrices[aBones[i]]) * aNormal;
 		totalNormal += localNormal * aWeights[i];
 	}
