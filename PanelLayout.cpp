@@ -5,6 +5,7 @@
 #include "engine/Console.h"
 #include "engine/SpriteRenderer.h"
 #include "engine/ShapeUtils.h"
+#include "engine/NineSlicer.h"
 #include "PanelLayout.h"
 #include "Game.h"
 #include "Utilities.h"
@@ -57,6 +58,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 		panel->Polygon = nullptr;
 		panel->Shader = nullptr;
 		panel->Texture = nullptr;
+		panel->Sliced = false;
 
 		auto const& type = pnl["type"].as_string();
 		if (type == "image") panel->Type = Panel::Type::Image;
@@ -70,6 +72,12 @@ PanelLayout::PanelLayout(jsonValue& source)
 			panel->Enabled = pnl["enabled"].is_boolean() ? pnl["enabled"].as_boolean() : panel->Polygon != nullptr;
 			panel->Shader = pnl["shader"].is_string() ? Shaders[pnl["shader"].as_string()] : nullptr;
 			panel->Size = GetJSONVal(pnl["size"], 100.0f);
+
+			if (pnl["sliceSize"].is_array())
+			{
+				panel->Sliced = true;
+				panel->SliceSize = GetJSONVec2(pnl["sliceSize"]);
+			}
 		}
 		else if (panel->Type == Panel::Type::Text)
 		{
@@ -216,6 +224,10 @@ bool PanelLayout::Tick(float dt)
 			prop = &substitute;
 		else if (bit.Property == "size")
 			prop = &(panel->Size);
+		else if (bit.Property == "xsize")
+			prop = &(panel->SliceSize.x);
+		else if (bit.Property == "ysize")
+			prop = &(panel->SliceSize.y);
 
 		if (prop)
 		{
@@ -345,14 +357,27 @@ void PanelLayout::Draw(float dt)
 			auto shader = panel->Shader ? panel->Shader : (texture->channels > 1 ? Shaders["sprite"] : Shaders["red8"]);
 			auto finalPos = Position + parentPos + panel->Position;
 
-			Sprite::DrawSprite(
-				shader, *texture,
-				finalPos * scale,
-				glm::vec2(frame.z, frame.w) * (panel->Size / 100.0f) * scale,
-				frame,
-				panel->Angle,
-				color
-			);
+			if (panel->Sliced)
+			{
+				NineSlicer::Draw(
+					*texture,
+					finalPos  * scale,
+					panel->SliceSize * scale,
+					glm::round(scale),
+					color
+				);
+			}
+			else
+			{
+				Sprite::DrawSprite(
+					shader, *texture,
+					finalPos * scale,
+					glm::vec2(frame.z, frame.w) * (panel->Size / 100.0f) * scale,
+					frame,
+					panel->Angle,
+					color
+				);
+			}
 
 			if (debugPanelLayoutPolygons && panel->Polygon != nullptr)
 			{

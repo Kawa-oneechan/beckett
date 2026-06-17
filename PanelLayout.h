@@ -35,6 +35,8 @@ class PanelLayout : public Tickable
 		polygon* Polygon;
 		struct Panel* Parent;
 		bool Enabled;
+		bool Sliced;
+		glm::vec2 SliceSize;
 
 		void SetFrame(const std::string& name);
 	};

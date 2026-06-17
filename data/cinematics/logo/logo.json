@@ -19,7 +19,8 @@
 	//Panel Layout part
 	"cinematic": {
 		"textures": {
-			"main": "cinematics/logo/logo.png"
+			"main": "cinematics/logo/logo.png",
+			"slice": "ui/panels/panel1.png"
 		},
 		"polygons": {
 			"s": [
@@ -57,12 +58,13 @@
 			{
 				"id": "woodBack",
 				"type": "image",
-				"texture": "main",
+				"texture": "slice", //"main",
 				"frame": 0, //backing plate
-				"color": "primary",
+				//"color": "primary",
 				"alpha": 0.0,
-				"position": [ 100, -256 ]
+				"position": [ 100, -256 ],
 				//"position": [ "middle", 32 ] //automatically figure out that this is (SCREENWIDTH/2)-(747/2).
+				"sliceSize": [ 740, 350 ]
 			},
 			{
 				"id": "logoProject",
@@ -172,6 +174,12 @@
 						"fromTime": 0.0, "fromVal": -32,
 						"toTime": 0.80, "toVal": 64,
 						"easing": "bounceOut"
+					},
+					{
+						"panel": "woodBack",
+						"property": "ysize",
+						"fromTime": 0.0, "fromVal": 24,
+						"toTime": 5.0, "toVal": 350
 					},
 
 					//Letters appear staggered
