@@ -36,7 +36,7 @@ class PanelLayout : public Tickable
 		struct Panel* Parent;
 		bool Enabled;
 		bool Sliced;
-		glm::vec2 SliceSize;
+		glm::vec2 PanelSize;
 
 		void SetFrame(const std::string& name);
 	};

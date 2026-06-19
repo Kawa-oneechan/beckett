@@ -64,7 +64,8 @@
 				"alpha": 0.0,
 				"position": [ 100, -256 ],
 				//"position": [ "middle", 32 ] //automatically figure out that this is (SCREENWIDTH/2)-(747/2).
-				"sliceSize": [ 740, 350 ]
+				"panelSize": [ 740, 350 ],
+				"sliced": true
 			},
 			{
 				"id": "logoProject",

@@ -73,10 +73,10 @@ PanelLayout::PanelLayout(jsonValue& source)
 			panel->Shader = pnl["shader"].is_string() ? Shaders[pnl["shader"].as_string()] : nullptr;
 			panel->Size = GetJSONVal(pnl["size"], 100.0f);
 
-			if (pnl["sliceSize"].is_array())
+			if (pnl["panelSize"].is_array())
 			{
-				panel->Sliced = true;
-				panel->SliceSize = GetJSONVec2(pnl["sliceSize"]);
+				panel->Sliced = GetJSONBool(pnl["sliced"], false);
+				panel->PanelSize = GetJSONVec2(pnl["panelSize"]);
 			}
 		}
 		else if (panel->Type == Panel::Type::Text)
@@ -225,9 +225,9 @@ bool PanelLayout::Tick(float dt)
 		else if (bit.Property == "size")
 			prop = &(panel->Size);
 		else if (bit.Property == "xsize")
-			prop = &(panel->SliceSize.x);
+			prop = &(panel->PanelSize.x);
 		else if (bit.Property == "ysize")
-			prop = &(panel->SliceSize.y);
+			prop = &(panel->PanelSize.y);
 
 		if (prop)
 		{
@@ -349,7 +349,7 @@ void PanelLayout::Draw(float dt)
 		color.a = glm::clamp(Alpha * panel->Alpha, 0.0f, 1.0f);
 		if (color.a == 0)
 			continue;
-
+		
 		if (panel->Type == Panel::Type::Image && panel->Texture != nullptr)
 		{
 			auto texture = panel->Texture;
@@ -362,17 +362,20 @@ void PanelLayout::Draw(float dt)
 				NineSlicer::Draw(
 					*texture,
 					finalPos  * scale,
-					panel->SliceSize * scale,
+					panel->PanelSize * scale,
 					glm::round(scale),
 					color
 				);
 			}
 			else
 			{
+				auto ps = glm::vec2(frame.z, frame.w);
+				if (panel->PanelSize.x + panel->PanelSize.y > 0.0f)
+					ps = panel->PanelSize;
 				Sprite::DrawSprite(
 					shader, *texture,
 					finalPos * scale,
-					glm::vec2(frame.z, frame.w) * (panel->Size / 100.0f) * scale,
+					ps * (panel->Size / 100.0f) * scale,
 					frame,
 					panel->Angle,
 					color
