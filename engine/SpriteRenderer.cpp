@@ -16,6 +16,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "VFS.h"
+#include "ShapeUtils.h"
 
 extern int width, height;
 extern Texture* whiteRect;
@@ -272,7 +273,7 @@ namespace Sprite
 		}
 	}
 
-	void DrawPoly(const polygon& poly, const glm::vec2& origin, float scale, const glm::vec4& color)
+	void DrawPoly(Polygon& poly, const glm::vec2& origin, float scale, const glm::vec4& color)
 	{
 		for (int i = 1; i < poly.size(); i++)
 			DrawLine(origin + (poly[i - 1] * scale), origin + (poly[i] * scale), color);

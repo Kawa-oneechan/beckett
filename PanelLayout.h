@@ -8,6 +8,7 @@
 #include "engine/Texture.h"
 #include "engine/JsonUtils.h"
 #include "engine/Types.h"
+#include "engine/ShapeUtils.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/easing.hpp>
 
@@ -32,7 +33,7 @@ class PanelLayout : public Tickable
 		float Angle;
 		std::string Text;
 		glm::vec4 Color;
-		polygon* Polygon;
+		Polygon* Polygon;
 		struct Panel* Parent;
 		bool Enabled;
 		bool Sliced;
@@ -60,7 +61,7 @@ private:
 	std::vector<Panel*> panels;
 	std::map<std::string, Texture*> textures;
 	//std::vector<Shader*> shaders;
-	std::map<std::string, polygon> polygons;
+	std::map<std::string, Polygon> polygons;
 
 	bool hasAnimations{ false };
 	float animationTime{ 0.0f };

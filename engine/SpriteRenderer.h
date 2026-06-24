@@ -5,6 +5,7 @@
 
 class Texture;
 class Shader;
+struct Polygon;
 
 namespace Sprite
 {
@@ -34,7 +35,7 @@ namespace Sprite
 	void DrawLine(const glm::vec2& from, const glm::vec2& to, const glm::vec4& color);
 	void DrawRect(const glm::vec4& bounds, const glm::vec4& color);
 	void DrawCircle(const glm::vec2& center, float radius, int segments, const glm::vec4& color);
-	void DrawPoly(const polygon& poly, const glm::vec2& origin, float scale, const glm::vec4& color);
+	void DrawPoly(Polygon& poly, const glm::vec2& origin, float scale, const glm::vec4& color);
 
 	void FlushBatch();
 }

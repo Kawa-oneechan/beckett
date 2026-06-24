@@ -7,11 +7,30 @@
 #include "InputsMap.h"
 #include "Tickable.h"
 #include "JsonUtils.h"
+#include "ShapeUtils.h"
 
 extern int width, height;
 
-bool PointInPoly(const glm::vec2 point, const polygon& polygon)
+static bool compareX(const glm::vec2& p1, const glm::vec2& p2) { return p1.x < p2.x; }
+static bool compareY(const glm::vec2& p1, const glm::vec2& p2) { return p1.y < p2.y; }
+
+void Polygon::recalc()
 {
+	if (points.size()>1)
+	{
+		aabb.x = (*std::min_element(points.begin(), points.end(), &compareX)).x;
+		aabb.y = (*std::min_element(points.begin(), points.end(), &compareY)).y;
+		aabb.z = (*std::max_element(points.begin(), points.end(), &compareX)).x;
+		aabb.w = (*std::max_element(points.begin(), points.end(), &compareY)).y;
+	}
+}
+
+
+bool PointInPoly(const glm::vec2 point, Polygon& polygon)
+{
+	if (!PointInRect(point, polygon.AABB()))
+		return false;
+
 	int crossings = 0;
 	const auto numPts = polygon.size() - 1;
 

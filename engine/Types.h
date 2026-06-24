@@ -13,7 +13,7 @@ using rune = unsigned int;
 //A CRC32 hash referring to a NameableThing.
 using hash = unsigned int;
 
-using polygon = std::vector<glm::vec2>;
+//using polygon = std::vector<glm::vec2>;
 
 //To make coordinate spaces more explicit, maybe?
 #pragma warning(push)

@@ -10,7 +10,7 @@
 #include "Game.h"
 #include "Utilities.h"
 
-bool debugPanelLayoutPolygons = false;
+bool debugPanelLayoutPolygons = true;
 bool debugRenderPanelLayouts = true;
 
 PanelLayout::PanelLayout(jsonValue& source)
@@ -36,7 +36,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 		for (const auto& p : src["polygons"].as_object())
 		{
 			auto& pArr = p.second.as_array();
-			auto poly = polygon(pArr.size());
+			auto poly = Polygon(); poly.resize(pArr.size());
 			std::transform(pArr.cbegin(), pArr.cend(), poly.begin(),
 				[](const auto& point) { return GetJSONVec2(point); });
 
@@ -272,7 +272,7 @@ bool PanelLayout::Tick(float dt)
 
 	}
 
-	polygon poly;
+	Polygon poly;
 	Panel* newHl = nullptr;
 	//auto prevPoly = -1;
 	for (const auto& panel : panels)
@@ -300,7 +300,7 @@ bool PanelLayout::Tick(float dt)
 			poly.resize(thisPoly.size());
 			std::transform(thisPoly.cbegin(), thisPoly.cend(), poly.begin(),
 				[&](const auto& point) { return ((point * size) + Position + parentPos + panel->Position) * scale; });
-
+			poly.recalc();
 			//prevPoly = panel->Polygon;
 		}
 
@@ -384,9 +384,19 @@ void PanelLayout::Draw(float dt)
 
 			if (debugPanelLayoutPolygons && panel->Polygon != nullptr)
 			{
-				auto poly = *panel->Polygon;
+				auto& poly = *panel->Polygon;
 				const auto plen = poly.size();
 				const auto size = glm::vec2(frame.z, frame.w);
+				auto aabb = poly.AABB();
+				aabb.x *= size.x;
+				aabb.y *= size.y;
+				aabb.z *= size.x;
+				aabb.w *= size.y;
+				aabb.x += finalPos.x;
+				aabb.y += finalPos.y;
+				aabb.z += finalPos.x;
+				aabb.w += finalPos.y;
+				Sprite::DrawRect(aabb * scale, glm::vec4(1, 1, 0, 1));
 				for (auto i = 0; i < plen; i++)
 					Sprite::DrawLine(((poly[i] * size) + finalPos) * scale, ((poly[(i + 1) % plen] * size) + finalPos) * scale, glm::vec4(1));
 			}
