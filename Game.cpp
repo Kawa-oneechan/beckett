@@ -306,6 +306,7 @@ private:
 	//Framebuffer* postFx{ nullptr };
 
 	ModelP bob{ nullptr };
+	ModelP boob{ nullptr };
 
 public:
 	TrainScene()
@@ -345,17 +346,24 @@ public:
 		testButton->OnClick = [&]()
 		{
 			if (!bob)
-			{
 				bob = VFS::GetModel("examples/bob/bob.fbx");
-			}
 			else
-			{
 				bob.reset();
-				bob = nullptr;
-			}
 		};
 		testButton->AbsolutePosition = testButton->Position;
 		AddChild(testButton);
+
+		auto testButton2 = std::make_shared<Button>("Toggle Boob", glm::vec2(0));
+		testButton2->OnClick = [&]()
+		{
+			if (!boob)
+				boob = VFS::GetModel("examples/bob/bob.fbx");
+			else
+				boob.reset();
+		};
+		testButton2->Position = testButton->Position + glm::vec2(0, 24);
+		testButton2->AbsolutePosition = testButton2->Position;
+		AddChild(testButton2);
 	}
 
 	~TrainScene() override
@@ -411,6 +419,8 @@ public:
 
 		if (bob != nullptr)
 			bob->Draw(glm::vec3(6, 4, -14), -2.0f);
+		if (boob != nullptr)
+			boob->Draw(glm::vec3(12, 4, -14), -2.0f);
 		model.Draw(glm::vec3(0));
 
 		MeshBucket::Flush();
