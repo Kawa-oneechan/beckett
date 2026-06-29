@@ -16,7 +16,7 @@
 __declspec(noreturn)
 	extern void FatalError(const std::string& message);
 
-static std::map<std::string, std::tuple<Model*, int>> cache;
+//static std::map<std::string, std::tuple<Model*, int>> cache;
 static std::map<hash, std::map<hash, std::array<int, MaxBones>>> transferMaps;
 
 static glm::mat4 ufbxToGlmMat4(const ufbx_matrix& mat)
@@ -52,32 +52,19 @@ static glm::quat ufbxToGlmQuat(const ufbx_quat& qua)
 }
 #pragma warning(pop)
 
-static TextureArray* fallback{ nullptr }; //{ "fallback.png" };
-static TextureArray* fallbackNormal{ nullptr }; // { "fallback_nrm.png" };
-static TextureArray* white{ nullptr }; //{ "white.png" };
+static TexArrayP fallback{ nullptr }; //{ "fallback.png" };
+static TexArrayP fallbackNormal{ nullptr }; // { "fallback_nrm.png" };
+static TexArrayP white{ nullptr }; //{ "white.png" };
 
 Model::Model(const std::string& modelPath) : file(modelPath)
 {
-	auto c = cache.find(modelPath);
-	if (c != cache.end())
-	{
-		Model* m;
-		int r;
-		std::tie(m, r) = c->second;
-		Meshes = m->Meshes;
-		Hash = m->Hash;
-		r++;
-		cache[file] = std::make_tuple(m, r);
-		return;
-	}
-
 	Hash = GetCRC(file);
 
 	if (!fallback)
 	{
-		fallback = new TextureArray("fallback.png");
-		fallbackNormal = new TextureArray("fallback_nrm.png");
-		white = new TextureArray("white.png");
+		fallback = VFS::GetTextureArray("fallback.png");
+		fallbackNormal = VFS::GetTextureArray("fallback_nrm.png");
+		white = VFS::GetTextureArray("white.png");
 		fallback->Locked = true;
 		fallbackNormal->Locked = true;
 		white->Locked = true;
@@ -215,13 +202,13 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 						*/
 					}
 					if (mat["albedo"].is_string())
-						m.Textures[0] = new TextureArray(fmt::format("{}/{}", basePath, mat["albedo"].as_string()));
+						m.Textures[0] = VFS::GetTextureArray(fmt::format("{}/{}", basePath, mat["albedo"].as_string()));
 					if (mat["normal"].is_string())
-						m.Textures[1] = new TextureArray(fmt::format("{}/{}", basePath, mat["normal"].as_string()));
+						m.Textures[1] = VFS::GetTextureArray(fmt::format("{}/{}", basePath, mat["normal"].as_string()));
 					if (mat["mix"].is_string())
-						m.Textures[2] = new TextureArray(fmt::format("{}/{}", basePath, mat["mix"].as_string()));
+						m.Textures[2] = VFS::GetTextureArray(fmt::format("{}/{}", basePath, mat["mix"].as_string()));
 					if (mat["opacity"].is_string())
-						m.Textures[3] = new TextureArray(fmt::format("{}/{}", basePath, mat["opacity"].as_string()));
+						m.Textures[3] = VFS::GetTextureArray(fmt::format("{}/{}", basePath, mat["opacity"].as_string()));
 
 					if (mat["visible"].is_boolean())
 						m.Visible = mat["visible"].as_boolean();
@@ -251,36 +238,7 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 	}
 
 	ufbx_free_scene(scene);
-
-	cache[file] = std::make_tuple(this, 1);
 }
-
-#if 1
-Model::~Model()
-{
-	conprint(5, "Destructing model {}", this->file);
-	if (cache.size() == 0)
-		return;
-	auto c = cache.find(file);
-	if (c != cache.end())
-	{
-		Model* m = std::get<0>(c->second);
-		int i = std::get<1>(c->second);
-		i--;
-		if (i > 0)
-		{
-			conprint(5, "Actually only decreasing refcount.");
-			c->second = std::make_tuple(m, i);
-			return;
-		}
-		else
-		{
-			conprint(5, "Actually destructing.");
-			cache.erase(c);
-		}
-	}
-}
-#endif
 
 void Model::Draw(const glm::vec3& pos, float yaw, int mesh)
 {
@@ -568,5 +526,36 @@ UfbxMisc::UfbxMisc(const std::string& modelPath)
 	}
 
 	ufbx_free_scene(scene);
+}
+
+//New cache system devised by Vaartis of the Ratular Bells.
+
+namespace VFS
+{
+	static std::map<std::string, std::weak_ptr<Model>> modelCache;
+
+	ModelP GetModel(const std::string& filename)
+	{
+		auto it = modelCache.find(filename);
+		if (it != modelCache.end())
+		{
+			if (it->second.expired())
+			{
+				auto newShared = std::make_shared<Model>(filename);
+				debprint(0, "VFS::GetModel: {} expired and recreated.", filename);
+				modelCache[filename] = std::weak_ptr<Model>(newShared);
+				return modelCache[filename].lock();
+			}
+			debprint(0, "VFS::GetModel: {} returned.", filename);
+			return it->second.lock();
+		}
+		else
+		{
+			auto newShared = std::make_shared<Model>(filename);
+			modelCache[filename] = std::weak_ptr<Model>(newShared);
+			debprint(0, "VFS::GetModel: {} created.", filename);
+			return modelCache[filename].lock();
+		}
+	}
 }
 #endif

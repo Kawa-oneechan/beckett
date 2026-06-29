@@ -58,8 +58,7 @@ class PanelLayout : public Tickable
 
 private:
 	std::vector<Panel*> panels;
-	std::map<std::string, Texture*> textures;
-	//std::vector<Shader*> shaders;
+	std::map<std::string, TextureP> textures;
 	std::map<std::string, polygon> polygons;
 
 	bool hasAnimations{ false };
@@ -81,7 +80,6 @@ public:
 
 	PanelLayout() = default;
 	explicit PanelLayout(jsonValue& source);
-	~PanelLayout() override;
 	bool Tick(float dt) override;
 	void Draw(float dt) override;
 	Panel* GetPanel(const std::string& id);

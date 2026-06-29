@@ -75,6 +75,7 @@ void Tilemap::MapLayer::Draw(float dt)
 		for (auto col = left; col < right; col++)
 		{
 			auto tile = data[row * width + col];
+
 			if (tile == 0)
 				continue;
 
@@ -193,7 +194,7 @@ Tilemap::Tilemap(const std::string& source)
 		auto& src = ts["image"].as_string();
 		auto tsp = here + src;
 		tsp = ResolvePath(tsp);
-		tileset.texture = std::make_shared<Texture>(tsp, GL_CLAMP, 0, true);
+		tileset.texture = VFS::GetTexture(tsp, GL_CLAMP, 0, true);
 
 		tileset.tilesPerLine = tileset.texture->width / tileset.tileWidth;
 
@@ -323,10 +324,7 @@ void Tilemap::SetTile(int row, int col, int tile)
 	{
 		auto mapLayer = std::dynamic_pointer_cast<MapLayer>(l);
 		if (mapLayer)
-		{
 			mapLayer->SetTile(row, col, tile);
-			break;
-		}
 	}
 }
 

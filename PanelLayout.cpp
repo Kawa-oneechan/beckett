@@ -27,7 +27,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 	{
 		for (const auto& t : src["textures"].as_object())
 		{
-			textures[t.first] = new Texture(t.second.as_string());
+			textures[t.first] = VFS::GetTexture(t.second.as_string());
 		}
 	}
 
@@ -66,7 +66,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 
 		if (panel->Type == Panel::Type::Image)
 		{
-			panel->Texture = pnl["texture"].is_string() ? textures[pnl["texture"].as_string()] : textures.begin()->second;
+			panel->Texture = pnl["texture"].is_string() ? textures[pnl["texture"].as_string()].get() : textures.begin()->second.get();
 			panel->Frame = GetJSONVal(pnl["frame"], 0);
 			panel->Polygon = pnl["polygon"].is_string() ? &polygons[pnl["polygon"].as_string()] : nullptr;
 			panel->Enabled = pnl["enabled"].is_boolean() ? pnl["enabled"].as_boolean() : panel->Polygon != nullptr;
@@ -191,14 +191,6 @@ PanelLayout::PanelLayout(jsonValue& source)
 	}
 
 	animationTime = 0;
-}
-
-PanelLayout::~PanelLayout()
-{
-	for (auto const& t : textures)
-	{
-		delete t.second;
-	}
 }
 
 bool PanelLayout::Tick(float dt)

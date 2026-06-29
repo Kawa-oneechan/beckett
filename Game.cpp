@@ -305,7 +305,7 @@ private:
 	float bumpTimer{ 0.0f };
 	//Framebuffer* postFx{ nullptr };
 
-	Model* bob{ nullptr };
+	ModelP bob{ nullptr };
 
 public:
 	TrainScene()
@@ -346,11 +346,11 @@ public:
 		{
 			if (!bob)
 			{
-				bob = new Model("examples/bob/bob.fbx");
+				bob = VFS::GetModel("examples/bob/bob.fbx");
 			}
 			else
 			{
-				delete bob;
+				bob.reset();
 				bob = nullptr;
 			}
 		};

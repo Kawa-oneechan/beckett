@@ -1,12 +1,10 @@
 #pragma once
 #include "Tickable.h"
 
-class Texture;
-
 class NineSlicer : public Tickable2D
 {
 private:
-	std::shared_ptr<Texture> texture;
+	TextureP texture;
 
 public:
 	glm::vec2 Size;

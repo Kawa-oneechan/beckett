@@ -153,7 +153,7 @@ namespace MeshBucket
 		bucket.Layer = mesh.Layer;
 		bucket.Billboard = mesh.Billboard;
 		for (auto i = 0; i < 4; i++)
-			bucket.Textures[i] = mesh.Textures[i];
+			bucket.Textures[i] = mesh.Textures[i].get();
 		for (auto i = 0; i < boneCt; i++)
 			bucket.Bones[i] = bones[i];
 

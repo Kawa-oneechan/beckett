@@ -83,7 +83,7 @@ public:
 		std::vector<unsigned int> indices;
 	public:
 		unsigned int VAO;
-		TextureArray* Textures[4];
+		TexArrayP Textures[4];
 		std::string Name;
 		Shader* Shader;
 		hash Hash, MatHash;
@@ -114,9 +114,6 @@ public:
 
 	Model() = default;
 	explicit Model(const std::string& modelPath);
-#if 1
-	~Model(); 
-#endif
 
 	//Queues the model for drawing at the specified position and rotation. If the mesh argument is -1, the entire model is drawn.
 	void Draw(const glm::vec3& pos = glm::vec3(0), float yaw = 0, int mesh = -1);
@@ -189,5 +186,10 @@ public:
 
 	explicit UfbxMisc(const std::string& modelPath);
 };
+
+namespace VFS
+{
+	extern ModelP GetModel(const std::string& filename);
+}
 
 #endif

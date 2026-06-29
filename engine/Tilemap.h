@@ -30,7 +30,7 @@ class Tilemap : public Tickable2D
 
 	struct Tileset
 	{
-		std::shared_ptr<Texture> texture{ nullptr };
+		TextureP texture{ nullptr };
 		int tileWidth{ 0 };
 		int tileHeight{ 0 };
 		int tileGridWidth{ 0 };
@@ -82,8 +82,8 @@ public:
 
 	//std::shared_ptr<Tickable2D> operator[](size_t i) const; // cppcheck-suppress duplInheritedMember
 	std::shared_ptr<Tickable> GetLayer(size_t i);
-	void SetTile(int row, int col, int tile);
-	void SetTile(int row, int col, std::initializer_list<int> tiles);
+	void Tilemap::SetTile(int row, int col, int tile);
+	void Tilemap::SetTile(int row, int col, std::initializer_list<int> tiles);
 	const int GetTile(int layer, int row, int col) const;
 	const int GetTile(int layer, const glm::vec2& position) const;
 	glm::vec2 GetPixelSize();
