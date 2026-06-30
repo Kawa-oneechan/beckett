@@ -34,6 +34,8 @@ public:
 	Texture(const unsigned char* data, int width, int height, int channels, int repeat = GL_REPEAT, int filter = 0);
 	Texture(unsigned int id, int width, int height, int channels) : data(nullptr), filter(0), repeat(GL_REPEAT), ID(id), width(width), height(height), channels(channels) {}
 
+	static void Reset();
+
 	virtual ~Texture();
 	virtual void Use();
 	virtual void Use(int slot);

@@ -90,6 +90,7 @@ namespace MeshBucket
 					model[0][3] = 1.0;
 
 				theShader->Set("model", model);
+				Texture::Reset();
 			}
 
 			theShader->Set("finalBonesMatrices", m.Bones[0], m.BoneCount);

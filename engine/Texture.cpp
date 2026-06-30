@@ -351,6 +351,13 @@ void TextureArray::SetFilter(int newFilter)
 
 //------------------------
 
+void Texture::Reset()
+{
+	std::fill(currentTexture, currentTexture + 32, 0);
+}
+
+//------------------------
+
 //New cache system devised by Vaartis of the Ratular Bells.
 
 namespace VFS

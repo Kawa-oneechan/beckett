@@ -252,19 +252,22 @@ public:
 	{
 		ID = "Map Scene";
 
-		auto misc = UfbxMisc("examples/3dscene/scene.fbx");
 		//commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.5);
 		//commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
-		commonUniforms.Lights[1].pos = glm::vec4(misc.Lights[0].Position, 0.0f);
-		commonUniforms.Lights[1].color = misc.Lights[0].Color;
+		commonUniforms.Lights[0].color = glm::vec4(0);
+		commonUniforms.Lights[0].pos = glm::vec4(0);
+		commonUniforms.Lights[1].pos = model.Lights[0].Position;
+		commonUniforms.Lights[1].color = model.Lights[0].Color;
+		commonUniforms.Lights[2].color = glm::vec4(0);
+		commonUniforms.Lights[2].pos = glm::vec4(0);
 
 		//Maybe figure out how to get this from a UfbxMisc camera?
 		fieldOfView = 22.5f;
 		RecalcProjections();
 
 		MainCamera->FirstPerson(true);
-		MainCamera->Target(misc.Cameras[0].Position);
-		MainCamera->Angles(misc.Cameras[0].Direction);
+		MainCamera->Target(model.Cameras[0].Position);
+		MainCamera->Angles(model.Cameras[0].Direction);
 
 		MainCamera->Distance(0);
 	}
@@ -325,15 +328,17 @@ public:
 		commonUniforms.Lights[2].pos = glm::vec4(16, 22, -40, 0);
 		*/
 
-		auto misc = UfbxMisc("examples/train/train.fbx");
-
 		MainCamera->FirstPerson(true);
-		MainCamera->Target(misc.Cameras[0].Position);
-		MainCamera->Angles(misc.Cameras[0].Direction);
+		MainCamera->Target(model.Cameras[0].Position);
+		MainCamera->Angles(model.Cameras[0].Direction);
+		MainCamera->Distance(50);
+		fieldOfView = 45.0f;
+		RecalcProjections();
+
 		for (int i = 0; i < 2; i++)
 		{
-			commonUniforms.Lights[i + 1].pos = glm::vec4(misc.Lights[i].Position, 0.0f);
-			commonUniforms.Lights[i + 1].color = misc.Lights[i].Color;
+			commonUniforms.Lights[i + 1].pos = model.Lights[i].Position;
+			commonUniforms.Lights[i + 1].color = model.Lights[i].Color;
 		}
 
 		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.0);
@@ -369,6 +374,7 @@ public:
 	~TrainScene() override
 	{
 		//delete postFx;
+		MainCamera->Shake.y = 0.0f;
 	}
 
 	TrainScene(const TrainScene&) = delete;
@@ -720,6 +726,7 @@ static std::shared_ptr<Button> makeSceneButton(const std::string& caption)
 		currentScene->RemoveAll();
 		currentScene->AddChild(std::make_shared<T>());
 	};
+	theButton->ID = fmt::format("btn_{}", caption);
 	return theButton;
 }
 
@@ -753,6 +760,7 @@ void Game::Start()
 	root.AddChild(std::make_shared<FirstPersonController>());
 
 	auto menuPanel = std::make_shared<TestPanel>(glm::vec2(8));
+	menuPanel->ID = "Menu";
 	menuPanel->Spacing = 2.0f;
 	menuPanel->AddChild(makeSceneButton<MapScene>("Map (3D)"));
 	menuPanel->AddChild(makeSceneButton<TestScreen>("Test (2D)"));
@@ -760,6 +768,7 @@ void Game::Start()
 	auto exitButton = std::make_shared<Button>("Exit", glm::vec2(0), glm::vec2(160, -1));
 	exitButton->OnClick = [currentScene]() { Game::ShouldClose = true; };
 	exitButton->BackColor = glm::vec4(1.0, 0.0, 0.0, 0.5);
+	exitButton->ID = "btnExit";
 	menuPanel->AddChild(exitButton);
 	menuPanel->Reflow();
 	menuPanel->Position.y = height - menuPanel->Size.y - 8;

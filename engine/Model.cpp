@@ -52,6 +52,31 @@ static glm::quat ufbxToGlmQuat(const ufbx_quat& qua)
 }
 #pragma warning(pop)
 
+static void addProps(std::map<std::string, jsonValue>& map, const ufbx_props& props)
+{
+	for (const auto& prop : props.props)
+	{
+		switch (prop.type)
+		{
+		case UFBX_PROP_STRING:
+			map[prop.name.data] = jsonValue(prop.value_str.data);
+			break;
+		case UFBX_PROP_INTEGER:
+			map[prop.name.data] = jsonValue((int)prop.value_int);
+			break;
+		case UFBX_PROP_VECTOR:
+			map[prop.name.data] = jsonValue({ (float)prop.value_vec3.x, (float)prop.value_vec3.y, (float)prop.value_vec3.z });
+			break;
+		}
+	}
+}
+
+static glm::vec3 jsonToGlmVec3(const jsonValue& val)
+{
+	auto& arr = val.as_array();
+	return glm::vec3(arr[0].as_number(), arr[1].as_number(), arr[2].as_number());
+}
+
 static TexArrayP fallback{ nullptr }; //{ "fallback.png" };
 static TexArrayP fallbackNormal{ nullptr }; // { "fallback_nrm.png" };
 static TexArrayP white{ nullptr }; //{ "white.png" };
@@ -234,6 +259,47 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 				matCt++;
 			}
 			Meshes.emplace_back(m);
+		}
+		else if (node->light)
+		{
+			auto l = UfbxMisc::Light();
+			l.Position = glm::vec4(ufbxToGlmVec(node->local_transform.translation), 0.0f);
+			auto c = ufbxToGlmVec(node->light->color);
+			l.Color = glm::vec4(c, (float)node->light->intensity * 0.025f); //not sure about the last part
+			l.Name = node->name.data;
+
+			addProps(l.Properties, node->props);
+			addProps(l.Properties, node->light->props);
+			Lights.emplace_back(l);
+		}
+		else if (node->camera)
+		{
+			auto c = UfbxMisc::Camera();
+			c.Position = ufbxToGlmVec(node->local_transform.translation);
+			c.Name = node->name.data;
+
+			addProps(c.Properties, node->props);
+			addProps(c.Properties, node->camera->props);
+
+			glm::vec3 interest = jsonToGlmVec3(c.Properties["InterestPosition"]);
+			glm::vec3 upVec = jsonToGlmVec3(c.Properties["UpVector"]);
+
+			auto dir = glm::normalize(c.Position - interest);
+			auto quat = glm::quatLookAt(dir, upVec);
+			auto mat = glm::mat4_cast(quat);
+			glm::extractEulerAngleXYZ<float>(mat, c.Direction.x, c.Direction.z, c.Direction.y);
+			c.Direction = glm::degrees(c.Direction);
+			c.Direction.z = glm::mod(c.Direction.z + 90.0f, 360.0f);
+			Cameras.emplace_back(c);
+		}
+		else if (node->attrib && !node->mesh && !node->bone && !node->bind_pose)
+		{
+			auto e = UfbxMisc::Empty();
+			e.Position = ufbxToGlmVec(node->local_transform.translation);
+			e.Direction = glm::vec3(node->euler_rotation.x, node->euler_rotation.y, node->euler_rotation.z);
+			e.Name = node->name.data;
+			addProps(e.Properties, node->props);
+			Empties.emplace_back(e);
 		}
 	}
 
@@ -434,98 +500,6 @@ void Model::CopyBoneTransforms(std::shared_ptr<Model> target)
 	}
 
 	target->CalculateBoneTransforms();
-}
-
-static void addProps(std::map<std::string, jsonValue>& map, const ufbx_props& props)
-{
-	for (const auto& prop : props.props)
-	{
-		switch (prop.type)
-		{
-		case UFBX_PROP_STRING:
-			map[prop.name.data] = jsonValue(prop.value_str.data);
-			break;
-		case UFBX_PROP_INTEGER:
-			map[prop.name.data] = jsonValue((int)prop.value_int);
-			break;
-		case UFBX_PROP_VECTOR:
-			map[prop.name.data] = jsonValue({ (float)prop.value_vec3.x, (float)prop.value_vec3.y, (float)prop.value_vec3.z });
-			break;
-		}
-	}
-}
-
-static glm::vec3 jsonToGlmVec3(const jsonValue& val)
-{
-	auto& arr = val.as_array();
-	return glm::vec3(arr[0].as_number(), arr[1].as_number(), arr[2].as_number());
-}
-
-UfbxMisc::UfbxMisc(const std::string& modelPath)
-{
-	size_t vfsSize = 0;
-	auto vfsData = VFS::ReadData(modelPath, &vfsSize);
-
-	ufbx_load_opts options = {};
-	options.target_axes = ufbx_axes_right_handed_y_up;
-	//options.target_unit_meters = 1.0f;
-	options.target_camera_axes = ufbx_axes_left_handed_y_up;
-	options.target_light_axes = ufbx_axes_right_handed_y_up;
-	options.space_conversion = UFBX_SPACE_CONVERSION_ADJUST_TRANSFORMS;
-	ufbx_error errors;
-	ufbx_scene *scene = ufbx_load_memory(vfsData.get(), vfsSize, &options, &errors);
-	if (!scene)
-		FatalError(fmt::format("Could not load scene {}: {}", modelPath, errors.description.data));
-
-	debprint(5, "Loading cameras and lights in {}\n-------------------------------", modelPath);
-
-	for (size_t i = 0; i < scene->nodes.count; i++)
-	{
-		ufbx_node *node = scene->nodes.data[i];
-		if (node->light)
-		{
-			auto l = Light();
-			l.Position = ufbxToGlmVec(node->local_transform.translation);
-			auto c = ufbxToGlmVec(node->light->color);
-			l.Color = glm::vec4(c, (float)node->light->intensity * 0.025f); //not sure about the last part
-			l.Name = node->name.data;
-
-			addProps(l.Properties, node->props);
-			addProps(l.Properties, node->light->props);
-			Lights.emplace_back(l);
-		}
-		else if (node->camera)
-		{
-			auto c = Camera();
-			c.Position = ufbxToGlmVec(node->local_transform.translation);
-			c.Name = node->name.data;
-
-			addProps(c.Properties, node->props);
-			addProps(c.Properties, node->camera->props);
-
-			glm::vec3 interest = jsonToGlmVec3(c.Properties["InterestPosition"]);
-			glm::vec3 upVec = jsonToGlmVec3(c.Properties["UpVector"]);
-
-			auto dir = glm::normalize(c.Position - interest);
-			auto quat = glm::quatLookAt(dir, upVec);
-			auto mat = glm::mat4_cast(quat);
-			glm::extractEulerAngleXYZ<float>(mat, c.Direction.x, c.Direction.z, c.Direction.y);
-			c.Direction = glm::degrees(c.Direction);
-			c.Direction.z = glm::mod(c.Direction.z + 90.0f, 360.0f);
-			Cameras.emplace_back(c);
-		}
-		else if (node->attrib && !node->mesh && !node->bone && !node->bind_pose)
-		{
-			auto e = Empty();
-			e.Position = ufbxToGlmVec(node->local_transform.translation);
-			e.Direction = glm::vec3(node->euler_rotation.x, node->euler_rotation.y, node->euler_rotation.z);
-			e.Name = node->name.data;
-			addProps(e.Properties, node->props);
-			Empties.emplace_back(e);
-		}
-	}
-
-	ufbx_free_scene(scene);
 }
 
 //New cache system devised by Vaartis of the Ratular Bells.
