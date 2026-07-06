@@ -6,6 +6,7 @@
 #include "engine/SpriteRenderer.h"
 #include "engine/ShapeUtils.h"
 #include "engine/NineSlicer.h"
+#include "engine/Audio.h"
 #include "PanelLayout.h"
 #include "Game.h"
 #include "Utilities.h"
@@ -63,10 +64,14 @@ PanelLayout::PanelLayout(jsonValue& source)
 		auto const& type = pnl["type"].as_string();
 		if (type == "image") panel->Type = Panel::Type::Image;
 		else if (type == "text") panel->Type = Panel::Type::Text;
+		else if (type == "rect") panel->Type == Panel::Type::Image;
 
 		if (panel->Type == Panel::Type::Image)
 		{
-			panel->Texture = pnl["texture"].is_string() ? textures[pnl["texture"].as_string()].get() : textures.begin()->second.get();
+			if (type == "rect")
+				panel->Texture = whiteRect;
+			else
+				panel->Texture = pnl["texture"].is_string() ? textures[pnl["texture"].as_string()].get() : textures.begin()->second.get();
 			panel->Frame = GetJSONVal(pnl["frame"], 0);
 			panel->Polygon = pnl["polygon"].is_string() ? &polygons[pnl["polygon"].as_string()] : nullptr;
 			panel->Enabled = pnl["enabled"].is_boolean() ? pnl["enabled"].as_boolean() : panel->Polygon != nullptr;
@@ -96,7 +101,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 		}
 
 		{
-			auto pos = pnl["position"].as_array();
+			auto pos =	pnl["position"].as_array();
 			auto w = 0;
 			auto h = 0;
 			if (panel->Type == Panel::Type::Image)
@@ -118,7 +123,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 					}
 				}
 			}
-			panel->Position = GetJSONVec2(pnl["position"]);
+			panel->Position = glm::vec2(pos[0].as_number(), pos[1].as_number());
 		}
 
 		panel->Angle = GetJSONVal(pnl["angle"], 0.0f);
@@ -182,6 +187,16 @@ PanelLayout::PanelLayout(jsonValue& source)
 
 				newAnim.Bits.push_back(newBit);
 			}
+
+			if (animObj["sounds"].is_array())
+			{
+				for (const auto& _cue : animObj["sounds"].as_array())
+				{
+					auto cueObj = _cue.as_object();
+					newAnim.SoundCues[cueObj["time"].as_number()] = std::make_shared<Audio>(cueObj["file"].as_string());
+				}
+			}
+
 			animations[animName] = newAnim;
 
 			//temp
@@ -253,6 +268,16 @@ bool PanelLayout::Tick(float dt)
 				else if (animationTime >= bit.ToTime)
 					apply(bit, bit.ToVal);
 			}
+
+			for (auto& cue : anim.SoundCues)
+			{
+				if (animationTime >= cue.first && animationTime > lastSoundCue)
+				{
+					cue.second->Play();
+					lastSoundCue = animationTime;
+					break;
+				}
+			}
 		}
 		else
 		{
@@ -320,6 +345,8 @@ void PanelLayout::Draw(float dt)
 	(void)(dt);
 	if (!debugRenderPanelLayouts)
 		return;
+
+	auto scale = ::width / 1920.0f;
 
 	for (const auto& panel : panels)
 	{

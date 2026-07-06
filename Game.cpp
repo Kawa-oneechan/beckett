@@ -587,7 +587,8 @@ public:
 		AddChild(particles);
 
 
-		auto logoAnim = std::make_shared<PanelLayout>(VFS::ReadJSON("cinematics/logo/logo.json").as_object()["cinematic"]);
+		//auto logoAnim = std::make_shared<PanelLayout>(VFS::ReadJSON("cinematics/logo/logo.json").as_object()["cinematic"]);
+		auto logoAnim = std::make_shared<PanelLayout>(VFS::ReadJSON("cinematics/godot/godot.json"));
 		logoAnim->Play("open");
 		AddChild(logoAnim);
 	}

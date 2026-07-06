@@ -1,0 +1,86 @@
+{
+	"textures": {
+		"godot": "cinematics/godot/godot.png",
+		"beckett": "cinematics/godot/beckett.png",
+		"badexplosion": "cinematics/godot/badexplosion.png"
+	},
+
+	"panels": [
+		{
+			"id": "godot",
+			"type": "image",
+			"texture": "godot",
+			"alpha": 1.0,
+			"position": [ 0, 0 ]
+		},
+		{
+			"id": "beckett",
+			"type": "image",
+			"texture": "beckett",
+			"alpha": 0.0,
+			"position": [ 0, 0 ]
+		},
+		{
+			"id": "badexplosion",
+			"type": "image",
+			"texture": "badexplosion",
+			"frame": 0,
+			"alpha": 1.0,
+			"size": 1008.0,
+			"position": [ 620, 32 ]
+		},
+		{
+			"id": "cover",
+			"type": "rect",
+			"color": [ 0, 0, 0, 1 ],
+			"position": [ 0, 0 ],
+			"panelSize": [ 1920, 1080 ]
+		},
+	],
+	"anims": [
+		{
+			"name": "open",
+			"next": "",
+			"bits": [
+				{
+					"panel": "cover",
+					"property": "alpha",
+					"fromTime": 0.0, "fromVal": 1.0,
+					"toTime": 0.5, "toVal": 0.0
+				},
+
+				{
+					"panel": "badexplosion",
+					"property": "frame",
+					"fromTime": 1.12, "fromVal": 1.0,
+					"toTime": 3.04, "toVal": 17.0
+				},
+				{
+					"panel": "beckett",
+					"property": "alpha",
+					"fromTime": 1.70, "fromVal": 0.0,
+					"toTime": 1.72, "toVal": 1.0
+				},
+				{
+					"panel": "godot",
+					"property": "alpha",
+					"fromTime": 1.80, "fromVal": 1.0,
+					"toTime": 1.82, "toVal": 0.0
+				},
+
+				{
+					"panel": "cover",
+					"property": "alpha",
+					"fromTime": 4.53, "fromVal": 0.0,
+					"toTime": 5.13, "toVal": 1.0
+				},
+			],
+			"sounds": [
+				{
+					"file": "cinematics/godot/badexplosion.ogg",
+					"time": 1.12
+				}
+			]
+		}
+	]
+}

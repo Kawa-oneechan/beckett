@@ -53,6 +53,7 @@ class PanelLayout : public Tickable
 	struct Animation
 	{
 		std::vector<AnimationBit> Bits;
+		std::map<float, std::shared_ptr<Audio>> SoundCues;
 		std::string Next;
 	};
 
@@ -63,6 +64,7 @@ private:
 
 	bool hasAnimations{ false };
 	float animationTime{ 0.0f };
+	float lastSoundCue{ 0.0f };
 	std::string currentAnimation;
 	std::map<std::string, Animation> animations;
 
