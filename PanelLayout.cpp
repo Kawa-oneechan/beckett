@@ -64,7 +64,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 		auto const& type = pnl["type"].as_string();
 		if (type == "image") panel->Type = Panel::Type::Image;
 		else if (type == "text") panel->Type = Panel::Type::Text;
-		else if (type == "rect") panel->Type == Panel::Type::Image;
+		else if (type == "rect") panel->Type = Panel::Type::Image;
 
 		if (panel->Type == Panel::Type::Image)
 		{
@@ -101,29 +101,8 @@ PanelLayout::PanelLayout(jsonValue& source)
 		}
 
 		{
-			auto pos =	pnl["position"].as_array();
-			auto w = 0;
-			auto h = 0;
-			if (panel->Type == Panel::Type::Image)
-			{
-				w = panel->Texture->width;
-				h = panel->Texture->height;
-			}
-			for (int i = 0; i < 2; i++)
-			{
-				if (pos[i].is_string())
-				{
-					const auto& str = pos[i].as_string();
-					if (str == "middle")
-					{
-						if (i == 0)
-							pos[i] = (1920 * 0.5f) - (w * 0.5f);
-						else
-							pos[i] = (1080 * 0.5f) - (h * 0.5f);
-					}
-				}
-			}
-			panel->Position = glm::vec2(pos[0].as_number(), pos[1].as_number());
+			panel->Percents = GetJSONBool(pnl["percents"], false);
+			panel->Position = pnl["position"].is_array() ? GetJSONVec2(pnl["position"]) : glm::vec2(0);
 		}
 
 		panel->Angle = GetJSONVal(pnl["angle"], 0.0f);
@@ -375,12 +354,19 @@ void PanelLayout::Draw(float dt)
 			auto frame = texture->operator[](panel->Frame);
 			auto shader = panel->Shader ? panel->Shader : (texture->channels > 1 ? Shaders["sprite"] : Shaders["red8"]);
 			auto finalPos = Position + parentPos + panel->Position;
+			if (panel->Percents)
+			{
+				auto ps = glm::round(glm::vec2(frame.z, frame.w) * (panel->Size / 100.0f));
+				finalPos = glm::vec2(1920, 1080) * panel->Position;
+				finalPos -= ps * 0.5f;
+				finalPos += Position;
+			}
 
 			if (panel->Sliced)
 			{
 				NineSlicer::Draw(
 					*texture,
-					finalPos  * scale,
+					finalPos * scale,
 					panel->PanelSize * scale,
 					glm::round(scale),
 					color
