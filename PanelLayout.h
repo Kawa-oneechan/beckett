@@ -38,6 +38,7 @@ class PanelLayout : public Tickable
 		bool Sliced;
 		bool Percents;
 		glm::vec2 PanelSize;
+		glm::vec2 Origin;
 
 		void SetFrame(const std::string& name);
 	};

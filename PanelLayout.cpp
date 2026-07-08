@@ -90,6 +90,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 			panel->Font = GetJSONVal(pnl["font"], 1);
 			panel->Size = GetJSONVal(pnl["size"], 100.0f);
 
+			//TODO: replace this with Origin?
 			panel->Alignment = 0;
 			if (pnl["alignment"].is_string())
 			{
@@ -103,6 +104,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 		{
 			panel->Percents = GetJSONBool(pnl["percents"], false);
 			panel->Position = pnl["position"].is_array() ? GetJSONVec2(pnl["position"]) : glm::vec2(0);
+			panel->Origin = pnl["origin"].is_array() ? GetJSONVec2(pnl["origin"]) : (panel->Percents ? glm::vec2(0.5) : glm::vec2(0.0));
 		}
 
 		panel->Angle = GetJSONVal(pnl["angle"], 0.0f);
@@ -248,14 +250,14 @@ bool PanelLayout::Tick(float dt)
 					apply(bit, bit.ToVal);
 			}
 
-			for (auto& cue : anim.SoundCues)
+			auto cue = std::find_if(anim.SoundCues.cbegin(), anim.SoundCues.cend(), [&](const auto& c)
 			{
-				if (animationTime >= cue.first && animationTime > lastSoundCue)
-				{
-					cue.second->Play();
-					lastSoundCue = animationTime;
-					break;
-				}
+				return (animationTime >= c.first && animationTime > lastSoundCue);
+			});
+			if (cue != anim.SoundCues.cend())
+			{
+				cue->second->Play();
+				lastSoundCue = animationTime;
 			}
 		}
 		else
@@ -280,7 +282,7 @@ bool PanelLayout::Tick(float dt)
 		//	continue;
 
 		auto parentPos = glm::vec2(0);
-		auto parent = panel->Parent;
+		auto parent = panel->Parent; // cppcheck-suppress constVariablePointer
 		while (parent != nullptr)
 		{
 			parentPos += parent->Position;
@@ -325,7 +327,8 @@ void PanelLayout::Draw(float dt)
 	if (!debugRenderPanelLayouts)
 		return;
 
-	auto scale = ::width / 1920.0f;
+	auto scale1d = ::width / 1920.0f;
+	auto scale2d = glm::vec2(::width / 1920.0f, ::height / 1080.0f);
 
 	for (const auto& panel : panels)
 	{
@@ -358,7 +361,7 @@ void PanelLayout::Draw(float dt)
 			{
 				auto ps = glm::round(glm::vec2(frame.z, frame.w) * (panel->Size / 100.0f));
 				finalPos = glm::vec2(1920, 1080) * panel->Position;
-				finalPos -= ps * 0.5f;
+				finalPos -= ps * panel->Origin;
 				finalPos += Position;
 			}
 
@@ -366,9 +369,9 @@ void PanelLayout::Draw(float dt)
 			{
 				NineSlicer::Draw(
 					*texture,
-					finalPos * scale,
-					panel->PanelSize * scale,
-					glm::round(scale),
+					finalPos * scale2d,
+					panel->PanelSize * scale2d,
+					glm::round(scale1d),
 					color
 				);
 			}
@@ -379,8 +382,8 @@ void PanelLayout::Draw(float dt)
 					ps = panel->PanelSize;
 				Sprite::DrawSprite(
 					shader, *texture,
-					finalPos * scale,
-					ps * (panel->Size / 100.0f) * scale,
+					finalPos * scale2d,
+					ps * (panel->Size / 100.0f) * scale2d,
 					frame,
 					panel->Angle,
 					color
@@ -393,7 +396,7 @@ void PanelLayout::Draw(float dt)
 				const auto plen = poly.size();
 				const auto size = glm::vec2(frame.z, frame.w);
 				for (auto i = 0; i < plen; i++)
-					Sprite::DrawLine(((poly[i] * size) + finalPos) * scale, ((poly[(i + 1) % plen] * size) + finalPos) * scale, glm::vec4(1));
+					Sprite::DrawLine(((poly[i] * size) + finalPos) * scale2d, ((poly[(i + 1) % plen] * size) + finalPos) * scale2d, glm::vec4(1));
 			}
 		}
 		else if (panel->Type == Panel::Type::Text)
@@ -404,7 +407,7 @@ void PanelLayout::Draw(float dt)
 			auto pos = Position + parentPos + panel->Position;
 			if (panel->Alignment > 0)
 			{
-				auto w = Sprite::MeasureText(panel->Font, panel->Text, panel->Size * scale).x;
+				auto w = Sprite::MeasureText(panel->Font, panel->Text, panel->Size * scale1d).x;
 				if (panel->Alignment == 1)
 					pos.x -= w;
 				else
@@ -414,9 +417,9 @@ void PanelLayout::Draw(float dt)
 			Sprite::DrawText(
 				panel->Font,
 				panel->Text,
-				pos * scale,
+				pos * scale2d,
 				color,
-				panel->Size * scale,
+				panel->Size * scale1d,
 				panel->Angle
 			);
 		}

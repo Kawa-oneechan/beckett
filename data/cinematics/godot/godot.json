@@ -7,18 +7,29 @@
 
 	"panels": [
 		{
+			"id": "background",
+			"type": "rect",
+			"color": [ 0.14, 0.14, 0.14, 1 ],
+			"position": [ 0, 0 ],
+			"panelSize": [ 1920, 1080 ]
+		},
+		{
 			"id": "godot",
 			"type": "image",
 			"texture": "godot",
 			"alpha": 1.0,
-			"position": [ 0, 0 ]
+			//"position": [ 0, 0 ]
+			"percents": true,
+			"position": [ 0.5, 0.5 ]
 		},
 		{
 			"id": "beckett",
 			"type": "image",
 			"texture": "beckett",
 			"alpha": 0.0,
-			"position": [ 0, 0 ]
+			//"position": [ 0, 0 ]
+			"percents": true,
+			"position": [ 0.5, 0.5 ]
 		},
 		{
 			"id": "badexplosion",
@@ -29,7 +40,7 @@
 			"size": 1008.0,
 			//"position": [ 620, 32 ]
 			"percents": true,
-			"position": [ 0.5, 0.5 ]
+			"position": [ 0.50, 0.52 ]
 		},
 		{
 			"id": "cover",
