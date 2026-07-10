@@ -117,5 +117,6 @@ namespace VFS
 {
 	TextureP GetTexture(const std::string& filename, int repeat = GL_REPEAT, int filter = 0, bool skipAtlas = false, ColorMap* colorMaps = nullptr, int colorMapIndex = 0);
 	TexArrayP GetTextureArray(const std::string& filename, int repeat = GL_REPEAT, int filter = 0);
+	TexArrayP GetTextureArray(const std::vector<std::string>& entries, int repeat = GL_REPEAT, int filter = 0);
 }
 
