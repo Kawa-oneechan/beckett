@@ -2,14 +2,13 @@
 
 #include <functional>
 #include <vector>
+#include <map>
 #include <glm/glm.hpp>
-#include "engine/Tickable.h"
-#include "engine/Shader.h"
-#include "engine/Texture.h"
-#include "engine/JsonUtils.h"
-#include "engine/Types.h"
+#include "Tickable.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/easing.hpp>
+
+class Audio;
 
 class PanelLayout : public Tickable
 {

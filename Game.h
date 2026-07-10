@@ -51,6 +51,10 @@
 //If defined, uses vertex pulling to handle sprite quads instead of a full VBO.
 #define BECKETT_PULLEDPORK
 
+//If defined, allows "#" in JSON string values to denote a named constant.
+//Values are listed in /constants.json and can be bools, numbers, or strings.
+#define BECKETT_JSONCONSTANTS
+
 constexpr int MaxLights = 4;
 
 struct Light

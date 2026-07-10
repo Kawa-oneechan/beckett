@@ -148,14 +148,14 @@
     <ClCompile Include="engine\CrcUtils.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="PanelLayout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utilties.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="support\base64.c">
       <Filter>Engine\Third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\PanelLayout.cpp">
+      <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +250,9 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\ColorUtils.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\PanelLayout.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,8 +14,8 @@
 #include "engine//Random.h"
 #include "engine/Framebuffer.h"
 #include "engine/Particles.h"
+#include "engine/PanelLayout.h"
 #include "Camera.h"
-#include "PanelLayout.h"
 
 //Wouldn't need this here if the camera were a proper
 //class in its own file like in PSK.

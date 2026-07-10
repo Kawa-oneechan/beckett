@@ -1,15 +1,16 @@
 #include <algorithm>
-#include "engine/InputsMap.h"
-#include "engine/TextUtils.h"
-#include "engine/Utilities.h"
-#include "engine/Console.h"
-#include "engine/SpriteRenderer.h"
-#include "engine/ShapeUtils.h"
-#include "engine/NineSlicer.h"
-#include "engine/Audio.h"
 #include "PanelLayout.h"
-#include "Game.h"
+#include "InputsMap.h"
+#include "TextUtils.h"
+#include "JsonUtils.h"
 #include "Utilities.h"
+#include "Console.h"
+#include "SpriteRenderer.h"
+#include "ShapeUtils.h"
+#include "NineSlicer.h"
+#include "Audio.h"
+#include "Shader.h"
+#include "../Game.h"
 
 bool debugPanelLayoutPolygons = false;
 bool debugRenderPanelLayouts = true;
