@@ -12,18 +12,6 @@
 
 extern sol::state Sol;
 
-static const char* bindingNames[] = {
-	"up", "down", "left", "right",
-	"accept", "back", "pageup", "pagedown",
-	"walkn", "walkw", "walks", "walke",
-	"interact", "pickup",
-	"cameracw", "cameraccw", "cameraup", "cameradown",
-	"inventory", "map", "react",
-	"hotbar1", "hotbar2", "hotbar3", "hotbar4", "hotbar5",
-	"hotbar6", "hotbar7", "hotbar8", "hotbar9", "hotbar10",
-	"console"
-};
-
 std::tuple<rune, size_t> GetChar(const std::string& what, size_t where)
 {
 	if (where >= what.size())
