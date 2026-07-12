@@ -588,9 +588,9 @@ public:
 
 
 		//auto logoAnim = std::make_shared<PanelLayout>(VFS::ReadJSON("cinematics/logo/logo.json").as_object()["cinematic"]);
-		auto logoAnim = std::make_shared<PanelLayout>(VFS::ReadJSON("cinematics/godot/godot.json"));
-		logoAnim->Play("open");
-		AddChild(logoAnim);
+		//auto logoAnim = std::make_shared<PanelLayout>(VFS::ReadJSON("cinematics/godot/godot.json"));
+		//logoAnim->Play("open");
+		//AddChild(logoAnim);
 	}
 
 	bool Tick(float dt) override
@@ -690,6 +690,21 @@ void Game::SaveSettings(jsonObject& settings)
 	settings["example"] = testString;
 }
 
+#ifdef TESTLOADER
+#include <future>
+void loaderTest(float* progress)
+{
+	std::promise<bool> p;
+	auto future = p.get_future();
+	*progress = 0.0f;
+	for (int i = 0; i < 100; i++)
+	{
+		future.wait_for(std::chrono::milliseconds(50));
+		*progress += 0.01f;
+	}
+}
+#endif
+
 void Game::Initialize()
 {
 	//Add extra loading steps here
@@ -707,6 +722,10 @@ void Game::Initialize()
 	MainCamera->Target(glm::vec3(0, 5, 0));
 
 	commonUniforms.Fresnel = true;
+
+#ifdef TESTLOADER
+	ThreadedLoader(loaderTest, "cinematics/loader/loader.json");
+#endif
 }
 
 #ifdef BECKETT_EXTRASAVEDIRS
