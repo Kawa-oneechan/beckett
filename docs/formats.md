@@ -21,6 +21,28 @@ Note that only the timestamp in the first column is used.
 ### JSON
 Used for basically everything else.
 
+#### Constant values
+
+If `BECKETT_JSONCONSTANTS` is defined, a `constants.json` file can be used like this:
+```json
+// constants.json
+{
+	"gravity": 9.8,
+	"wallyName": "Waldo",
+	"cheats": true
+}
+
+// example.json
+{
+	"acceleration": "#gravity",
+	"pi": 3.1415,
+	"name": "#wallyName"
+}
+```
+If the example file is parsed with the `GetJSONVal` and `GetJSONBool` functions, this will result in `acceleration` being 9.8 and `name` being "Waldo".
+
+In the Beckett Engine proper, only the `PanelLayout` class supports constants so far, using it for anything not an array or object.
+
 #### Atlas
 Atlas files are placed in the same folder as a PNG, with matching names (`foo/bar.png` pairs with `foo/bar.json`). If there is no atlas file, one is generated on the fly emcompassing the entire image as a single frame.
 
@@ -61,7 +83,7 @@ The contents of a material map are like this:
 		"billboard": boolean, //marks mesh with this material as not to be rotated
 	},
 	"<another material>": {
-		...
+		// ...
 	}
 }
 ```
@@ -77,9 +99,9 @@ The `shaders/shaders.json` file is used on load to precompile and store several 
 {
 	"vertex shader file": {
 		"name": "fragment shader file",
-		...
+		// ...
 	},
-	...
+	// ...
 }
 ```
 
@@ -91,7 +113,7 @@ The engine *requires* a few entries be defined, being `model`, `sprite`, and `fo
 {
 	"sprite.vs": {
 		"sprite": "sprite.fs", //Used by Sprite::DrawSprite by default
-		"font": "font.fs" //Used by Sprite::DrawString
+		"red8": "red8.fs" //Used by Sprite::DrawString
 	},
 	"model.vs": {
 		"model": "model.fs", //Used by Meshes by default
@@ -117,7 +139,7 @@ The contents of a text file are like this:
 {
 	//Shorter "implied US English" style
 	"ID": "Some text",
-	"ID": ...
+	"ID": //...
 	
 	//Longhand style
 	"ID": {
