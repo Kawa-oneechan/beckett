@@ -2,7 +2,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <sol.hpp>
 #include "VFS.h"
 #include "Platform.h"
 #include "TextUtils.h"
