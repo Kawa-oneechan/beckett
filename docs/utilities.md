@@ -46,6 +46,9 @@ Returns a JSON array initialized from a `vec3`, optionally casting to `int`.
 #### `GetJSONVec(const glm::vec4& vec, bool asInt = false)`
 Returns a JSON array initialized from a `vec4`, optionally casting to `int`.
 
+#### `GetJSONVal(const jsonValue& jsonVal, T default)`
+For `T` being `int`, `float`, `std::string`, `glm::vec2`, `glm::vec3`, or `glm::vec4`, this returns *either* the given value, or if that value is null (indicating it doesn't exist), the default. Use `GetJSONBool` if you need true or false values on account of integer/boolean confusion on the compiler's part.
+
 ## ColorUtils
 
 ### Functions

@@ -29,7 +29,8 @@ If `BECKETT_JSONCONSTANTS` is defined, a `constants.json` file can be used like 
 {
 	"gravity": 9.8,
 	"wallyName": "Waldo",
-	"cheats": true
+	"cheats": true,
+	"size": [ 128, 64 ]
 }
 
 // example.json
@@ -41,7 +42,7 @@ If `BECKETT_JSONCONSTANTS` is defined, a `constants.json` file can be used like 
 ```
 If the example file is parsed with the `GetJSONVal` and `GetJSONBool` functions, this will result in `acceleration` being 9.8 and `name` being "Waldo".
 
-In the Beckett Engine proper, only the `PanelLayout` class supports constants so far, using it for anything not an array or object.
+In the Beckett Engine proper, only the `PanelLayout` class supports constants so far, using it for anything not an object.
 
 #### Atlas
 Atlas files are placed in the same folder as a PNG, with matching names (`foo/bar.png` pairs with `foo/bar.json`). If there is no atlas file, one is generated on the fly emcompassing the entire image as a single frame.
