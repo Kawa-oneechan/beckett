@@ -1,7 +1,5 @@
-#include <sol.hpp>
-
 namespace Scripting
 {
-	extern bool Conditional(const std::string& snippet);
-	extern std::string BJTS(const std::string& func, const std::vector<std::string> bjts);
+	extern bool Conditional(const std::string& expression);
+	extern std::string BJTS(const std::string& code, const std::vector<std::string> args);
 }

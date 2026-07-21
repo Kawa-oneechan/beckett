@@ -154,4 +154,16 @@ Both of these styles also apply to user-visible text in other JSON files.
 
 If a file's name ends with a dash and a language code (`foo-usen.json` for example), the shorter style *must* be used, but instead of implied US English, it implies the language in the filename. If the current game language does not match, that file is skipped entirely. All this has the side effect of allowing different translations to offer different amounts of options.
 
+If [scripting](scripting.md) is enabled, *conditional text* becomes available, where instead of a list of language-keyed strings, you provide `condition`, `true`, and `false`:
+```json
+	"conditionalExample": {
+		"condition": "<an expression>",
+		"true": "conditionalTrue",
+		"false": "conditionalFalse"
+	},
+	"conditionalTrue": {
+		"en": "Regular service resumes here."
+	}
+```
+If an entry is called for that has a `condition`, its value is passed to the scripting layer for evaluation. The entry with the corresponding ID is then returned instead, which may involve another conditional.
 
