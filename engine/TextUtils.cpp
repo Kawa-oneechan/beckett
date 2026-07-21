@@ -182,6 +182,10 @@ void ReplaceAll(std::string& data, const std::string& find, const std::string& r
 }
 
 #ifndef BECKETT_NOBJTS
+#ifdef BECKETT_SCRIPTEDTEXT
+std::map<std::string, std::string> bjtsPhase1X;
+#endif
+
 std::string StripBJTS(const std::string& data)
 {
 	std::string ret = data;
@@ -196,6 +200,7 @@ std::string StripBJTS(const std::string& data)
 
 std::string PreprocessBJTS(const std::string& data)
 {
+#ifdef BECKETT_SCRIPTEDTEXT
 	if (bjtsPhase1X.empty())
 	{
 		auto extensions = VFS::ReadJSON("bjts/content.json");
@@ -226,6 +231,7 @@ std::string PreprocessBJTS(const std::string& data)
 			}
 		}
 	}
+#endif
 
 	auto ret = std::string(data);
 	for (size_t i = 0; i < ret.length(); i++)

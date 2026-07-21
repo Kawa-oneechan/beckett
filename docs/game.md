@@ -14,12 +14,14 @@ While `engine/Game.h` specifies an interface for the engine, `Game.h` one level 
 | `BECKETT_RESIZABLE` | Allows the window to be resized. |
 | `BECKETT_MOREVOLUME` | Adds more volume controls (Ambient and Voice) to what's available by default (Music and Sound). Will likely be removed when busses are implemented. |
 | `BECKETT_3DAUDIO` | Unlocks the use of 3D positional audio, if you need it. |
+| `BECKETT_NOBJTS` | Disables BJTS tag parsing in displayed text. |
 | `BECKETT_NO3DMODELS` | Removees the ability to load and render models, leaving only 2D sprites. |
 | `BECKETT_ONLYMURCAN` | Simplifies the text interface to only support one language, presumably US English. |
 | `BECKETT_MSAA` | Enables multi-sampled anti-aliasing. Useless if you plan to have HDR and/or post-processing effects. |
 | `BECKETT_ANALOGLEFT`<br>`BECKETT_ANALOGRIGHT` | Set to a "north" `Binds` value from `InputsMap.h`, if you want to use analog stick controls. |
 | `BECKETT_PULLEDPORK` | Enables vertex pulling for 2D sprites. |
 | `BECKETT_JSONCONSTANTS` | Enables named constants in certain JSON contexts (anything parsed by `GetJSONVal` basically). This requires a `constants.json` to list them. |
+| `BECKETT_SCRIPTEDTEXT` | Enables the use of conditionals in the text database and user-defined BJTS tags in displayed text. |
 
 ### `CommonUniforms`
 The `CommonUniforms` struct *must* match `shaders/common.fs`. It must at least have the following fields:
@@ -43,6 +45,5 @@ extern CommonUniforms commonUniforms;
 
 //BJTS functions that actually change the string content.
 extern const std::map<std::string, BJTSFunc> bjtsPhase1;
-//BJTS functions loaded from Lua scripts.
-extern std::map<std::string, std::string> bjtsPhase1X;
 ```
+

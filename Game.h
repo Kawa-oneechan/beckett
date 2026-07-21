@@ -52,7 +52,8 @@
 #define BECKETT_PULLEDPORK
 
 //If defined, allows "#" in JSON string values to denote a named constant.
-//Values are listed in /constants.json and can be bools, numbers, or strings.
+//Values are listed in /constants.json and can be bools, numbers, strings, or
+//vectors.
 #define BECKETT_JSONCONSTANTS
 
 //If defined, allows conditionals in text and user-defined BJTS tags through
@@ -88,5 +89,3 @@ extern CommonUniforms commonUniforms;
 
 //BJTS functions that actually change the string content.
 extern const std::map<std::string, BJTSFunc> bjtsPhase1;
-//BJTS functions loaded from Lua scripts.
-extern std::map<std::string, std::string> bjtsPhase1X;

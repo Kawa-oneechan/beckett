@@ -3,6 +3,8 @@
 #include "engine/Text.h"
 #include "Game.h"
 
+#ifndef BECKETT_NOBJTS
+
 static const char* bindingNames[] = {
 	"up", "down", "left", "right",
 	"accept", "back", "pageup", "pagedown",
@@ -111,4 +113,4 @@ const std::map<std::string, BJTSFunc> bjtsPhase1 = {
 	{ "pad", &bjtsGamepad },
 };
 
-std::map<std::string, std::string> bjtsPhase1X;
+#endif

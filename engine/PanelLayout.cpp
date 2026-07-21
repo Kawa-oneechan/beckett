@@ -105,7 +105,7 @@ PanelLayout::PanelLayout(jsonValue& source)
 		{
 			panel->Percents = GetJSONBool(pnl["percents"], false);
 			panel->Position = GetJSONVal(pnl["position"], glm::vec2(0));
-			panel->Origin = GetJSONVal(pnl["origin"], glm::vec2(panel->Percents ? 0.5 : 0.0));
+			panel->Origin = GetJSONVal(pnl["origin"], glm::vec2(panel->Percents ? 0.5f : 0.0f));
 		}
 
 		panel->Angle = GetJSONVal(pnl["angle"], 0.0f);
