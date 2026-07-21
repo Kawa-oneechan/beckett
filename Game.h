@@ -55,6 +55,10 @@
 //Values are listed in /constants.json and can be bools, numbers, or strings.
 #define BECKETT_JSONCONSTANTS
 
+//If defined, allows conditionals in text and user-defined BJTS tags through
+//a game-provided scripting backend as defined in engine/Scripting.h.
+#define BECKETT_SCRIPTEDTEXT
+
 constexpr int MaxLights = 4;
 
 struct Light

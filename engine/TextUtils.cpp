@@ -9,8 +9,9 @@
 #include "InputsMap.h"
 #include "Console.h"
 #include "../Game.h"
-
-extern sol::state Sol;
+#ifdef BECKETT_SCRIPTEDTEXT
+#include "Scripting.h"
+#endif
 
 std::tuple<rune, size_t> GetChar(const std::string& what, size_t where)
 {
@@ -247,17 +248,18 @@ std::string PreprocessBJTS(const std::string& data)
 				//std::invoke(func->second, bjts, (int)bjtsStart - 1, (int)(bjtsEnd - bjtsStart) + 2);
 				i = (size_t)-1; //-1 because we may have subbed in a new tag.
 			}
+#ifdef BECKETT_SCRIPTEDTEXT
 			else
 			{
 				//Is it an extension?
 				auto func2 = bjtsPhase1X.find(bjts[0]);
 				if (func2 != bjtsPhase1X.end())
 				{
-					Sol.set("bjts", bjts);
-					ret.replace(start, len, Sol.script(func2->second).get<std::string>());
+					ret.replace(start, len, Scripting::BJTS(func2->second, bjts));
 					i = bjtsStart;
 				}
 			}
+#endif
 		}
 		else
 			break;

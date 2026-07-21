@@ -142,6 +142,7 @@
     <ClInclude Include="engine\Particles.h" />
     <ClInclude Include="engine\Platform.h" />
     <ClInclude Include="engine\Random.h" />
+    <ClInclude Include="engine\Scripting.h" />
     <ClInclude Include="engine\Shader.h" />
     <ClInclude Include="engine\ShapeUtils.h" />
     <ClInclude Include="engine\SpriteRenderer.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="engine\Utilities.cpp" />
     <ClCompile Include="engine\VFS.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Scripting.cpp" />
     <ClCompile Include="support\base64.c" />
     <ClCompile Include="support\format.cc" />
     <ClCompile Include="support\glad\glad.c" />

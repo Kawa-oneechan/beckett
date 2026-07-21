@@ -28,6 +28,10 @@ constexpr int ScreenHeight = BECKETT_SCREENHEIGHT;
 std::shared_ptr<Camera> MainCamera;
 extern Tickable root;
 
+namespace Scripting {
+	extern void Setup();
+}
+
 static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color, int flags)
 {
 	Sprite::DrawSprite(*whiteRect, pos, size - glm::vec2(1), glm::vec4(0), 0.0f, color);
@@ -667,6 +671,8 @@ void Game::RegisterConsole(Console* console)
 	RV("panels", CVar::Type::Bool, &debugPanelLayoutPolygons);
 
 #undef RV
+
+	Scripting::Setup();
 }
 
 void Game::LoadSettings(jsonObject& settings)

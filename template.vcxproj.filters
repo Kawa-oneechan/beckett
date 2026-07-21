@@ -157,6 +157,9 @@
     <ClCompile Include="engine\PanelLayout.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Scripting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h">
@@ -253,6 +256,9 @@
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\PanelLayout.h">
+      <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Scripting.h">
       <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
