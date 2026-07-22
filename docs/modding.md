@@ -47,8 +47,8 @@ this would produce the following result when trying to load `/foo/bar.json`
 ```json
 //This would be something like "/foo/bar.json" in the base game data.
 {
-	  "something": "blah",
-	  "trickery": false
+	  "something": "blah", //replaced
+	  "trickery": false //added
 }
 ```
 
