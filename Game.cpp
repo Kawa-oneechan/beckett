@@ -466,7 +466,7 @@ public:
 	}
 };
 
-class Subtitle : public TextLabel, AudioEventListener
+class Subtitle : public TextLabel, public AudioEventListener
 {
 public:
 	void AudioEvent(float time, const std::string& text) override
@@ -567,7 +567,7 @@ public:
 
 		bgm = new Audio("audio/music/retrobeat.ogg");
 		bgm->SetLoop(true);
-		bgm->RegisterListener((AudioEventListener*)panelText.get());
+		bgm->RegisterListener(panelText.get());
 		//bgm->Play(false, false);
 		//bgm->SetPosition(glm::vec3(0.5, 0, .5));
 
@@ -596,6 +596,15 @@ public:
 		//logoAnim->Play("open");
 		//AddChild(logoAnim);
 	}
+
+	~TestScreen() override
+	{
+		delete bgm;
+		delete testFont;
+	}
+
+	TestScreen(TestScreen&) = delete;
+	TestScreen operator=(TestScreen) = delete;
 
 	bool Tick(float dt) override
 	{

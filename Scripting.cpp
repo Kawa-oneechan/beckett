@@ -22,7 +22,7 @@ namespace Scripting
 		return Sol.script(fmt::format("return ({})", expression));
 	}
 
-	std::string BJTS(const std::string& code, const std::vector<std::string> args)
+	std::string BJTS(const std::string& code, const std::vector<std::string>& args)
 	{
 		Sol["bjts"] = args;
 		auto ret = Sol.script(code).get<std::string>();
