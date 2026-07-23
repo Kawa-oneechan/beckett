@@ -124,7 +124,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="2DDemo.h" />
+    <ClInclude Include="3DDemo.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DemoUI.h" />
     <ClInclude Include="engine\Audio.h" />
     <ClInclude Include="engine\ColorUtils.h" />
     <ClInclude Include="engine\Console.h" />
@@ -155,15 +158,20 @@
     <ClInclude Include="engine\Types.h" />
     <ClInclude Include="engine\Utilities.h" />
     <ClInclude Include="engine\VFS.h" />
+    <ClInclude Include="ExtraParts.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="InputsMap.h" />
+    <ClInclude Include="TrainDemo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="2DDemo.cpp" />
+    <ClCompile Include="3DDemo.cpp" />
     <ClCompile Include="BJTS.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DebugImgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="DemoUI.cpp" />
     <ClCompile Include="engine\Audio.cpp" />
     <ClCompile Include="engine\ColorUtils.cpp" />
     <ClCompile Include="engine\Console.cpp" />
@@ -199,6 +207,7 @@
     <ClCompile Include="engine\Tilemap.cpp" />
     <ClCompile Include="engine\Utilities.cpp" />
     <ClCompile Include="engine\VFS.cpp" />
+    <ClCompile Include="ExtraParts.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Scripting.cpp" />
     <ClCompile Include="support\base64.c" />
@@ -227,6 +236,7 @@
     <ClCompile Include="support\stb_image_write.cpp" />
     <ClCompile Include="support\stb_truetype.cpp" />
     <ClCompile Include="support\ufbx.c" />
+    <ClCompile Include="TrainDemo.cpp" />
     <ClCompile Include="Utilties.cpp" />
   </ItemGroup>
   <ItemGroup>
