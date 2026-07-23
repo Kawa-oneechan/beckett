@@ -11,12 +11,6 @@ Model::Mesh::Mesh(ufbx_mesh* mesh, const Armature& bones, size_t boneCt) : Name(
 {
 	Hash = MatHash = GetCRC(Name);
 
-	{
-		auto lastUnder = Name.rfind('_');
-		if (lastUnder != std::string::npos)
-			MatHash = GetCRC(Name.substr(lastUnder + 1));
-	}
-
 	Shader = Shaders["model"]; //by default
 	std::fill_n(Textures, 4, nullptr);
 
