@@ -255,10 +255,10 @@ Model::Model(const std::string& modelPath) : file(modelPath)
 						m.Textures[2]->SetFilter(GL_NEAREST);
 						m.Textures[3]->SetFilter(GL_NEAREST);
 					}
-					debprint(0, "* #{}: {} > {}", matCt, node->name.data, m1);
+					debprint(0, "* #{}: {} > {}", matCt, m.Name, m1);
 				}
 				else
-					debprint(0, "* #{}: {} > {} (unmapped)", matCt, node->name.data, m1);
+					debprint(0, "* #{}: {} > {} (unmapped)", matCt, m.Name, m1);
 				matCt++;
 			}
 			Meshes.emplace_back(m);

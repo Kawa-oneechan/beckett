@@ -9,7 +9,7 @@
 
 Model::Mesh::Mesh(ufbx_mesh* mesh, const Armature& bones, size_t boneCt) : Name(mesh->name.data), Visible(true), Layer(0), Translucent(false), Opaque(false)
 {
-	Hash = MatHash = GetCRC(Name);
+	Hash = GetCRC(Name);
 
 	Shader = Shaders["model"]; //by default
 	std::fill_n(Textures, 4, nullptr);
