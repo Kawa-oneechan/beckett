@@ -140,6 +140,11 @@ static void applyRotation(std::vector<letterToDraw>& toDraw, float angle)
 	}
 }
 
+BeckettFont* BeckettFont::GetSystemFont(size_t i)
+{
+	return fonts[glm::clamp((int)i, 0, numFonts - 1)];
+}
+
 
 #ifndef BECKETT_NOBJTS
 static void bjtsColor(BJTSParams)
