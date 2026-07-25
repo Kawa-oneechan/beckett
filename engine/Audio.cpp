@@ -180,7 +180,7 @@ Audio::Audio(const std::string& filename) : filename(filename)
 		{
 			auto parts = Split(line, '\t');
 			auto time = std::stof(parts[0]);
-			auto text = parts[2];
+			auto text = parts.size() > 2 ? parts[2] : "";
 			tags.push_back(std::make_tuple(time, text));
 		}
 		nextTag = std::get<0>(tags[0]);
@@ -270,10 +270,17 @@ void Audio::update()
 		return;
 	if (listeners.empty())
 		return;
-	if (currentTag >= tags.size())
-		return;
 	float fpos = (float)system.getStreamPosition(handle);
-	
+	float flen = (float)stream.getLength();
+	fpos = glm::mod(fpos, flen);
+
+	if (currentTag >= tags.size())
+	{
+		if (fpos <= nextTag)
+			currentTag = 0;
+		else
+			return;
+	}
 	while (fpos > nextTag)
 	{
 		for (auto listener : listeners)
@@ -283,7 +290,7 @@ void Audio::update()
 		currentTag++;
 		if (currentTag >= tags.size())
 		{
-			currentTag = 0;
+			currentTag = 99999;
 			lastTag = -1;
 			nextTag = std::get<0>(tags[0]);
 			return;
