@@ -161,6 +161,7 @@
     <ClInclude Include="ExtraParts.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="InputsMap.h" />
+    <ClInclude Include="MapDemo.h" />
     <ClInclude Include="TrainDemo.h" />
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +210,7 @@
     <ClCompile Include="engine\VFS.cpp" />
     <ClCompile Include="ExtraParts.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="MapDemo.cpp" />
     <ClCompile Include="Scripting.cpp" />
     <ClCompile Include="support\base64.c" />
     <ClCompile Include="support\format.cc" />

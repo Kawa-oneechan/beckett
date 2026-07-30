@@ -94,6 +94,7 @@ namespace MeshBucket
 			}
 
 			theShader->Set("finalBonesMatrices", m.Bones[0], m.BoneCount);
+			theShader->Set("numBones", (int)m.BoneCount);
 
 			for (auto j = DepthOnlyPass ? 3 : 0; j < 4; j++)
 			{

@@ -19,6 +19,7 @@
 #include "DemoUI.h"
 #include "ExtraParts.h"
 #include "2DDemo.h"
+#include "MapDemo.h"
 #include "3DDemo.h"
 #include "TrainDemo.h"
 
@@ -182,12 +183,14 @@ void Game::Start()
 	auto menuPanel = std::make_shared<TestPanel>(glm::vec2(8));
 	menuPanel->ID = "Menu";
 	menuPanel->Spacing = 2.0f;
-	menuPanel->AddChild(makeSceneButton<MapScene>("Map (3D)"));
+	menuPanel->AddChild(makeSceneButton<ThreeDScene>("Map (3D)"));
+	menuPanel->AddChild(makeSceneButton<MapDemo>("Tiled (2D)"));
 	menuPanel->AddChild(makeSceneButton<TestScreen>("Test (2D)"));
 	menuPanel->AddChild(makeSceneButton<TrainScene>("Train (3D)"));
 	auto exitButton = std::make_shared<Button>("Exit", glm::vec2(0), glm::vec2(160, -1));
 	exitButton->OnClick = [currentScene]() { Game::ShouldClose = true; };
-	exitButton->BackColor = glm::vec4(1.0, 0.0, 0.0, 0.5);
+	exitButton->BackColor = glm::vec4(1.0, 0.0, 0.0, 1.0);
+	exitButton->Color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 	exitButton->ID = "btnExit";
 	menuPanel->AddChild(exitButton);
 	menuPanel->Reflow();
