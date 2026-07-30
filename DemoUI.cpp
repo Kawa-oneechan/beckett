@@ -1,11 +1,17 @@
 #include "engine/SpriteRenderer.h"
 #include "engine/InputsMap.h"
+#include "engine/NineSlicer.h"
 #include "DemoUI.h"
 
 extern Texture* whiteRect;
 
 static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color, int flags)
 {
+	static Texture panel{ "ui/panels/panel3.png" };
+
+	NineSlicer::Draw((Texture&)panel, (glm::vec2&)pos, (glm::vec2&)size, 1.0f, color);
+
+	/*
 	Sprite::DrawSprite(*whiteRect, pos, size - glm::vec2(1), glm::vec4(0), 0.0f, color);
 
 	auto diff = glm::vec4(0.25, 0.25, 0.25, 0.0);
@@ -16,6 +22,7 @@ static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::
 	Sprite::DrawLine(pos + glm::vec2(0, 1), pos + glm::vec2(0, size.y - 1), hi);
 	Sprite::DrawLine(pos + glm::vec2(0, size.y - 1), pos + glm::vec2(size.x - 1, size.y - 1), lo);
 	Sprite::DrawLine(pos + glm::vec2(size.x, 1), pos + glm::vec2(size.x, size.y - 1), lo);
+	*/
 }
 
 Button::Button(const std::string& text, glm::vec2 position, glm::vec2 size) : Text(text), Size(size)
@@ -50,11 +57,11 @@ bool Button::Tick(float dt)
 void Button::Draw(float)
 {
 	auto color = BackColor;
-	if (Inputs.MousePosition.x > AbsolutePosition.x &&
-		Inputs.MousePosition.y > AbsolutePosition.y &&
-		Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
-		Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
-		color.a = 1.0f;
+	if (!(Inputs.MousePosition.x > AbsolutePosition.x &&
+		  Inputs.MousePosition.y > AbsolutePosition.y &&
+		  Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
+		  Inputs.MousePosition.y < AbsolutePosition.y + Size.y))
+		color -= 0.1f;
 
 	//color = glm::vec4(HSLtoRGB((glm::cos(commonUniforms.TotalTime * 0.75f) * 0.5f) + 0.5f, 0.75f, 0.5f), 1.0f);
 

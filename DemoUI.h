@@ -6,8 +6,8 @@ class Button : public Tickable2D
 {
 public:
 	std::string Text;
-	glm::vec4 Color{ 1, 1, 1, 1 };
-	glm::vec4 BackColor{ 0.35, 0.35, 0.35, 0.5 };
+	glm::vec4 Color{ 0.0, 0.0, 0.0, 1.0 };
+	glm::vec4 BackColor{ 1.0, 1.0, 1.0, 1.0 };
 	glm::vec2 Size{ 128, 32 };
 	float TextSize{ 100.0f };
 	float Angle{ 0.0f };
@@ -30,8 +30,8 @@ public:
 class TestPanel : public Tickable2D
 {
 public:
-	glm::vec4 Color{ 1, 1, 1, 1 };
-	glm::vec4 BackColor{ 0.75, 0.75, 0.75, 0.5 };
+	glm::vec4 Color{ 0.0, 0.0, 0.0, 1.0 };
+	glm::vec4 BackColor{ 0.65, 0.65, 0.65, 1.0 };
 	glm::vec2 Size;
 	float Margin{ 6.0f };
 	float Spacing{ 4.0f };
