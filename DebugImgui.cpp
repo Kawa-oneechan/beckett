@@ -400,5 +400,5 @@ void Game::ImGui()
 {
 	DoCamera();
 	DoLights();
-	DoSceneTree();
+	//DoSceneTree();
 }

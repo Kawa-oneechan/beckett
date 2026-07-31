@@ -20,30 +20,21 @@ const int MaxBones = 100;
 const int MaxWeights = 4;
 
 uniform mat4 finalBonesMatrices[MaxBones];
-uniform int numBones;
 
 void main()
 {
 	vec4 totalPosition = vec4(0.0);
 	vec3 totalNormal = vec3(0.0);
 
-	if (numBones > 0)
+	vec4 aPos4 = vec4(aPos, 1.0);
+	for(int i = 0; i < MaxWeights; i++)
 	{
-		vec4 aPos4 = vec4(aPos, 1.0);
-		for(int i = 0; i < MaxWeights; i++)
-		{
-			if (aBones[i] == -1) continue;
+		if (aBones[i] == -1) continue;
 
-			vec4 localPosition = finalBonesMatrices[aBones[i]] * aPos4;
-			totalPosition += localPosition * aWeights[i];
-			vec3 localNormal = mat3(finalBonesMatrices[aBones[i]]) * aNormal;
-			totalNormal += localNormal * aWeights[i];
-		}
-	}
-	else
-	{
-		totalPosition = vec4(aPos, 1.0);
-		totalNormal = vec3(1.0);
+		vec4 localPosition = finalBonesMatrices[aBones[i]] * aPos4;
+		totalPosition += localPosition * aWeights[i];
+		vec3 localNormal = mat3(finalBonesMatrices[aBones[i]]) * aNormal;
+		totalNormal += localNormal * aWeights[i];
 	}
 
 	FragPos = vec3(model * totalPosition);
