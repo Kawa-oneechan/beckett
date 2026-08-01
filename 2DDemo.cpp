@@ -12,7 +12,7 @@ TwoDDemo::TwoDDemo()
 {
 	ID = "2D Demo Scene";
 
-	bgm = new Stream("audio/music/midnightcrew.ogg");
+	bgm = new Stream("examples/2dscene/midnightcrew.ogg");
 	bgm->SetLoop(true);
 	bgm->Play(false, false);
 

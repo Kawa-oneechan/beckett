@@ -46,7 +46,7 @@ TrainDemo::TrainDemo()
 	testButton->OnClick = [&]()
 	{
 		if (!bob)
-			bob = VFS::GetModel("examples/bob/bob.fbx");
+			bob = VFS::GetModel("examples/train/bob/bob.fbx");
 		else
 			bob.reset();
 	};
@@ -57,7 +57,7 @@ TrainDemo::TrainDemo()
 	testButton2->OnClick = [&]()
 	{
 		if (!boob)
-			boob = VFS::GetModel("examples/bob/bob.fbx");
+			boob = VFS::GetModel("examples/train/bob/bob.fbx");
 		else
 			boob.reset();
 	};
@@ -81,22 +81,6 @@ bool TrainDemo::Tick(float dt)
 		MainCamera->Shake.y = 0.010f;
 	else
 		bumpTimer = 0.0f;
-
-	/*
-	if (Inputs.KeyDown(Binds::WalkN))
-	{
-	if (!bob)
-	bob = new Model("examples/bob/bob.fbx");
-	}
-	else if (Inputs.KeyDown(Binds::WalkS))
-	{
-	if (bob)
-	{
-	delete bob;
-	bob = nullptr;
-	}
-	}
-	*/
 
 	return Tickable::Tick(dt);
 }

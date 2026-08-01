@@ -44,7 +44,7 @@ public:
 class RoryNite : public Tickable
 {
 private:
-	Texture sprite{ "examples/rorynite.png" };
+	Texture sprite{ "examples/2dscene/rorynite.png" };
 	static constexpr int trailCt = 8;
 public:
 	glm::vec2 position = glm::vec2(BECKETT_SCREENWIDTH / 2, BECKETT_SCREENHEIGHT / 2);

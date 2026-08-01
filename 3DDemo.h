@@ -8,7 +8,7 @@ class ThreeDDemo : public Tickable
 {
 private:
 	Model model{ "examples/3dscene/scene.fbx" };
-	//Model model{ "examples/teapot without armature.fbx" };
+	//Model model{ "examples/3dscene/teapot without armature.fbx" };
 
 public:
 	ThreeDDemo();

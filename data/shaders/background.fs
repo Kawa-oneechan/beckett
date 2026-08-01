@@ -1,131 +1,63 @@
-//XclSR2 by artcreativecode
+//ltGSWD by gigaherz
 in vec2 TexCoords;
 out vec4 fragColor;
 
 #include "common.fs"
 
-// 3D rectangular tunnel effect with movement and diagonal wall lines
-precision highp float;
+//const vec3 top = vec3(0.05, 0.05, 0.3);
+const vec3 top = vec3(0.012, 0.012, 0.067);
+//const vec3 bottom = vec3(0.1, 0.65, 0.85);
+const vec3 bottom = vec3(0.345, 0.157, 0.157);
 
-// Define line color and background color as constants
-const vec3 color1 = vec3(0.03137, 0.17647, 0.25882);
-const vec3 color2 = vec3(0.72157, 0.58431, 0.77255);
-const vec3 color3 = vec3(0.0, 0.64314, 0.69412);
-
-const vec3 uLineColor = color2; 
-const vec3 uBackgroundColor = color1;
-const float uSpeed = 2.5;
-
-// Function to draw a line given two endpoints, line width, and uv coordinates
-void drawLine(vec2 uv, vec2 start, vec2 end, float lineWidth, inout vec3 color) {
-	float lineDist;
-
-	if (start.x == end.x) {
-		// Handle vertical line
-		lineDist = abs(uv.x - start.x);
-	} else {
-		// Non-vertical line
-		float m = (end.y - start.y) / (end.x - start.x);
-		float b = end.y - m * end.x;
-		lineDist = abs(uv.y - m * uv.x - b) / sqrt(m * m + 1.0);
-	}
-
-	// Anti-aliasing factor
-	float aaWidth = 1.0 / ScreenRes.y; // Adjust for screen resolution
-
-	// Calculate line intensity based on distance from the line and apply anti-aliasing
-	float alpha = smoothstep(lineWidth, lineWidth + aaWidth, lineDist);
-	// Blend the line color with the background
-	color = mix(color, uLineColor, 1.0 - alpha);
+float gradient(float p)
+{
+	vec2 pt0 = vec2(0.0, 0.0);
+	vec2 pt1 = vec2(0.86, 0.1);
+	vec2 pt2 = vec2(0.955, 0.40);
+	vec2 pt3 = vec2(0.99, 1.0);
+	vec2 pt4 = vec2(1.0, 0.0);
+	if (p < pt0.x) return pt0.y;
+	if (p < pt1.x) return mix(pt0.y, pt1.y, (p-pt0.x) / (pt1.x-pt0.x));
+	if (p < pt2.x) return mix(pt1.y, pt2.y, (p-pt1.x) / (pt2.x-pt1.x));
+	if (p < pt3.x) return mix(pt2.y, pt3.y, (p-pt2.x) / (pt3.x-pt2.x));
+	if (p < pt4.x) return mix(pt3.y, pt4.y, (p-pt3.x) / (pt4.x-pt3.x));
+	return pt4.y;
 }
 
+float waveN(vec2 uv, vec2 s12, vec2 t12, vec2 f12, vec2 h12)
+{
+	vec2 x12 = sin((TotalTime * s12 + t12 + uv.x) * f12) * h12;
+	float g = gradient(uv.y / (0.5 + x12.x + x12.y));
+	return g * 0.27;
+}
+
+float wave1(vec2 uv)
+{
+	return waveN(vec2(uv.x, uv.y - 0.25), vec2(0.03, 0.06), vec2(0.0, 0.02), vec2(8.0, 3.7), vec2(0.06, 0.05));
+}
+
+float wave2(vec2 uv)
+{
+	return waveN(vec2(uv.x, uv.y - 0.25), vec2(0.04, 0.07), vec2(0.16, -0.37), vec2(6.7, 2.89), vec2(0.06, 0.05));
+}
+
+float wave3(vec2 uv)
+{
+	return waveN(vec2(uv.x, 0.75 - uv.y), vec2(0.035, 0.055), vec2(-0.09, 0.27), vec2(7.4, 2.51), vec2(0.06, 0.05));
+}
+
+float wave4(vec2 uv)
+{
+	return waveN(vec2(uv.x, 0.75 - uv.y), vec2(0.032, 0.09), vec2(0.08, -0.22), vec2(6.5, 3.89), vec2(0.06, 0.05));
+}
 
 void main()
 {
-	// Normalized pixel coordinates (from -1 to 1)
-	vec2 uv = (gl_FragCoord.xy - 0.5 * ScreenRes.xy) / ScreenRes.y;
-
-	float time = -TotalTime * 2.5;
-
-	// Tunnel parameters
-	float depth = 10.0; // Total depth of the tunnel
-	float numRects = 10.0; // Number of rectangles in the tunnel
-	float spacing = depth / numRects; // Spacing between rectangles
-
-	// Calculate the depth of the nearest and farthest rectangles
-	float nearestDepth = mod(time, spacing);
-	float farthestDepth = depth;
-
-	// Initialize color
-	vec3 color = uBackgroundColor;
-
-	// Aspect ratio for the rectangles (making them wider)
-	float aspectRatio = 1.5; // Width is 1.5 times the height
-
-	// Bounds of the nearest and farthest rectangles
-	vec2 nearestLowerBound = -vec2(0.8 * aspectRatio, 0.8) * (1.0 / nearestDepth);
-	vec2 nearestUpperBound = vec2(0.8 * aspectRatio, 0.8) * (1.0 / nearestDepth);
-	vec2 farthestLowerBound = -vec2(0.8 * aspectRatio, 0.8) * (1.0 / farthestDepth);
-	vec2 farthestUpperBound = vec2(0.8 * aspectRatio, 0.8) * (1.0 / farthestDepth);
-
-	// Fixed and farthest points for the rectangle corners
-	vec2 nearestFixedUpperRight = vec2(0.8 * aspectRatio, 0.8);
-	vec2 nearestFixedUpperLeft = vec2(-0.8 * aspectRatio, 0.8);
-	vec2 farthestUpperLeft = vec2(-0.8 * aspectRatio, 0.8) * (1.0 / farthestDepth);
-	vec2 nearestFixedLowerRight = vec2(0.8 * aspectRatio, -0.8);
-	vec2 farthestLowerRight = vec2(0.8 * aspectRatio, -0.8) * (1.0 / farthestDepth);
-	vec2 farthestUpperRight = vec2(0.8 * aspectRatio, 0.8) * (1.0 / farthestDepth);
-
-	float lineWidth = .2 / ScreenRes.y; // Width of the lines
-	
-	// Draw the main diagonal lines
-	drawLine(uv, farthestUpperBound, nearestFixedUpperRight, lineWidth, color);
-	drawLine(uv, farthestUpperLeft, nearestFixedUpperLeft, lineWidth, color);
-	
-	// Draw the additional lines between the main diagonal lines
-	for (int i = 0; i < 8; i++) {
-		float t = float(i) / 8.0; // Normalized position for each line
-		vec2 start = mix(farthestUpperLeft, farthestUpperBound, t);
-		vec2 end = mix(nearestFixedUpperLeft, nearestFixedUpperRight, t);
-		drawLine(uv, start, end, lineWidth, color);
-	}
-
-	// Draw the diagonal lines on the right side
-	for (int i = 0; i < 8; i++) {
-		float t = float(i) / 8.0; // Normalized position for each line
-		vec2 startRight = mix(farthestLowerRight, farthestUpperRight, t);
-		vec2 endRight = mix(nearestFixedLowerRight, nearestFixedUpperRight, t);
-		drawLine(uv, startRight, endRight, lineWidth, color);
-	}
-	
-	if (uv.x > farthestLowerBound.x && uv.x < farthestUpperBound.x &&
-		uv.y > farthestLowerBound.y && uv.y < farthestUpperBound.y) {
-		color = uBackgroundColor; 
-	}
-	
-	// Check for border (1 pixel wide)
-	  float borderWidth = 1.0 / ScreenRes.y;
-
-	// Draw each moving rectangle and the constant farthest rectangle
-	for (float i = 0.0; i <= numRects; ++i) {
-		float currentDepth = (i < numRects) ? (nearestDepth + i * spacing) : farthestDepth;
-		float scale = 1.0 / currentDepth;
-
-		// Rectangle bounds
-		vec2 lowerBound = -vec2(0.8 * aspectRatio, 0.8) * scale;
-		vec2 upperBound = vec2(0.8 * aspectRatio, 0.8) * scale;
-			// Check if the current pixel is within the rectangle bounds
-		if (uv.x > lowerBound.x && uv.x < upperBound.x &&
-		uv.y > lowerBound.y && uv.y < upperBound.y) {
-
-		  
-		  if (abs(uv.x - lowerBound.x) < borderWidth || abs(uv.x - upperBound.x) < borderWidth ||
-			  abs(uv.y - lowerBound.y) < borderWidth || abs(uv.y - upperBound.y) < borderWidth) {
-			  color = uLineColor; 
-		  }
-	  }
-	}
-
-
-  fragColor = vec4(color, 1.0);
+	vec2 uv = gl_FragCoord.xy / ScreenRes.xy;
+	float waves = wave1(uv) + wave2(uv) + wave3(uv) + wave4(uv);
+	float x = uv.x;
+	float y = 1.0 - uv.y;
+	vec3 bg = mix(top, bottom, (x + y) * 0.55);
+	vec3 ac = bg + vec3(1.0, 1.0, 1.0) * waves;
+	fragColor = vec4(ac, 1.0);
 }
