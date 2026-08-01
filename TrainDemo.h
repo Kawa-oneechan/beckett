@@ -9,7 +9,7 @@ class TrainDemo : public Tickable
 private:
 	Model model{ "examples/train/train.fbx" };
 	float bumpTimer{ 0.0f };
-	//Framebuffer* postFx{ nullptr };
+	class Framebuffer* postFx{ nullptr };
 
 	ModelP bob{ nullptr };
 	ModelP boob{ nullptr };

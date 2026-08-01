@@ -1,9 +1,13 @@
 #ifndef BECKETT_NO3DMODELS
+#include "engine/Framebuffer.h"
+#include "engine/Shader.h"
 #include "TrainDemo.h"
 #include "DemoUI.h"
 
 extern float fieldOfView;
 extern void RecalcProjections();
+
+static bool hdr = false;
 
 TrainDemo::TrainDemo()
 {
@@ -40,7 +44,7 @@ TrainDemo::TrainDemo()
 	commonUniforms.Lights[0].pos = glm::vec4(-50, 24, 35, 0);
 	commonUniforms.Toon = false;
 
-	//postFx = new Framebuffer(Shaders["postfx"], width, height);
+	postFx = new Framebuffer(Shaders["postfx"], width, height);
 
 	auto testButton = std::make_shared<Button>("Toggle Bob", glm::vec2(0));
 	testButton->OnClick = [&]()
@@ -64,11 +68,21 @@ TrainDemo::TrainDemo()
 	testButton2->Position = testButton->Position + glm::vec2(0, 24);
 	testButton2->AbsolutePosition = testButton2->Position;
 	AddChild(testButton2);
+
+	auto hdrButton = std::make_shared<Button>("Turn on HDR", glm::vec2(0));
+	hdrButton->OnClick = [&, hdrButton]()
+	{
+		hdr = !hdr;
+		hdrButton->Text = hdr ? "Turn off HDR" : "Turn on HDR";
+	};
+	hdrButton->AbsolutePosition = testButton->Position + glm::vec2(100, 0);
+	AddChild(hdrButton);
+
 }
 
 TrainDemo::~TrainDemo()
 {
-	//delete postFx;
+	delete postFx;
 	MainCamera->Shake.y = 0.0f;
 }
 
@@ -91,7 +105,8 @@ void TrainDemo::Draw(float dt)
 
 	Sprite::FlushBatch();
 
-	//postFx->Use();
+	if (hdr)
+		postFx->Use();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -109,10 +124,13 @@ void TrainDemo::Draw(float dt)
 
 	glDisable(GL_DEPTH_TEST);
 
+	if (hdr)
+	{
+		postFx->Drop();
+		postFx->Draw(glm::vec2(0), glm::vec2(width, height));
+	}
+
 	Tickable::Draw(dt);
 	Sprite::FlushBatch();
-
-	//postFx->Drop();
-	//postFx->Draw(glm::vec2(0), glm::vec2(width, height));
 }
 #endif
