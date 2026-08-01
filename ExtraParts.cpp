@@ -1,11 +1,20 @@
 #include "engine/InputsMap.h"
 #include "engine/Shader.h"
+#include "engine/DropLabel.h"
 #include "ExtraParts.h"
 #include "Camera.h"
 
 void Subtitle::AudioEvent(float time, const std::string& text)
 {
-	this->Text = text;
+	Target->SetText(text);
+	auto meas = Target->Size();
+	Target->AbsolutePosition.x = (width * 0.5f) - (meas.x * 0.5f);
+	Target->AbsolutePosition.y = height - (meas.y * 1.5f);
+}
+
+void Subtitle::Draw(float dt)
+{
+	Target->Draw(dt);
 }
 
 bool FirstPersonController::Tick(float dt)
@@ -89,3 +98,4 @@ void RoryNite::Draw(float dt)
 		Sprite::DrawSprite(sprite, p, sprite[0], 0.0f, glm::vec4(1, 1, 1, 1.0 - (i / (float)trailCt)));
 	}
 }
+

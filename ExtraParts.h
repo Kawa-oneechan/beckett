@@ -8,11 +8,13 @@ class FirstPersonController : public Tickable
 	bool Tick(float dt) override;
 };
 
-class Subtitle : public TextLabel, public AudioEventListener
+class Subtitle : public Tickable, public AudioEventListener
 {
 public:
+	std::shared_ptr<class DropLabel> Target;
 	void AudioEvent(float time, const std::string& text) override;
-	Subtitle(const std::string& text, glm::vec2 position) : TextLabel(text, position) {}
+	Subtitle(std::shared_ptr<class DropLabel> target) : Target(target) {}
+	void Draw(float dt) override;
 };
 
 class Background : public Tickable

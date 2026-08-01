@@ -5,8 +5,10 @@
 extern float fieldOfView;
 extern void RecalcProjections();
 
-TrainScene::TrainScene()
+TrainDemo::TrainDemo()
 {
+	ID = "Train Demo Scene";
+
 	/*
 	MainCamera->Target(glm::vec3(6, 12, -37));
 	MainCamera->Angles(glm::vec3(1, 2, -3));
@@ -64,13 +66,13 @@ TrainScene::TrainScene()
 	AddChild(testButton2);
 }
 
-TrainScene::~TrainScene()
+TrainDemo::~TrainDemo()
 {
 	//delete postFx;
 	MainCamera->Shake.y = 0.0f;
 }
 
-bool TrainScene::Tick(float dt)
+bool TrainDemo::Tick(float dt)
 {
 	bumpTimer += dt;
 	if (bumpTimer < 2.0f)
@@ -99,7 +101,7 @@ bool TrainScene::Tick(float dt)
 	return Tickable::Tick(dt);
 }
 
-void TrainScene::Draw(float dt)
+void TrainDemo::Draw(float dt)
 {
 	(void)(dt);
 

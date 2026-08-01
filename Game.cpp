@@ -19,8 +19,8 @@
 #include "DemoUI.h"
 #include "ExtraParts.h"
 #include "2DDemo.h"
-#include "MapDemo.h"
 #include "3DDemo.h"
+#include "MapDemo.h"
 #include "TrainDemo.h"
 
 //Wouldn't need this here if the camera were a proper
@@ -174,7 +174,7 @@ void Game::Start()
 	//root.AddChild(std::make_shared<TestScreen>());
 	auto currentScene = std::make_shared<Tickable>();
 	currentScene->ID = "Current Scene";
-	currentScene->AddChild(std::make_shared<TestScreen>());
+	currentScene->AddChild(std::make_shared<ThreeDDemo>());
 	root.AddChild(currentScene);
 
 	MainCamera->FirstPerson(true);
@@ -183,10 +183,12 @@ void Game::Start()
 	auto menuPanel = std::make_shared<TestPanel>(glm::vec2(8));
 	menuPanel->ID = "Menu";
 	menuPanel->Spacing = 2.0f;
-	menuPanel->AddChild(makeSceneButton<ThreeDScene>("Map (3D)"));
-	menuPanel->AddChild(makeSceneButton<MapDemo>("Tiled (2D)"));
-	menuPanel->AddChild(makeSceneButton<TestScreen>("Test (2D)"));
-	menuPanel->AddChild(makeSceneButton<TrainScene>("Train (3D)"));
+	menuPanel->AddChild(makeSceneButton<TwoDDemo>("2D Stuff"));
+	menuPanel->AddChild(makeSceneButton<MapDemo>("2D Tilemap"));
+#ifndef BECKETT_NO3DMODELS
+	menuPanel->AddChild(makeSceneButton<ThreeDDemo>("3D Stuff"));
+	menuPanel->AddChild(makeSceneButton<TrainDemo>("3D Train"));
+#endif
 	auto exitButton = std::make_shared<Button>("Exit", glm::vec2(0), glm::vec2(160, -1));
 	exitButton->OnClick = [currentScene]() { Game::ShouldClose = true; };
 	exitButton->BackColor = glm::vec4(1.0, 0.0, 0.0, 1.0);

@@ -7,7 +7,7 @@
 
 MapDemo::MapDemo()
 {
-	ID = "Map Demo";
+	ID = "Tiled Map Demo Scene";
 
 	tilemapMgr = std::make_shared<Tilemap>("examples/tiled/maps/farm.json");
 	tilemapMgr->Scale = 4.0f;

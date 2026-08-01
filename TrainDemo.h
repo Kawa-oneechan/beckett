@@ -4,7 +4,7 @@
 #include "engine/Model.h"
 #include "Camera.h"
 
-class TrainScene : public Tickable
+class TrainDemo : public Tickable
 {
 private:
 	Model model{ "examples/train/train.fbx" };
@@ -15,11 +15,11 @@ private:
 	ModelP boob{ nullptr };
 
 public:
-	TrainScene();
-	~TrainScene() override;
+	TrainDemo();
+	~TrainDemo() override;
 
-	TrainScene(const TrainScene&) = delete;
-	TrainScene &operator=(const TrainScene&) = delete;
+	TrainDemo(const TrainDemo&) = delete;
+	TrainDemo &operator=(const TrainDemo&) = delete;
 
 	bool Tick(float dt) override;
 	void Draw(float dt) override;

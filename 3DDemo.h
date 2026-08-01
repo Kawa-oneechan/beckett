@@ -4,16 +4,16 @@
 #include "engine/Model.h"
 #include "Camera.h"
 
-class MapScene : public Tickable
+class ThreeDDemo : public Tickable
 {
 private:
 	Model model{ "examples/3dscene/scene.fbx" };
+	//Model model{ "examples/teapot without armature.fbx" };
 
 public:
-	MapScene();
+	ThreeDDemo();
 	//bool Tick(float dt) override;
 	void Draw(float dt) override;
 };
-
 
 #endif

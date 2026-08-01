@@ -5,32 +5,47 @@
 extern float fieldOfView;
 extern void RecalcProjections();
 
-MapScene::MapScene()
+ThreeDDemo::ThreeDDemo()
 {
-	ID = "Map Scene";
+	ID = "3D Demo Scene";
 
-	//commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.5);
-	//commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
-	commonUniforms.Lights[0].color = glm::vec4(0);
-	commonUniforms.Lights[0].pos = glm::vec4(0);
-	commonUniforms.Lights[1].pos = model.Lights[0].Position;
-	commonUniforms.Lights[1].color = model.Lights[0].Color;
-	commonUniforms.Lights[2].color = glm::vec4(0);
-	commonUniforms.Lights[2].pos = glm::vec4(0);
+	if (model.Lights.empty())
+	{
+		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.5);
+		commonUniforms.Lights[0].pos = glm::vec4(20, 15, 0, 0);
+		//commonUniforms.Lights[0].color = glm::vec4(0);
+		//commonUniforms.Lights[0].pos = glm::vec4(0);
+	}
+	else
+	{
+		commonUniforms.Lights[1].pos = model.Lights[0].Position;
+		commonUniforms.Lights[1].color = model.Lights[0].Color;
+		commonUniforms.Lights[2].color = glm::vec4(0);
+		commonUniforms.Lights[2].pos = glm::vec4(0);
+	}
 
 	//Maybe figure out how to get this from a UfbxMisc camera?
 	fieldOfView = 22.5f;
 	RecalcProjections();
 
-	MainCamera->FirstPerson(true);
-	MainCamera->Target(model.Cameras[0].Position);
-	MainCamera->Angles(model.Cameras[0].Direction);
-
-	MainCamera->Distance(0);
+	if (model.Cameras.empty())
+	{
+		MainCamera->FirstPerson(false);
+		MainCamera->Target(glm::vec3(0));
+		MainCamera->Angles(glm::vec3(0, 47, 0));
+		MainCamera->Distance(70);
+	}
+	else
+	{
+		MainCamera->FirstPerson(true);
+		MainCamera->Target(model.Cameras[0].Position);
+		MainCamera->Angles(model.Cameras[0].Direction);
+		MainCamera->Distance(0);
+	}
 }
 
 /*
-bool MapScene::Tick(float dt)
+bool ThreeDScene::Tick(float dt)
 {
 	//commonUniforms.Lights[0].pos.x = 20 * glm::cos(commonUniforms.TotalTime * 0.5f);
 	//commonUniforms.Lights[0].pos.y = 20 * glm::sin(commonUniforms.TotalTime * 0.5f);
@@ -38,7 +53,7 @@ bool MapScene::Tick(float dt)
 }
 */
 
-void MapScene::Draw(float dt)
+void ThreeDDemo::Draw(float dt)
 {
 	(void)(dt);
 
