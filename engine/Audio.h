@@ -9,17 +9,20 @@
 #include <soloud/soloud_wavstream.h>
 #include "../Game.h"
 
+//TODO: replace SoundTypes and their respective volumes with Buses.
+enum class SoundType
+{
+	Music, Sound,
+#ifdef BECKETT_MOREVOLUME
+	Ambient, Speech
+#endif
+};
+
 class AudioSoundBase
 {
 protected:
 	unsigned int handle{ 0 };
-	enum class Type
-	{
-		Music, Sound,
-#ifdef BECKETT_MOREVOLUME
-		Ambient, Speech
-#endif
-	} type{ Type::Sound };
+	SoundType type{ SoundType::Sound };
 	std::string filename;
 	std::unique_ptr<char[]> data{ nullptr };
 
@@ -111,7 +114,7 @@ public:
 	//Depending on the path, its type is set to be music, ambient noise, speeeh,
 	//or a general sound. No matter the type, if it's an Ogg Vorbis file it's
 	//allowed to loop using the `LOOP_START` tag, specified in samples.
-	explicit Sound(const std::string& filename);
+	explicit Sound(const std::string& filename, SoundType type = SoundType::Sound);
 	~Sound();
 
 	//Plays the sound. If it's already playing, it won't restart or anything
@@ -136,7 +139,7 @@ public:
 	//Depending on the path, its type is set to be music, ambient noise, speeeh,
 	//or a general sound. No matter the type, if it's an Ogg Vorbis file it's
 	//allowed to loop using the `LOOP_START` tag, specified in samples.
-	explicit Stream(const std::string& filename);
+	explicit Stream(const std::string& filename, SoundType type = SoundType::Music);
 	~Stream();
 
 	//Plays the sound. If it's already playing, it won't restart or anything

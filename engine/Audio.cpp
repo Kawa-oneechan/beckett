@@ -119,9 +119,10 @@ static float findLoop(char* data)
 	return -1.0f;
 }
 
-Sound::Sound(const std::string& filename)
+Sound::Sound(const std::string& filename, SoundType type)
 {
 	AudioSoundBase::filename = filename;
+	AudioSoundBase::type = type;
 
 	size_t size = 0;
 	if (!Audio::Enabled)
@@ -136,18 +137,6 @@ Sound::Sound(const std::string& filename)
 		return;
 	}
 	
-	//TODO: replace this
-	if (filename.find("music/") != std::string::npos)
-		type = Type::Music;
-#ifdef BECKETT_MOREVOLUME
-	else if (filename.find("ambient/") != std::string::npos)
-		type = Type::Ambient;
-	else if (filename.find("speech/") != std::string::npos)
-		type = Type::Speech;
-#endif
-	else
-		type = Type::Sound;
-
 	if (sound.loadMem(reinterpret_cast<unsigned char*>(data.get()), (unsigned int)size, true) != 0)
 	{
 		fmt::format("Could not create sound for audio file {}.", filename);
@@ -181,9 +170,10 @@ Sound::Sound(const std::string& filename)
 	status = Status::Stopped;
 }
 
-Stream::Stream(const std::string& filename)
+Stream::Stream(const std::string& filename, SoundType type)
 {
 	AudioSoundBase::filename = filename;
+	AudioSoundBase::type = type;
 
 	size_t size = 0;
 	if (!Audio::Enabled)
@@ -197,18 +187,6 @@ Stream::Stream(const std::string& filename)
 		conprint(1, "Could not open audio file {}.", filename);
 		return;
 	}
-
-	//TODO: replace this
-	if (filename.find("music/") != std::string::npos)
-		type = Type::Music;
-#ifdef BECKETT_MOREVOLUME
-	else if (filename.find("ambient/") != std::string::npos)
-		type = Type::Ambient;
-	else if (filename.find("speech/") != std::string::npos)
-		type = Type::Speech;
-#endif
-	else
-		type = Type::Sound;
 
 	if (stream.loadMem(reinterpret_cast<unsigned char*>(data.get()), (unsigned int)size, true) != 0)
 	{
@@ -393,11 +371,11 @@ void AudioSoundBase::UpdateVolume()
 	auto v = 0.0f;
 	switch (type)
 	{
-	case Type::Music: v = Audio::MusicVolume; break;
-	case Type::Sound: v = Audio::SoundVolume; break;
+	case SoundType::Music: v = Audio::MusicVolume; break;
+	case SoundType::Sound: v = Audio::SoundVolume; break;
 #ifdef BECKETT_MOREVOLUME
-	case Type::Ambient: v = AmbientVolume; break;
-	case Type::Speech: v = SpeechVolume; break;
+	case SoundType::Ambient: v = AmbientVolume; break;
+	case SoundType::Speech: v = SpeechVolume; break;
 #endif
 	}
 	volume = glm::clamp(v * Volume, 0.0f, 1.0f);
