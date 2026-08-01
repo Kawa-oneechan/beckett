@@ -106,7 +106,10 @@ void TrainDemo::Draw(float dt)
 	Sprite::FlushBatch();
 
 	if (hdr)
+	{
 		postFx->Use();
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);

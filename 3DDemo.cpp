@@ -1,9 +1,13 @@
 #ifndef BECKETT_NO3DMODELS
+#include "engine/Framebuffer.h"
+#include "engine/Shader.h"
 #include "3DDemo.h"
 #include "DemoUI.h"
 
 extern float fieldOfView;
 extern void RecalcProjections();
+
+static bool hdr = false;
 
 ThreeDDemo::ThreeDDemo()
 {
@@ -28,6 +32,8 @@ ThreeDDemo::ThreeDDemo()
 	fieldOfView = 22.5f;
 	RecalcProjections();
 
+	postFx = new Framebuffer(Shaders["postfx"], width, height);
+
 	if (model.Cameras.empty())
 	{
 		MainCamera->FirstPerson(false);
@@ -42,6 +48,16 @@ ThreeDDemo::ThreeDDemo()
 		MainCamera->Angles(model.Cameras[0].Direction);
 		MainCamera->Distance(0);
 	}
+
+	auto hdrButton = std::make_shared<Button>("Turn on HDR", glm::vec2(0));
+	hdrButton->OnClick = [&, hdrButton]()
+	{
+		hdr = !hdr;
+		hdrButton->Text = hdr ? "Turn off HDR" : "Turn on HDR";
+	};
+	hdrButton->AbsolutePosition = hdrButton->Position;
+	AddChild(hdrButton);
+
 }
 
 /*
@@ -53,11 +69,22 @@ bool ThreeDScene::Tick(float dt)
 }
 */
 
+ThreeDDemo::~ThreeDDemo()
+{
+	delete postFx;
+}
+
 void ThreeDDemo::Draw(float dt)
 {
 	(void)(dt);
 
 	Sprite::FlushBatch();
+
+	if (hdr)
+	{
+		postFx->Use();
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -67,6 +94,12 @@ void ThreeDDemo::Draw(float dt)
 	MeshBucket::Flush();
 
 	glDisable(GL_DEPTH_TEST);
+
+	if (hdr)
+	{
+		postFx->Drop();
+		postFx->Draw(glm::vec2(0), glm::vec2(width, height));
+	}
 
 	Tickable::Draw(dt);
 	Sprite::FlushBatch();
