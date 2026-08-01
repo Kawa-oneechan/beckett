@@ -29,7 +29,7 @@ private:
 	float kerning{ 0 };
 
 	void* cdata{ nullptr };
-	Texture** fontTextures;
+	class Texture** fontTextures;
 
 	void loadBank(int bank);
 

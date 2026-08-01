@@ -17,7 +17,7 @@ private:
 	glm::vec4 color;
 	Texture canvas;
 	float textSize;
-	BeckettFont* font;
+	class BeckettFont* font;
 	Style style;
 
 	void update();

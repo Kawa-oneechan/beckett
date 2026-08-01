@@ -10,6 +10,7 @@
 #include "NineSlicer.h"
 #include "Audio.h"
 #include "Shader.h"
+#include "Font.h"
 #include "../Game.h"
 
 bool debugPanelLayoutPolygons = false;

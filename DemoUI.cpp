@@ -1,6 +1,7 @@
 #include "engine/SpriteRenderer.h"
 #include "engine/InputsMap.h"
 #include "engine/NineSlicer.h"
+#include "engine/Font.h"
 #include "DemoUI.h"
 
 extern Texture* whiteRect;

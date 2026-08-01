@@ -2,6 +2,7 @@
 #include "engine/Tickable.h"
 #include "engine/Audio.h"
 #include "engine/DropLabel.h"
+#include "engine/Font.h"
 
 class TwoDDemo : public Tickable
 {

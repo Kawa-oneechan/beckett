@@ -16,6 +16,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "VFS.h"
+#include "Font.h"
 
 extern int width, height;
 
