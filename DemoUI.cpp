@@ -87,7 +87,7 @@ glm::vec2 Button::GetSize()
 	return Size;
 }
 
-TestPanel::TestPanel(glm::vec2 position, glm::vec2 size) : Size(size)
+FlowPanelV::FlowPanelV(glm::vec2 position, glm::vec2 size) : Size(size)
 {
 	parent = nullptr;
 	Position = position;
@@ -101,7 +101,7 @@ TestPanel::TestPanel(glm::vec2 position, glm::vec2 size) : Size(size)
 	Size += glm::vec2(8);
 }
 
-void TestPanel::Draw(float dt)
+void FlowPanelV::Draw(float dt)
 {
 	//Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, BackColor);
 	//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
@@ -112,7 +112,7 @@ void TestPanel::Draw(float dt)
 	Tickable2D::Draw(dt);
 }
 
-void TestPanel::Reflow()
+void FlowPanelV::Reflow()
 {
 	UpdatePosition();
 	Tick(0.0f);
@@ -124,6 +124,23 @@ void TestPanel::Reflow()
 			t2D->Position = pos;
 			t2D->UpdatePosition();
 			pos.y += t2D->GetSize().y + Spacing;
+		}
+	}
+	Size = GetMinimalSize() + glm::vec2(Margin);
+}
+
+void FlowPanelH::Reflow()
+{
+	UpdatePosition();
+	Tick(0.0f);
+	auto pos = glm::vec2(Margin);
+	for (int i = 0; i < ChildTickables.size(); i++)
+	{
+		if (auto t2D = std::dynamic_pointer_cast<Tickable2D>(ChildTickables[i]))
+		{
+			t2D->Position = pos;
+			t2D->UpdatePosition();
+			pos.x += t2D->GetSize().x + Spacing;
 		}
 	}
 	Size = GetMinimalSize() + glm::vec2(Margin);

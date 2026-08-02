@@ -53,6 +53,7 @@ public:
 #else
 	virtual void Play(bool force = false, bool in3D = true) {};
 #endif
+	bool IsPlaying() { return status == Status::Playing; }
 	//Pauses the sound. Calling `Play` afterwards will resume playback.
 	void Pause();
 	//Stops playing the sound. Calling `Play` afterwards will restart playback.

@@ -14,7 +14,7 @@ TwoDDemo::TwoDDemo()
 
 	bgm = new Stream("examples/2dscene/midnightcrew.ogg");
 	bgm->SetLoop(true);
-	bgm->Play(false, false);
+	//bgm->Play(false, false);
 
 	AddChild(std::make_shared<Background>());
 
@@ -28,7 +28,7 @@ TwoDDemo::TwoDDemo()
 	rory->position = glm::vec2(480, 32);
 	AddChild(rory);
 
-	auto testButton = std::make_shared<Button>("Click me?", glm::vec2(0), glm::vec2(160, -1));
+	auto testButton = std::make_shared<Button>("Click me?", glm::vec2(0), glm::vec2(128, -1));
 	testButton->OnClick = []()
 	{
 		//TODO: replace effect, this makes no effect without a 3D camera.
@@ -36,9 +36,25 @@ TwoDDemo::TwoDDemo()
 	};
 	testButton->AbsolutePosition = testButton->Position;
 
-	auto testPanel = std::make_shared<TestPanel>(glm::vec2(16));
+	auto bgmButton = std::make_shared<Button>("Play music", glm::vec2(0), glm::vec2(128, -1));
+	bgmButton->OnClick = [&, bgmButton]()
+	{
+		if (bgm->IsPlaying())
+		{
+			bgm->Stop();
+			bgmButton->Text = "Play music";
+		}
+		else
+		{
+			bgm->Play(false, false);
+			bgmButton->Text = "Stop music";
+		}
+	};
+
+	auto testPanel = std::make_shared<FlowPanelV>(glm::vec2(16));
 	testPanel->AddChild(testButton);
-	testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(0), glm::vec2(160, -1)));
+	testPanel->AddChild(std::make_shared<Button>("Not me!", glm::vec2(0), glm::vec2(128, -1)));
+	testPanel->AddChild(bgmButton);
 	testPanel->Reflow();
 	AddChild(testPanel);
 

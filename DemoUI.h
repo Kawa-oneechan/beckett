@@ -27,7 +27,7 @@ public:
 	glm::vec2 GetSize() override;
 };
 
-class TestPanel : public Tickable2D
+class FlowPanelV : public Tickable2D
 {
 public:
 	glm::vec4 Color{ 0.0, 0.0, 0.0, 1.0 };
@@ -38,9 +38,16 @@ public:
 public:
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ nullptr };
 
-	explicit TestPanel(glm::vec2 position, glm::vec2 size = glm::vec2(-1));
+	explicit FlowPanelV(glm::vec2 position, glm::vec2 size = glm::vec2(-1));
 
 	void Draw(float dt) override;
 
-	void Reflow();
+	virtual void Reflow();
+};
+
+class FlowPanelH : public FlowPanelV
+{
+public:
+	explicit FlowPanelH(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : FlowPanelV(position, size) {};
+	void Reflow() override;
 };

@@ -54,8 +54,6 @@ TrainDemo::TrainDemo()
 		else
 			bob.reset();
 	};
-	testButton->AbsolutePosition = testButton->Position;
-	AddChild(testButton);
 
 	auto testButton2 = std::make_shared<Button>("Toggle Boob", glm::vec2(0));
 	testButton2->OnClick = [&]()
@@ -65,9 +63,6 @@ TrainDemo::TrainDemo()
 		else
 			boob.reset();
 	};
-	testButton2->Position = testButton->Position + glm::vec2(0, 24);
-	testButton2->AbsolutePosition = testButton2->Position;
-	AddChild(testButton2);
 
 	auto hdrButton = std::make_shared<Button>("Turn on HDR", glm::vec2(0));
 	hdrButton->OnClick = [&, hdrButton]()
@@ -75,8 +70,13 @@ TrainDemo::TrainDemo()
 		hdr = !hdr;
 		hdrButton->Text = hdr ? "Turn off HDR" : "Turn on HDR";
 	};
-	hdrButton->AbsolutePosition = testButton->Position + glm::vec2(100, 0);
-	AddChild(hdrButton);
+
+	auto panel = std::make_shared<FlowPanelH>(glm::vec2(16));
+	panel->AddChild(hdrButton);
+	panel->AddChild(testButton);
+	panel->AddChild(testButton2);
+	panel->Reflow();
+	AddChild(panel);
 
 }
 
