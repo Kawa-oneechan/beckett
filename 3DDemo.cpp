@@ -13,6 +13,8 @@ ThreeDDemo::ThreeDDemo()
 {
 	ID = "3D Demo Scene";
 
+	model.SetVisibility("Collision", false);
+
 	if (model.Lights.empty())
 	{
 		commonUniforms.Lights[0].color = glm::vec4(1.0, 1.0, 1.0, 0.5);
