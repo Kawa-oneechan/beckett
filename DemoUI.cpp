@@ -10,7 +10,7 @@ static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::
 {
 	static Texture panel{ "ui/panels/panel3.png" };
 
-	NineSlicer::Draw((Texture&)panel, (glm::vec2&)pos, (glm::vec2&)size, 1.0f, color);
+	NineSlicer::Draw(panel, (glm::vec2&)pos, (glm::vec2&)size, 1.0f, color);
 
 	/*
 	Sprite::DrawSprite(*whiteRect, pos, size - glm::vec2(1), glm::vec4(0), 0.0f, color);

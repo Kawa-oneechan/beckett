@@ -15,6 +15,9 @@ MapDemo::MapDemo()
 	//tilemapMgr->Camera = glm::vec2(-(tilemapMgr->GetPixelSize().x / 5), 0);
 	//tilemapMgr->SetTile(0, 1, { -2, 118 });
 	AddChild(tilemapMgr);
+
+	auto testLabel = std::make_shared<TextLabel>(u8"Test: \uE004 \uE024 \uE028", glm::vec2(16), 2);
+	AddChild(testLabel);
 }
 
 /*

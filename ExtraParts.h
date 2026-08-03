@@ -13,7 +13,7 @@ class Subtitle : public Tickable, public AudioEventListener
 public:
 	std::shared_ptr<class DropLabel> Target;
 	void AudioEvent(float time, const std::string& text) override;
-	Subtitle(std::shared_ptr<class DropLabel> target) : Target(target) {}
+	explicit Subtitle(std::shared_ptr<class DropLabel> target) : Target(target) {}
 	void Draw(float dt) override;
 };
 

@@ -13,9 +13,13 @@ private:
 
 public:
 	ThreeDDemo();
-	~ThreeDDemo();
+	~ThreeDDemo() override;
 	//bool Tick(float dt) override;
 	void Draw(float dt) override;
+
+
+	ThreeDDemo(ThreeDDemo&) = delete;
+	ThreeDDemo operator=(ThreeDDemo) = delete;
 };
 
 #endif

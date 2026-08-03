@@ -180,7 +180,7 @@ void Game::Start()
 	MainCamera->FirstPerson(true);
 	root.AddChild(std::make_shared<FirstPersonController>());
 
-	auto menuPanel = std::make_shared<TestPanel>(glm::vec2(8));
+	auto menuPanel = std::make_shared<FlowPanelV>(glm::vec2(8));
 	menuPanel->ID = "Menu";
 	menuPanel->Spacing = 2.0f;
 	menuPanel->AddChild(makeSceneButton<TwoDDemo>("2D Stuff"));
