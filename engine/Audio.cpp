@@ -56,8 +56,10 @@ void Audio::Update()
 #endif
 }
 
-static float findLoop(char* data)
+static std::map<std::string, std::string> getTags(char* data)
 {
+	auto ret = std::map<std::string, std::string>();
+
 	//Try to find the loop start tag by hand.
 	{
 		char* tagStart = nullptr;
@@ -96,6 +98,7 @@ static float findLoop(char* data)
 			};
 
 			auto sampleRate = readInt();
+			ret["SAMPLE_RATE"] = fmt::format("{}", sampleRate);
 
 			cursor = tagStart;
 
@@ -106,17 +109,12 @@ static float findLoop(char* data)
 				auto tag = readString();
 				auto parts = Split(tag, '=');
 				auto key = parts[0];
-				if (key == "LOOP_START")
-				{
-					auto value = parts[1];
-					auto time = std::stof(value);
-
-					return time / sampleRate;
-				}
+				auto value = parts[1];
+				ret[key] = value;
 			}
 		}
 	}
-	return -1.0f;
+	return ret;
 }
 
 Sound::Sound(const std::string& filename, SoundType type)
@@ -143,28 +141,34 @@ Sound::Sound(const std::string& filename, SoundType type)
 		return;
 	}
 
-	auto loopPoint = findLoop(data.get());
-	if (loopPoint > 0.0f)
 	{
-		sound.setLoopPoint(loopPoint);
-		sound.setLooping(true);
+		auto tags = getTags(data.get());
+		if (!tags["LOOP_START"].empty())
+		{
+			auto loopPoint = std::stof(tags["LOOP_START"]);
+			auto sampleRate = std::stof(tags["SAMPLE_RATE"]);
+			sound.setLoopPoint(loopPoint / sampleRate);
+			sound.setLooping(true);
+		}
 	}
 
-	auto maybeTagFile = VFS::ChangeExtension(filename, "txt");
-	auto maybeTags = VFS::ReadString(maybeTagFile);
-	if (!maybeTags.empty())
 	{
-		//parse Audacity tag file
-		ReplaceAll(maybeTags, "\r", "");
-		auto lines = Split(maybeTags, '\n');
-		for (auto& line : lines)
+		auto maybeTagFile = VFS::ChangeExtension(filename, "txt");
+		auto maybeTags = VFS::ReadString(maybeTagFile);
+		if (!maybeTags.empty())
 		{
-			auto parts = Split(line, '\t');
-			auto time = std::stof(parts[0]);
-			auto text = parts.size() > 2 ? parts[2] : "";
-			tags.push_back(std::make_tuple(time, text));
+			//parse Audacity tag file
+			ReplaceAll(maybeTags, "\r", "");
+			auto lines = Split(maybeTags, '\n');
+			for (auto& line : lines)
+			{
+				auto parts = Split(line, '\t');
+				auto time = std::stof(parts[0]);
+				auto text = parts.size() > 2 ? parts[2] : "";
+				tags.push_back(std::make_tuple(time, text));
+			}
+			nextTag = std::get<0>(tags[0]);
 		}
-		nextTag = std::get<0>(tags[0]);
 	}
 	
 	status = Status::Stopped;
@@ -194,11 +198,17 @@ Stream::Stream(const std::string& filename, SoundType type)
 		return;
 	}
 
-	auto loopPoint = findLoop(data.get());
-	if (loopPoint > 0.0f)
 	{
-		stream.setLoopPoint(loopPoint);
-		stream.setLooping(true);
+		auto tags = getTags(data.get());
+		if (!tags["LOOP_START"].empty())
+		{
+			auto loopPoint = std::stof(tags["LOOP_START"]);
+			auto sampleRate = std::stof(tags["SAMPLE_RATE"]);
+			stream.setLoopPoint(loopPoint / sampleRate);
+			stream.setLooping(true);
+		}
+		Name = tags["title"];
+		Artist = tags["artist"];
 	}
 
 	auto maybeTagFile = VFS::ChangeExtension(filename, "txt");

@@ -136,6 +136,8 @@ class Stream : public AudioSoundBase
 	void update() override;
 
 public:
+	std::string Name, Artist;
+
 	//Loads a sound file for later use.
 	//Depending on the path, its type is set to be music, ambient noise, speeeh,
 	//or a general sound. No matter the type, if it's an Ogg Vorbis file it's
