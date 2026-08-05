@@ -384,8 +384,8 @@ void AudioSoundBase::UpdateVolume()
 	case SoundType::Music: v = Audio::MusicVolume; break;
 	case SoundType::Sound: v = Audio::SoundVolume; break;
 #ifdef BECKETT_MOREVOLUME
-	case SoundType::Ambient: v = AmbientVolume; break;
-	case SoundType::Speech: v = SpeechVolume; break;
+	case SoundType::Ambient: v = Audio::AmbientVolume; break;
+	case SoundType::Speech: v = Audio::SpeechVolume; break;
 #endif
 	}
 	volume = glm::clamp(v * Volume, 0.0f, 1.0f);
