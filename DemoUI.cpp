@@ -40,15 +40,14 @@ Button::Button(const std::string& text, glm::vec2 position, glm::vec2 size) : Te
 
 bool Button::Tick(float dt)
 {
-	if (!Inputs.MouseLeft)
-		return true;
 	if (!OnClick)
 		return true;
-	if (Inputs.MousePosition.x > AbsolutePosition.x &&
-		Inputs.MousePosition.y > AbsolutePosition.y &&
-		Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
-		Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
+	if (Inputs.LastClickLeft.x > AbsolutePosition.x &&
+		Inputs.LastClickLeft.y > AbsolutePosition.y &&
+		Inputs.LastClickLeft.x < AbsolutePosition.x + Size.x &&
+		Inputs.LastClickLeft.y < AbsolutePosition.y + Size.y)
 	{
+		Inputs.LastClickLeft = glm::vec2(-1000);
 		OnClick();
 		return false;
 	}
