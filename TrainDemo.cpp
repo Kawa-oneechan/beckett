@@ -47,7 +47,7 @@ TrainDemo::TrainDemo()
 	postFx = new Framebuffer(Shaders["postfx"], width, height);
 
 	auto testButton = std::make_shared<Button>("Toggle Bob", glm::vec2(0));
-	testButton->OnClick = [&]()
+	testButton->OnClick = [&](auto&)
 	{
 		if (!bob)
 			bob = VFS::GetModel("examples/train/bob/bob.fbx");
@@ -56,7 +56,7 @@ TrainDemo::TrainDemo()
 	};
 
 	auto testButton2 = std::make_shared<Button>("Toggle Boob", glm::vec2(0));
-	testButton2->OnClick = [&]()
+	testButton2->OnClick = [&](auto&)
 	{
 		if (!boob)
 			boob = VFS::GetModel("examples/train/bob/bob.fbx");
@@ -65,10 +65,10 @@ TrainDemo::TrainDemo()
 	};
 
 	auto hdrButton = std::make_shared<Button>("Turn on HDR", glm::vec2(0));
-	hdrButton->OnClick = [&, hdrButton]()
+	hdrButton->OnClick = [&](auto& btn)
 	{
 		hdr = !hdr;
-		hdrButton->Text = hdr ? "Turn off HDR" : "Turn on HDR";
+		btn.Text = hdr ? "Turn off HDR" : "Turn on HDR";
 	};
 
 	auto panel = std::make_shared<FlowPanelH>(glm::vec2(16));

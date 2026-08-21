@@ -13,7 +13,7 @@ public:
 	float Angle{ 0.0f };
 	int Font{ 0 };
 	bool Raw{ false };
-	std::function<void()> OnClick{ nullptr };
+	std::function<void(Button&)> OnClick{ nullptr };
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ nullptr };
 
 	Button(const std::string& text, glm::vec2 position, glm::vec2 size = glm::vec2(-1));
@@ -55,14 +55,14 @@ public:
 class TrackBar : public Tickable2D
 {
 public:
-	int Value, Min, Max;
+	int Value, Min, Max, Step;
 	float Length, Height{ 24 };
 	glm::vec4 Color{ 1.0, 1.0, 1.0, 1.0 };
 	glm::vec4 TrackColor { 0.5, 0.5, 0.5, 1.0 };
-	std::function<void()> OnClick{ nullptr };
+	std::function<void(TrackBar&)> OnChange{ nullptr };
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ nullptr };
 
-	TrackBar(int value, int min, int max, glm::vec2 position, float length =  256.0f);
+	TrackBar(int value, int min, int max, int step, glm::vec2 position, float length =  256.0f);
 
 	bool Tick(float dt) override;
 

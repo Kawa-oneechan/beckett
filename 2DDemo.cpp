@@ -29,7 +29,7 @@ TwoDDemo::TwoDDemo()
 	AddChild(rory);
 
 	auto testButton = std::make_shared<Button>("Click me?", glm::vec2(0), glm::vec2(128, -1));
-	testButton->OnClick = []()
+	testButton->OnClick = [](const auto&)
 	{
 		//TODO: replace effect, this makes no effect without a 3D camera.
 		MainCamera->Angles(MainCamera->Angles() + glm::vec3(0, 0, 1));
@@ -37,17 +37,17 @@ TwoDDemo::TwoDDemo()
 	testButton->AbsolutePosition = testButton->Position;
 
 	auto bgmButton = std::make_shared<Button>("Play music", glm::vec2(0), glm::vec2(128, -1));
-	bgmButton->OnClick = [&, bgmButton]()
+	bgmButton->OnClick = [&](auto& btn)
 	{
 		if (bgm->IsPlaying())
 		{
 			bgm->Stop();
-			bgmButton->Text = "Play music";
+			btn.Text = "Play music";
 		}
 		else
 		{
 			bgm->Play(false, false);
-			bgmButton->Text = "Stop music";
+			btn.Text = "Stop music";
 		}
 	};
 

@@ -45,17 +45,17 @@ ThreeDDemo::ThreeDDemo()
 	}
 	else
 	{
-		MainCamera->FirstPerson(true);
+		//MainCamera->FirstPerson(true);
 		MainCamera->Target(model.Cameras[0].Position);
 		MainCamera->Angles(model.Cameras[0].Direction);
 		MainCamera->Distance(0);
 	}
 
 	auto hdrButton = std::make_shared<Button>("Turn on HDR", glm::vec2(0));
-	hdrButton->OnClick = [&, hdrButton]()
+	hdrButton->OnClick = [&](auto& btn)
 	{
 		hdr = !hdr;
-		hdrButton->Text = hdr ? "Turn off HDR" : "Turn on HDR";
+		btn.Text = hdr ? "Turn off HDR" : "Turn on HDR";
 	};
 	hdrButton->AbsolutePosition = hdrButton->Position;
 	AddChild(hdrButton);

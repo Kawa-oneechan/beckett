@@ -142,7 +142,7 @@ static std::shared_ptr<Button> makeSceneButton(const std::string& caption)
 {
 	auto currentScene = root.GetChild<Tickable>("Current Scene");
 	auto theButton = std::make_shared<Button>(caption, glm::vec2(0), glm::vec2(160, -1));
-	theButton->OnClick = [currentScene]()
+	theButton->OnClick = [currentScene](auto&)
 	{
 		currentScene->RemoveAll();
 		currentScene->AddChild(std::make_shared<T>());
@@ -190,7 +190,7 @@ void Game::Start()
 	menuPanel->AddChild(makeSceneButton<TrainDemo>("3D Train"));
 #endif
 	auto exitButton = std::make_shared<Button>("Exit", glm::vec2(0), glm::vec2(160, -1));
-	exitButton->OnClick = [currentScene]() { Game::ShouldClose = true; };
+	exitButton->OnClick = [currentScene](auto&) { Game::ShouldClose = true; };
 	exitButton->BackColor = glm::vec4(1.0, 0.0, 0.0, 1.0);
 	exitButton->Color = glm::vec4(1.0, 1.0, 1.0, 1.0);
 	exitButton->ID = "btnExit";

@@ -48,7 +48,7 @@ bool Button::Tick(float dt)
 		Inputs.LastClickLeft.y < AbsolutePosition.y + Size.y)
 	{
 		Inputs.LastClickLeft = glm::vec2(-1000);
-		OnClick();
+		OnClick(*this);
 		return false;
 	}
 	return true;
@@ -145,7 +145,7 @@ void FlowPanelH::Reflow()
 	Size = GetMinimalSize() + glm::vec2(Margin);
 }
 
-TrackBar::TrackBar(int value, int min, int max, glm::vec2 position, float length) : Value(value), Min(min), Max(max), Length(length)
+TrackBar::TrackBar(int value, int min, int max, int step, glm::vec2 position, float length) : Value(value), Min(min), Max(max), Step(step), Length(length)
 {
 	parent = nullptr;
 	Position = position;
@@ -168,10 +168,9 @@ bool TrackBar::Tick(float dt)
 		
 		auto x = glm::clamp(Inputs.MousePosition.x, AbsolutePosition.x, AbsolutePosition.x + Length);
 		auto  v = Min + ((x - AbsolutePosition.x) * (Max - Min)) / Length;
-		auto Step = 1;
 		Value = glm::clamp((int)(round(v / Step) * Step), Min, Max);
-		if (OnClick)
-			OnClick();
+		if (OnChange)
+			OnChange(*this);
 		return false;
 	}
 	else
