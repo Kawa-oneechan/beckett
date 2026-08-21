@@ -194,6 +194,14 @@ PanelLayout::PanelLayout(jsonValue& source)
 
 bool PanelLayout::Tick(float dt)
 {
+	auto scale1d = ::width / 1920.0f;
+	auto scale2d = glm::vec2(::width / 1920.0f, ::height / 1080.0f);
+	if (!Scaled)
+	{
+		scale1d = 1.0f;
+		scale2d = glm::vec2(1.0f);
+	}
+
 	auto apply = [&](AnimationBit& bit, float val)
 	{
 		auto* panel = panels[0];
@@ -301,12 +309,12 @@ bool PanelLayout::Tick(float dt)
 			poly.resize(thisPoly.size());
 			std::transform(thisPoly.cbegin(), thisPoly.cend(), poly.begin(),
 				//[&](const auto& point) { return ((point * size) + Position + parentPos + panel->Position) * scale; });
-				[&](const auto& point) { return ((point * size) + parentPos + panel->Position) * scale; });
+				[&](const auto& point) { return ((point * size) + parentPos + panel->Position) * scale2d; });
 
 			//prevPoly = panel->Polygon;
 		}
 
-		if (PointInPoly(Inputs.MousePosition, poly))
+		if (PointInPoly(Inputs.ScaledMousePosition, poly))
 		{
 			newHl = panel;
 			break;
@@ -315,9 +323,9 @@ bool PanelLayout::Tick(float dt)
 	if (newHl != highlighted)
 		highlighted = newHl;
 
-	if (Inputs.MouseLeft && highlighted && onClick)
+	if (Inputs.LastClickLeft.x >= 0.0f && highlighted && onClick)
 	{
-		Inputs.MouseLeft = false;
+		Inputs.LastClickLeft.x = -1000;
 		if (highlighted->Enabled)
 			onClick(highlighted->ID);
 	}
