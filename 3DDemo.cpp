@@ -60,6 +60,21 @@ ThreeDDemo::ThreeDDemo()
 	hdrButton->AbsolutePosition = hdrButton->Position;
 	AddChild(hdrButton);
 
+	auto trackBar = std::make_shared<TrackBar>(0, -50, 50, 1, glm::vec2(8, 32), 256.0f);
+	trackBar->OnChange = [&](auto& bar)
+	{
+		commonUniforms.Lights[1].pos.x = (float)bar.Value;
+	};
+	trackBar->AbsolutePosition = trackBar->Position;
+	AddChild(trackBar);
+
+	trackBar = std::make_shared<TrackBar>(0, -50, 50, 1, glm::vec2(8, 64), 256.0f);
+	trackBar->OnChange = [&](auto& bar)
+	{
+		commonUniforms.Lights[1].pos.z = (float)bar.Value;
+	};
+	trackBar->AbsolutePosition = trackBar->Position;
+	AddChild(trackBar);
 }
 
 /*
