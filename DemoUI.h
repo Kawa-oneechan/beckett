@@ -51,3 +51,25 @@ public:
 	explicit FlowPanelH(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : FlowPanelV(position, size) {};
 	void Reflow() override;
 };
+
+class TrackBar : public Tickable2D
+{
+public:
+	int Value, Min, Max;
+	float Length, Height{ 24 };
+	glm::vec4 Color{ 1.0, 1.0, 1.0, 1.0 };
+	glm::vec4 TrackColor { 0.5, 0.5, 0.5, 1.0 };
+	std::function<void()> OnClick{ nullptr };
+	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ nullptr };
+
+	TrackBar(int value, int min, int max, glm::vec2 position, float length =  256.0f);
+
+	bool Tick(float dt) override;
+
+	void Draw(float) override;
+
+	glm::vec2 GetMinimalSize() override;
+
+	glm::vec2 GetSize() override;
+
+};
