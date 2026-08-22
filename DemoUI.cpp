@@ -2,15 +2,23 @@
 #include "engine/InputsMap.h"
 #include "engine/NineSlicer.h"
 #include "engine/Font.h"
+#include "engine/Audio.h"
 #include "DemoUI.h"
 
 extern Texture* whiteRect;
 
+static std::shared_ptr<Sound> clickSound;
+
 static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color, int flags)
 {
-	static Texture panel{ "ui/panels/panel3.png" };
+	static Texture panels[] = {
+		Texture{ "ui/panels/panel3.png" },
+		Texture{ "ui/panels/panel4.png" },
+		Texture{ "ui/panels/panel5.png" },
+		Texture{ "ui/panels/panel6.png" },
+	};
 
-	NineSlicer::Draw(panel, (glm::vec2&)pos, (glm::vec2&)size, 1.0f, color);
+	NineSlicer::Draw(panels[flags], (glm::vec2&)pos, (glm::vec2&)size, 1.0f, color);
 
 	/*
 	Sprite::DrawSprite(*whiteRect, pos, size - glm::vec2(1), glm::vec4(0), 0.0f, color);
@@ -31,6 +39,9 @@ Button::Button(const std::string& text, glm::vec2 position, glm::vec2 size) : Te
 	parent = nullptr;
 	Position = position;
 
+	if (!clickSound)
+		clickSound = std::make_shared<Sound>("ui/click5.ogg");
+
 	auto minSize = Sprite::MeasureText(Font, Text, TextSize, Raw) + glm::vec2(16, 8);
 	if (Size.x == -1)
 		Size.x = minSize.x;
@@ -48,6 +59,7 @@ bool Button::Tick(float dt)
 		Inputs.LastClickLeft.y < AbsolutePosition.y + Size.y)
 	{
 		Inputs.LastClickLeft = glm::vec2(-1000);
+		clickSound->Play(true);
 		OnClick(*this);
 		return false;
 	}
@@ -56,20 +68,24 @@ bool Button::Tick(float dt)
 
 void Button::Draw(float)
 {
-	auto color = BackColor;
-	if (!(Inputs.MousePosition.x > AbsolutePosition.x &&
-		  Inputs.MousePosition.y > AbsolutePosition.y &&
-		  Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
-		  Inputs.MousePosition.y < AbsolutePosition.y + Size.y))
-		color -= 0.1f;
-
+	auto frame = 0;
+	if (Inputs.MousePosition.x > AbsolutePosition.x &&
+		Inputs.MousePosition.y > AbsolutePosition.y &&
+		Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
+		Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
+	{
+		frame = 2;
+		if (Inputs.MouseHoldLeft)
+			frame = 1;
+	}
+		
 	//color = glm::vec4(HSLtoRGB((glm::cos(commonUniforms.TotalTime * 0.75f) * 0.5f) + 0.5f, 0.75f, 0.5f), 1.0f);
 
 	//Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, color);
 	//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
-	OnDraw(AbsolutePosition, Size, color, 0);
+	OnDraw(AbsolutePosition, Size, BackColor, frame);
 
 	auto size = Sprite::MeasureText(Font, Text, TextSize, Raw);
 	auto center = (Size * 0.5f) - (size * 0.5f);
@@ -106,7 +122,7 @@ void FlowPanelV::Draw(float dt)
 	//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
-	OnDraw(AbsolutePosition, Size, BackColor, 0);
+	OnDraw(AbsolutePosition, Size, BackColor, 3);
 
 	Tickable2D::Draw(dt);
 }
@@ -165,10 +181,12 @@ bool TrackBar::Tick(float dt)
 		if (!Inputs.MouseHoldLeft)
 			return true;
 		//Inputs.MouseLeft = false;
-		
+		auto oldVal = Value;
 		auto x = glm::clamp(Inputs.MousePosition.x, AbsolutePosition.x, AbsolutePosition.x + Length);
 		auto  v = Min + ((x - AbsolutePosition.x) * (Max - Min)) / Length;
 		Value = glm::clamp((int)(round(v / Step) * Step), Min, Max);
+		if (Value != oldVal)
+			clickSound->Play(true);
 		if (OnChange)
 			OnChange(*this);
 		return false;
@@ -183,23 +201,27 @@ bool TrackBar::Tick(float dt)
 
 void TrackBar::Draw(float)
 {
-	auto color = Color;
-	if (!(Inputs.MousePosition.x > AbsolutePosition.x &&
+	auto frame = 0;
+	if (Inputs.MousePosition.x > AbsolutePosition.x &&
 		Inputs.MousePosition.y > AbsolutePosition.y &&
 		Inputs.MousePosition.x < AbsolutePosition.x + Length &&
-		Inputs.MousePosition.y < AbsolutePosition.y + Height))
-		color -= 0.1f;
+		Inputs.MousePosition.y < AbsolutePosition.y + Height)
+	{
+		frame = 2;
+		if (Inputs.MouseHoldLeft)
+			frame = 1;
+	}
 
 	auto size = glm::vec2(Length, Height);
 
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
-	OnDraw(AbsolutePosition, size, TrackColor, 0);
+	OnDraw(AbsolutePosition, size, TrackColor, 3);
 
 	auto range = Max - Min;
 	auto ccur = glm::clamp(Value, Min, Max) - Min;
 	auto thumbPos = ((ccur * (Length - (Height * 0.5f))) / range);
-	OnDraw(AbsolutePosition + glm::vec2(thumbPos, 0), glm::vec2(Height * 0.5f, Height), color, 0);
+	OnDraw(AbsolutePosition + glm::vec2(thumbPos, 0), glm::vec2(Height * 0.5f, Height), Color, frame);
 }
 
 
