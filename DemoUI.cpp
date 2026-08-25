@@ -34,10 +34,29 @@ static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::
 	*/
 }
 
-Button::Button(const std::string& text, glm::vec2 position, glm::vec2 size) : Text(text), Size(size)
+bool UIControl::IsHovered()
+{
+	return
+		Inputs.MousePosition.x > AbsolutePosition.x &&
+		Inputs.MousePosition.y > AbsolutePosition.y &&
+		Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
+		Inputs.MousePosition.y < AbsolutePosition.y + Size.y;
+}
+
+bool UIControl::IsClicked()
+{
+	return
+		Inputs.LastClickLeft.x > AbsolutePosition.x &&
+		Inputs.LastClickLeft.y > AbsolutePosition.y &&
+		Inputs.LastClickLeft.x < AbsolutePosition.x + Size.x &&
+		Inputs.LastClickLeft.y < AbsolutePosition.y + Size.y;
+}
+
+Button::Button(const std::string& text, glm::vec2 position, glm::vec2 size) : Text(text)
 {
 	parent = nullptr;
 	Position = position;
+	Size = size;
 
 	if (!clickSound)
 		clickSound = std::make_shared<Sound>("ui/click5.ogg");
@@ -53,10 +72,7 @@ bool Button::Tick(float dt)
 {
 	if (!OnClick)
 		return true;
-	if (Inputs.LastClickLeft.x > AbsolutePosition.x &&
-		Inputs.LastClickLeft.y > AbsolutePosition.y &&
-		Inputs.LastClickLeft.x < AbsolutePosition.x + Size.x &&
-		Inputs.LastClickLeft.y < AbsolutePosition.y + Size.y)
+	if (IsClicked())
 	{
 		Inputs.LastClickLeft = glm::vec2(-1000);
 		clickSound->Play(true);
@@ -69,10 +85,7 @@ bool Button::Tick(float dt)
 void Button::Draw(float)
 {
 	auto frame = 0;
-	if (Inputs.MousePosition.x > AbsolutePosition.x &&
-		Inputs.MousePosition.y > AbsolutePosition.y &&
-		Inputs.MousePosition.x < AbsolutePosition.x + Size.x &&
-		Inputs.MousePosition.y < AbsolutePosition.y + Size.y)
+	if (IsHovered())
 	{
 		frame = 2;
 		if (Inputs.MouseHoldLeft)
@@ -97,15 +110,11 @@ glm::vec2 Button::GetMinimalSize()
 	return Sprite::MeasureText(Font, Text, TextSize, Raw) + glm::vec2(16, 8);
 }
 
-glm::vec2 Button::GetSize()
-{
-	return Size;
-}
-
-FlowPanelV::FlowPanelV(glm::vec2 position, glm::vec2 size) : Size(size)
+FlowPanelV::FlowPanelV(glm::vec2 position, glm::vec2 size)
 {
 	parent = nullptr;
 	Position = position;
+	Size = size;
 
 	//auto minSize = GetMinimalSize();
 	if (Size.x == -1)
@@ -161,10 +170,11 @@ void FlowPanelH::Reflow()
 	Size = GetMinimalSize() + glm::vec2(Margin);
 }
 
-TrackBar::TrackBar(int value, int min, int max, int step, glm::vec2 position, float length) : Value(value), Min(min), Max(max), Step(step), Length(length)
+TrackBar::TrackBar(int value, int min, int max, int step, glm::vec2 position, float length) : Value(value), Min(min), Max(max), Step(step)
 {
 	parent = nullptr;
 	Position = position;
+	Size = glm::vec2(length, 24);
 }
 
 bool TrackBar::Tick(float dt)
@@ -173,17 +183,14 @@ bool TrackBar::Tick(float dt)
 	//	return true;
 	//if (!OnClick)
 	//	return true;
-	if (Inputs.MousePosition.x > AbsolutePosition.x &&
-		Inputs.MousePosition.y > AbsolutePosition.y &&
-		Inputs.MousePosition.x < AbsolutePosition.x + Length &&
-		Inputs.MousePosition.y < AbsolutePosition.y + Height)
+	if (IsHovered())
 	{
 		if (!Inputs.MouseHoldLeft)
 			return true;
 		//Inputs.MouseLeft = false;
 		auto oldVal = Value;
-		auto x = glm::clamp(Inputs.MousePosition.x, AbsolutePosition.x, AbsolutePosition.x + Length);
-		auto  v = Min + ((x - AbsolutePosition.x) * (Max - Min)) / Length;
+		auto x = glm::clamp(Inputs.MousePosition.x, AbsolutePosition.x, AbsolutePosition.x + Size.x);
+		auto  v = Min + ((x - AbsolutePosition.x) * (Max - Min)) / Size.x;
 		Value = glm::clamp((int)(round(v / Step) * Step), Min, Max);
 		if (Value != oldVal)
 			clickSound->Play(true);
@@ -202,35 +209,19 @@ bool TrackBar::Tick(float dt)
 void TrackBar::Draw(float)
 {
 	auto frame = 0;
-	if (Inputs.MousePosition.x > AbsolutePosition.x &&
-		Inputs.MousePosition.y > AbsolutePosition.y &&
-		Inputs.MousePosition.x < AbsolutePosition.x + Length &&
-		Inputs.MousePosition.y < AbsolutePosition.y + Height)
+	if (IsHovered())
 	{
 		frame = 2;
 		if (Inputs.MouseHoldLeft)
 			frame = 1;
 	}
 
-	auto size = glm::vec2(Length, Height);
-
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
-	OnDraw(AbsolutePosition, size, TrackColor, 3);
+	OnDraw(AbsolutePosition, Size, TrackColor, 3);
 
 	auto range = Max - Min;
 	auto ccur = glm::clamp(Value, Min, Max) - Min;
-	auto thumbPos = ((ccur * (Length - (Height * 0.5f))) / range);
-	OnDraw(AbsolutePosition + glm::vec2(thumbPos, 0), glm::vec2(Height * 0.5f, Height), Color, frame);
-}
-
-
-glm::vec2 TrackBar::GetMinimalSize()
-{
-	return glm::vec2(Length, Height);
-}
-
-glm::vec2 TrackBar::GetSize()
-{
-	return glm::vec2(Length, Height);
+	auto thumbPos = ((ccur * (Size.x - (Size.y * 0.5f))) / range);
+	OnDraw(AbsolutePosition + glm::vec2(thumbPos, 0), glm::vec2(Size.y * 0.5f, Size.y), Color, frame);
 }

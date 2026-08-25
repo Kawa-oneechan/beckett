@@ -2,13 +2,23 @@
 #include <functional>
 #include "engine/Tickable.h"
 
-class Button : public Tickable2D
+class UIControl : public Tickable2D
+{
+public:
+	glm::vec2 Size{ 128, 32 };
+
+	glm::vec2 GetSize() override { return Size; }
+
+	bool IsHovered();
+	bool IsClicked();
+};
+
+class Button : public UIControl
 {
 public:
 	std::string Text;
 	glm::vec4 Color{ 0.0, 0.0, 0.0, 1.0 };
 	glm::vec4 BackColor{ 1.0, 1.0, 1.0, 1.0 };
-	glm::vec2 Size{ 128, 32 };
 	float TextSize{ 100.0f };
 	float Angle{ 0.0f };
 	int Font{ 0 };
@@ -19,20 +29,15 @@ public:
 	Button(const std::string& text, glm::vec2 position, glm::vec2 size = glm::vec2(-1));
 
 	bool Tick(float dt) override;
-
 	void Draw(float) override;
-
 	glm::vec2 GetMinimalSize() override;
-
-	glm::vec2 GetSize() override;
 };
 
-class FlowPanelV : public Tickable2D
+class FlowPanelV : public UIControl
 {
 public:
 	glm::vec4 Color{ 0.0, 0.0, 0.0, 1.0 };
 	glm::vec4 BackColor{ 0.65, 0.65, 0.65, 1.0 };
-	glm::vec2 Size;
 	float Margin{ 6.0f };
 	float Spacing{ 4.0f };
 public:
@@ -52,11 +57,10 @@ public:
 	void Reflow() override;
 };
 
-class TrackBar : public Tickable2D
+class TrackBar : public UIControl
 {
 public:
 	int Value, Min, Max, Step;
-	float Length, Height{ 24 };
 	glm::vec4 Color{ 1.0, 1.0, 1.0, 1.0 };
 	glm::vec4 TrackColor { 0.5, 0.5, 0.5, 1.0 };
 	std::function<void(TrackBar&)> OnChange{ nullptr };
@@ -65,11 +69,5 @@ public:
 	TrackBar(int value, int min, int max, int step, glm::vec2 position, float length =  256.0f);
 
 	bool Tick(float dt) override;
-
 	void Draw(float) override;
-
-	glm::vec2 GetMinimalSize() override;
-
-	glm::vec2 GetSize() override;
-
 };
