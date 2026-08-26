@@ -92,10 +92,6 @@ void Button::Draw(float)
 			frame = 1;
 	}
 		
-	//color = glm::vec4(HSLtoRGB((glm::cos(commonUniforms.TotalTime * 0.75f) * 0.5f) + 0.5f, 0.75f, 0.5f), 1.0f);
-
-	//Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, color);
-	//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
 	OnDraw(AbsolutePosition, Size, BackColor, frame);
@@ -116,19 +112,14 @@ FlowPanelV::FlowPanelV(glm::vec2 position, glm::vec2 size)
 	Position = position;
 	Size = size;
 
-	//auto minSize = GetMinimalSize();
-	if (Size.x == -1)
-		Size.x = 32; //minSize.x;
-	if (Size.y == -1)
-		Size.y = 32; //minSize.y;
+	if (Size.x == -1) Size.x = 32;
+	if (Size.y == -1) Size.y = 32;
 
 	Size += glm::vec2(8);
 }
 
 void FlowPanelV::Draw(float dt)
 {
-	//Sprite::DrawSprite(*whiteRect, AbsolutePosition, Size, glm::vec4(0), 0.0f, BackColor);
-	//Sprite::DrawRect(glm::vec4(AbsolutePosition, AbsolutePosition + Size), Color);
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
 	OnDraw(AbsolutePosition, Size, BackColor, 3);
@@ -170,38 +161,34 @@ void FlowPanelH::Reflow()
 	Size = GetMinimalSize() + glm::vec2(Margin);
 }
 
-TrackBar::TrackBar(int value, int min, int max, int step, glm::vec2 position, float length) : Value(value), Min(min), Max(max), Step(step)
+TrackBar::TrackBar(int value, int min, int max, int step, glm::vec2 position, float length, bool vertical) : Value(value), Min(min), Max(max), Step(step), vertical(vertical)
 {
 	parent = nullptr;
 	Position = position;
-	Size = glm::vec2(length, 24);
+	Size = vertical ? glm::vec2(Thickness, length) : glm::vec2(length, Thickness);
 }
 
 bool TrackBar::Tick(float dt)
 {
-	//if (!Inputs.MouseHoldLeft)
-	//	return true;
-	//if (!OnClick)
-	//	return true;
 	if (IsHovered())
 	{
 		if (!Inputs.MouseHoldLeft)
 			return true;
-		//Inputs.MouseLeft = false;
 		auto oldVal = Value;
-		auto x = glm::clamp(Inputs.MousePosition.x, AbsolutePosition.x, AbsolutePosition.x + Size.x);
-		auto  v = Min + ((x - AbsolutePosition.x) * (Max - Min)) / Size.x;
+
+		auto mp = !vertical ? Inputs.MousePosition.x : Inputs.MousePosition.y;
+		auto ap = !vertical ? AbsolutePosition.x : AbsolutePosition.y;
+		auto sz = !vertical ? Size.x : Size.y;
+
+		auto x = glm::clamp(mp, ap, ap + sz);
+		auto v = Min + ((x - ap) * (Max - Min)) / sz;
 		Value = glm::clamp((int)(round(v / Step) * Step), Min, Max);
+
 		if (Value != oldVal)
 			clickSound->Play(true);
 		if (OnChange)
 			OnChange(*this);
 		return false;
-	}
-	else
-	{
-		//if (Inputs.MouseHoldLeft)
-		//	Inputs.MouseLeft = false;
 	}
 	return true;
 }
@@ -222,6 +209,14 @@ void TrackBar::Draw(float)
 
 	auto range = Max - Min;
 	auto ccur = glm::clamp(Value, Min, Max) - Min;
-	auto thumbPos = ((ccur * (Size.x - (Size.y * 0.5f))) / range);
-	OnDraw(AbsolutePosition + glm::vec2(thumbPos, 0), glm::vec2(Size.y * 0.5f, Size.y), Color, frame);
+	if (!vertical)
+	{
+		auto thumbPos = ((ccur * (Size.x - (Size.y * 0.5f))) / range);
+		OnDraw(AbsolutePosition + glm::vec2(thumbPos, 0), glm::vec2(Size.y * 0.5f, Size.y), Color, frame);
+	}
+	else
+	{
+		auto thumbPos = ((ccur * (Size.y - (Size.x * 0.5f))) / range);
+		OnDraw(AbsolutePosition + glm::vec2(0, thumbPos), glm::vec2(Size.x, Size.x * 0.5f), Color, frame);
+	}
 }
