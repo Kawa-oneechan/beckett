@@ -11,27 +11,8 @@ static std::shared_ptr<Sound> clickSound;
 
 static void FrameDrawer(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color, int flags)
 {
-	static Texture panels[] = {
-		Texture{ "ui/panels/panel3.png" },
-		Texture{ "ui/panels/panel4.png" },
-		Texture{ "ui/panels/panel5.png" },
-		Texture{ "ui/panels/panel6.png" },
-	};
-
-	NineSlicer::Draw(panels[flags], (glm::vec2&)pos, (glm::vec2&)size, 1.0f, color);
-
-	/*
-	Sprite::DrawSprite(*whiteRect, pos, size - glm::vec2(1), glm::vec4(0), 0.0f, color);
-
-	auto diff = glm::vec4(0.25, 0.25, 0.25, 0.0);
-	auto hi = color + diff;
-	auto lo = color - diff;
-
-	Sprite::DrawLine(pos, pos + glm::vec2(size.x - 1, 0), hi);
-	Sprite::DrawLine(pos + glm::vec2(0, 1), pos + glm::vec2(0, size.y - 1), hi);
-	Sprite::DrawLine(pos + glm::vec2(0, size.y - 1), pos + glm::vec2(size.x - 1, size.y - 1), lo);
-	Sprite::DrawLine(pos + glm::vec2(size.x, 1), pos + glm::vec2(size.x, size.y - 1), lo);
-	*/
+	static auto texture = Texture{ "ui/button.png" };
+	NineSlicer::Draw(texture, (glm::vec2&)pos, (glm::vec2&)size, 1.0f, color, flags * 9);
 }
 
 bool UIControl::IsHovered()
