@@ -91,7 +91,7 @@ Texture::Texture(const std::string& texturePath, int repeat, int filter, bool sk
 
 	{
 		auto name = fmt::format("Texture {} ({})", file, ID);
-		glObjectLabel(GL_TEXTURE, ID, name.length(), name.c_str());
+		glObjectLabel(GL_TEXTURE, ID, (GLsizei)name.length(), name.c_str());
 	}
 }
 
@@ -153,7 +153,7 @@ void Texture::Use(int slot)
 		delayed = false;
 		{
 			auto name = fmt::format("Texture {} ({})", file, ID);
-			glObjectLabel(GL_TEXTURE, ID, name.length(), name.c_str());
+			glObjectLabel(GL_TEXTURE, ID, (GLsizei)name.length(), name.c_str());
 		}
 	}
 
@@ -252,7 +252,7 @@ TextureArray::TextureArray(const std::vector<std::string>& entries, int repeat, 
 
 	{
 		auto name = fmt::format("Texture {} ({})", file, ID);
-		glObjectLabel(GL_TEXTURE, ID, name.length(), name.c_str());
+		glObjectLabel(GL_TEXTURE, ID, (GLsizei)name.length(), name.c_str());
 	}
 }
 
@@ -333,7 +333,7 @@ void TextureArray::Use(int slot)
 		delayed = false;
 		{
 			auto name = fmt::format("Texture {} ({})", file, ID);
-			glObjectLabel(GL_TEXTURE, ID, name.length(), name.c_str());
+			glObjectLabel(GL_TEXTURE, ID, (GLsizei)name.length(), name.c_str());
 		}
 	}
 

@@ -59,7 +59,7 @@ void Shader::load()
 
 	{
 		auto name = fmt::format("Shader {} ({})", fragmentShaderPath, ID);
-		glObjectLabel(GL_PROGRAM, ID, name.length(), name.c_str());
+		glObjectLabel(GL_PROGRAM, ID, (GLsizei)name.length(), name.c_str());
 	}
 }
 

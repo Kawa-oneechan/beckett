@@ -206,7 +206,7 @@ Model::Mesh::Mesh(ufbx_mesh* mesh, const Armature& bones, size_t boneCt) : Name(
 
 	{
 		auto name = fmt::format("Mesh {} ({})", Name, VAO);
-		glObjectLabel(GL_VERTEX_ARRAY, VAO, name.length(), name.c_str());
+		glObjectLabel(GL_VERTEX_ARRAY, VAO, (GLsizei)name.length(), name.c_str());
 	}
 }
 
