@@ -24,6 +24,18 @@ void main()
 	vec4 mixVal = texture(mixTexture, vec3(TexCoord, layer));
 	float opacityVal = texture(opacityTexture, vec3(TexCoord, layer)).r;
 
+	if (DebugMode == 1)
+	{
+		fragColor = vec4(normalVal, 1.0);
+		return;
+	}
+	else if (DebugMode == 2)
+	{
+		fragColor = vec4(albedoVal.rgb, 1.0);
+		return;
+	}
+
+
 	if (mixVal.r == mixVal.g && mixVal.g == mixVal.b)
 		mixVal.g = mixVal.b = 0;
 

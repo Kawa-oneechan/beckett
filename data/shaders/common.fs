@@ -22,6 +22,7 @@ layout (std140) uniform CommonData
 	bool Toon;
 	bool Fresnel;
 	float FresnelPower;
+	int DebugMode;
 };
 
 //------------

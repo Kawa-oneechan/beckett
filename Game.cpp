@@ -66,6 +66,7 @@ void Game::RegisterConsole(Console* console)
 	RV("panels", CVar::Type::Bool, &debugPanelLayoutPolygons);
 	RV("fresnel", CVar::Type::Bool, &commonUniforms.Fresnel);
 	RV("fresnelpower", CVar::Type::Float, &commonUniforms.FresnelPower);
+	RV("debugmode", CVar::Type::Int, &commonUniforms.DebugMode, false, 0, 4);
 
 #undef RV
 

@@ -81,6 +81,7 @@ struct CommonUniforms
 	alignas(4) bool Toon;
 	alignas(4) bool Fresnel;
 	float FresnelPower;
+	int DebugMode;
 };
 
 extern float scale;
