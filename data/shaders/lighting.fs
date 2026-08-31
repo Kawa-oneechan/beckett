@@ -57,7 +57,7 @@ vec3 calcNormal(vec3 mapCol)
 
 float fresnelSchlick(float cosTheta, float F0)
 {
-	return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+	return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), FresnelPower);
 }
 
 float getFresnel(mat4 model, vec3 normal)
@@ -78,7 +78,8 @@ float getFresnel(mat4 model, vec3 normal)
 
 	//return fresnelSchlick(max(dot(H, V), 0.0), 0.04);
 
-	return clamp(0.4 - dot(normal, V), 0.0, 1.0);
+	//return clamp(FresnelPower - dot(normal, V), 0.0, 1.0);
+	return pow(clamp(1.0 - dot(normal, V), 0.0, 1.0), FresnelPower);
 }
 
 

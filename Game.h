@@ -80,6 +80,7 @@ struct CommonUniforms
 	Light Lights[MaxLights];
 	alignas(4) bool Toon;
 	alignas(4) bool Fresnel;
+	float FresnelPower;
 };
 
 extern float scale;

@@ -64,6 +64,8 @@ void Game::RegisterConsole(Console* console)
 	RV("testcol", CVar::Type::Color, &testColor);
 	RV("callback", CVar::Type::String, &testString, false, -1, -1, [](CVar* c) { StringToUpper(*c->asString); });
 	RV("panels", CVar::Type::Bool, &debugPanelLayoutPolygons);
+	RV("fresnel", CVar::Type::Bool, &commonUniforms.Fresnel);
+	RV("fresnelpower", CVar::Type::Float, &commonUniforms.FresnelPower);
 
 #undef RV
 
@@ -123,6 +125,7 @@ void Game::Initialize()
 	MainCamera->Target(glm::vec3(0, 5, 0));
 
 	commonUniforms.Fresnel = true;
+	commonUniforms.FresnelPower = 4.0f;
 
 #ifdef TESTLOADER
 	ThreadedLoader(loaderTest, "cinematics/loader/loader.json");

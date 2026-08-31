@@ -21,6 +21,7 @@ layout (std140) uniform CommonData
 	light Lights[NUMLIGHTS];
 	bool Toon;
 	bool Fresnel;
+	float FresnelPower;
 };
 
 //------------
