@@ -74,3 +74,23 @@ public:
 	bool Tick(float dt) override;
 	void Draw(float) override;
 };
+
+class CheckBox : public UIControl
+{
+public:
+	std::string Text;
+	glm::vec4 Color{ 0.0, 0.0, 0.0, 1.0 };
+	float TextSize{ 100.0f };
+	float Angle{ 0.0f };
+	int Font{ 0 };
+	bool Raw{ false };
+	bool Checked{ false };
+	std::function<void(CheckBox&)> OnChange{ nullptr };
+	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ nullptr };
+
+	CheckBox(const std::string& text, glm::vec2 position);
+
+	bool Tick(float dt) override;
+	void Draw(float) override;
+	bool Scancode(unsigned int sc) override;
+};

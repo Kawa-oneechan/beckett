@@ -202,7 +202,7 @@ void Game::Start()
 	menuPanel->Reflow();
 	menuPanel->Position.y = height - menuPanel->Size.y - 8;
 	menuPanel->Reflow();
-	root.AddChild(menuPanel);	
+	root.AddChild(menuPanel);
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)

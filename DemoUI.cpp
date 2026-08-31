@@ -51,10 +51,10 @@ Button::Button(const std::string& text, glm::vec2 position, glm::vec2 size) : Te
 
 bool Button::Tick(float dt)
 {
-	if (!OnClick)
-		return true;
 	if (IsClicked())
 	{
+		if (!OnClick)
+			return true;
 		Inputs.LastClickLeft = glm::vec2(-1000);
 		clickSound->Play(true);
 		OnClick(*this);
@@ -66,13 +66,20 @@ bool Button::Tick(float dt)
 void Button::Draw(float)
 {
 	auto frame = 0;
-	if (IsHovered())
+	if (!Enabled)
 	{
-		frame = 2;
-		if (Inputs.MouseHoldLeft)
-			frame = 1;
+		frame = 4;
 	}
-		
+	else
+	{
+		if (IsHovered())
+		{
+			frame = 3;
+			if (Inputs.MouseHoldLeft)
+				frame = 1;
+		}
+	}
+
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
 	OnDraw(AbsolutePosition, Size, BackColor, frame);
@@ -166,9 +173,11 @@ bool TrackBar::Tick(float dt)
 		Value = glm::clamp((int)(round(v / Step) * Step), Min, Max);
 
 		if (Value != oldVal)
+		{
 			clickSound->Play(true);
-		if (OnChange)
-			OnChange(*this);
+			if (OnChange)
+				OnChange(*this);
+		}
 		return false;
 	}
 	return true;
@@ -178,15 +187,26 @@ void TrackBar::Draw(float)
 {
 	auto frame = 0;
 	if (IsHovered())
+	if (!Enabled)
 	{
 		frame = 2;
 		if (Inputs.MouseHoldLeft)
 			frame = 1;
+		frame = 4;
+	}
+	else
+	{
+		if (IsHovered())
+		{
+			frame = 3;
+			if (Inputs.MouseHoldLeft)
+				frame = 1;
+		}
 	}
 
 	if (!OnDraw)
 		OnDraw = FrameDrawer;
-	OnDraw(AbsolutePosition, Size, TrackColor, 3);
+	OnDraw(AbsolutePosition, Size, TrackColor, 4);
 
 	auto range = Max - Min;
 	auto ccur = glm::clamp(Value, Min, Max) - Min;
@@ -201,3 +221,58 @@ void TrackBar::Draw(float)
 		OnDraw(AbsolutePosition + glm::vec2(0, thumbPos), glm::vec2(Size.x, Size.x * 0.5f), Color, frame);
 	}
 }
+CheckBox::CheckBox(const std::string& text, glm::vec2 position) : Text(text)
+{
+	parent = nullptr;
+	Position = position;
+
+	if (!clickSound)
+		clickSound = std::make_shared<Sound>("ui/click5.ogg");
+
+	Size = Sprite::MeasureText(Font, Text, TextSize, Raw) + glm::vec2(24);
+}
+
+bool CheckBox::Tick(float dt)
+{
+	if (IsClicked())
+	{
+		Checked = !Checked;
+		if (!OnChange)
+			return true;
+		Inputs.LastClickLeft = glm::vec2(-1000);
+		clickSound->Play(true);
+		OnChange(*this);
+		return false;
+	}
+	return true;
+
+}
+
+void CheckBox::Draw(float dt)
+{
+	static auto texture = Texture{ "ui/button.png" };
+
+	auto frame = 0;
+	if (!Enabled)
+	{
+		frame = 4;
+	}
+	else
+	{
+		if (IsHovered())
+		{
+			frame = 3;
+			if (Inputs.MouseHoldLeft)
+				frame = 1;
+		}
+	}
+	if (Checked)
+		frame += 5;
+
+	frame += 45;
+
+	Sprite::DrawSprite(texture, AbsolutePosition + glm::vec2(3), texture[frame]);
+	auto fs = texture[frame].z;
+	Sprite::DrawText(Font, Text, AbsolutePosition + glm::vec2(fs + 8, 0), Color, TextSize, Angle, Raw);
+}
+

@@ -53,10 +53,13 @@ ThreeDDemo::ThreeDDemo()
 
 	auto hdrButton = std::make_shared<Button>("Turn on HDR", glm::vec2(0));
 	hdrButton->OnClick = [&](auto& btn)
+	auto hdrButton = std::make_shared<CheckBox>("Turn on HDR", glm::vec2(4));
+	hdrButton->OnChange = [&](auto& btn)
 	{
-		hdr = !hdr;
-		btn.Text = hdr ? "Turn off HDR" : "Turn on HDR";
+		hdr = btn.Checked;
+		//btn.Text = hdr ? "Turn off HDR" : "Turn on HDR";
 	};
+	hdrButton->Color = glm::vec4(1.0f);
 	hdrButton->AbsolutePosition = hdrButton->Position;
 	AddChild(hdrButton);
 

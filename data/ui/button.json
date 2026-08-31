@@ -23,7 +23,7 @@
 		[ 0, 20, 3, 3 ],
 		[ 4, 20, 3, 3 ],
 		[ 8, 20, 3, 3 ],
-		//18-26 Button hovered
+		//18-26 Button focused
 		[ 0, 24, 3, 3 ],
 		[ 4, 24, 3, 3 ],
 		[ 8, 24, 3, 3 ],
@@ -33,7 +33,7 @@
 		[ 0, 32, 3, 3 ],
 		[ 4, 32, 3, 3 ],
 		[ 8, 32, 3, 3 ],
-		//27-35 Button disabled, panel
+		//27-35 Button hovered
 		[ 0, 36, 3, 3 ],
 		[ 4, 36, 3, 3 ],
 		[ 8, 36, 3, 3 ],
@@ -43,14 +43,26 @@
 		[ 0, 44, 3, 3 ],
 		[ 4, 44, 3, 3 ],
 		[ 8, 44, 3, 3 ],
+		//36-35 Button disabled, panel
+		[ 0, 48, 3, 3 ],
+		[ 4, 48, 3, 3 ],
+		[ 8, 48, 3, 3 ],
+		[ 0, 52, 3, 3 ],
+		[ 4, 52, 3, 3 ],
+		[ 8, 52, 3, 3 ],
+		[ 0, 56, 3, 3 ],
+		[ 4, 56, 3, 3 ],
+		[ 8, 56, 3, 3 ],
 		//-----------
-		[ 16,  0, 12, 12 ], //36 Checkbox idle
-		[ 16, 12, 12, 12 ], //37 Checkbox pressed
-		[ 16, 24, 12, 12 ], //38 Checkbox hover
-		[ 16, 36, 12, 12 ], //39 Checkbox disabled
-		[ 28,  0, 12, 12 ], //36 Checkbox checked idle
-		[ 28, 12, 12, 12 ], //37 Checkbox checked pressed
-		[ 28, 24, 12, 12 ], //38 Checkbox checked hover
-		[ 28, 36, 12, 12 ], //39 Checkbox checked disabled
+		[ 16,  0, 12, 12 ], //45 Checkbox idle
+		[ 16, 12, 12, 12 ], //46 Checkbox pressed
+		[ 16, 24, 12, 12 ], //47 Checkbox focused
+		[ 16, 36, 12, 12 ], //48 Checkbox hovered
+		[ 16, 48, 12, 12 ], //49 Checkbox disabled
+		[ 28,  0, 12, 12 ], //50 Checkbox checked idle
+		[ 28, 12, 12, 12 ], //51 Checkbox checked pressed
+		[ 28, 24, 12, 12 ], //52 Checkbox checked focused
+		[ 28, 36, 12, 12 ], //53 Checkbox checked hovered
+		[ 28, 48, 12, 12 ], //54 Checkbox checked disabled
 	]
 }
