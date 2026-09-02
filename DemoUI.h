@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "engine/Tickable.h"
+#include "Scriptable.h"
 
 class UIControl : public Tickable2D
 {
@@ -23,7 +24,7 @@ public:
 	void SetNavTarget(int direction, class UIControl* target);
 };
 
-class Button : public UIControl
+class Button : public UIControl, public Scriptable
 {
 public:
 	std::string Text;

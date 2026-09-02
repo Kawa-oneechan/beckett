@@ -81,6 +81,12 @@ ThreeDDemo::ThreeDDemo()
 	//trackBar->SetNavTarget(4, trackBar2.get());
 	//trackBar2->SetNavTarget(4, hdrButton.get());
 	hdrButton->SetFocus();
+
+
+	auto scriptedButton = std::make_shared<Button>("Scripted button", glm::vec2(128));
+	scriptedButton->AbsolutePosition = scriptedButton->Position;
+	scriptedButton->Bind("examples/test.lua");
+	AddChild(scriptedButton);
 }
 
 /*

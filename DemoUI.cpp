@@ -94,9 +94,22 @@ Button::Button(const std::string& text, glm::vec2 position, glm::vec2 size) : Te
 
 bool Button::Tick(float dt)
 {
+	if (!Mutex && CanRun())
+	{
+		Call();
+		return false;
+	}
+
 	if (IsClicked())
 	{
 		SetFocus();
+		if (!ScriptID.empty())
+		{
+			Inputs.LastClickLeft = glm::vec2(-1000);
+			clickSound->Play(true);
+			Execute("onClick", nullptr);
+			return true;
+		}
 		if (!OnClick)
 			return true;
 		Inputs.LastClickLeft = glm::vec2(-1000);

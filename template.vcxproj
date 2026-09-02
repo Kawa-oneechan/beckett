@@ -162,6 +162,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="InputsMap.h" />
     <ClInclude Include="MapDemo.h" />
+    <ClInclude Include="Scriptable.h" />
     <ClInclude Include="TrainDemo.h" />
   </ItemGroup>
   <ItemGroup>
