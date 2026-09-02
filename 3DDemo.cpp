@@ -51,10 +51,8 @@ ThreeDDemo::ThreeDDemo()
 		MainCamera->Distance(0);
 	}
 
-	auto hdrButton = std::make_shared<Button>("Turn on HDR", glm::vec2(0));
-	hdrButton->OnClick = [&](auto& btn)
 	auto hdrButton = std::make_shared<CheckBox>("Turn on HDR", glm::vec2(4));
-	hdrButton->OnChange = [&](auto& btn)
+	hdrButton->OnChange = [&](const auto& btn)
 	{
 		hdr = btn.Checked;
 		//btn.Text = hdr ? "Turn off HDR" : "Turn on HDR";
@@ -64,20 +62,25 @@ ThreeDDemo::ThreeDDemo()
 	AddChild(hdrButton);
 
 	auto trackBar = std::make_shared<TrackBar>(0, -50, 50, 1, glm::vec2(8, 32), 256.0f);
-	trackBar->OnChange = [&](auto& bar)
+	trackBar->OnChange = [&](const auto& bar)
 	{
 		commonUniforms.Lights[1].pos.z = -(float)bar.Value;
 	};
 	trackBar->AbsolutePosition = trackBar->Position;
 	AddChild(trackBar);
 
-	trackBar = std::make_shared<TrackBar>(0, -50, 50, 1, glm::vec2(8, 64), 256.0f, true);
-	trackBar->OnChange = [&](auto& bar)
+	auto trackBar2 = std::make_shared<TrackBar>(0, -50, 50, 1, glm::vec2(8, 64), 256.0f, true);
+	trackBar2->OnChange = [&](const auto& bar)
 	{
 		commonUniforms.Lights[1].pos.x = (float)bar.Value;
 	};
-	trackBar->AbsolutePosition = trackBar->Position;
-	AddChild(trackBar);
+	trackBar2->AbsolutePosition = trackBar2->Position;
+	AddChild(trackBar2);
+
+	//hdrButton->SetNavTarget(4, trackBar.get());
+	//trackBar->SetNavTarget(4, trackBar2.get());
+	//trackBar2->SetNavTarget(4, hdrButton.get());
+	hdrButton->SetFocus();
 }
 
 /*

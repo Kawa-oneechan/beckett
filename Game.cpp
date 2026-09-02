@@ -150,6 +150,7 @@ static std::shared_ptr<Button> makeSceneButton(const std::string& caption)
 	{
 		currentScene->RemoveAll();
 		currentScene->AddChild(std::make_shared<T>());
+		SetupNavTargets(&root);
 	};
 	theButton->ID = fmt::format("btn_{}", caption);
 	return theButton;
@@ -203,6 +204,7 @@ void Game::Start()
 	menuPanel->Position.y = height - menuPanel->Size.y - 8;
 	menuPanel->Reflow();
 	root.AddChild(menuPanel);
+	SetupNavTargets(&root);
 }
 
 void Game::OnKey(int key, int scancode, int action, int mods)

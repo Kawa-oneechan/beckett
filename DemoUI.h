@@ -6,11 +6,21 @@ class UIControl : public Tickable2D
 {
 public:
 	glm::vec2 Size{ 128, 32 };
+	class UIControl* navTarget[5] { nullptr };
+	bool TabStop{ false };
+
+	~UIControl() override;
+	bool Scancode(unsigned int sc) override;
 
 	glm::vec2 GetSize() override { return Size; }
 
-	bool IsHovered();
-	bool IsClicked();
+	bool IsHovered() const;
+	bool IsClicked() const;
+	bool IsFocused() const;
+	void SetFocus();
+
+	class UIControl* GetNavTarget(int direction);
+	void SetNavTarget(int direction, class UIControl* target);
 };
 
 class Button : public UIControl
@@ -30,10 +40,11 @@ public:
 
 	bool Tick(float dt) override;
 	void Draw(float) override;
+	bool Scancode(unsigned int sc) override;
 	glm::vec2 GetMinimalSize() override;
 };
 
-class FlowPanelV : public UIControl
+class Panel : public UIControl
 {
 public:
 	glm::vec4 Color{ 0.0, 0.0, 0.0, 1.0 };
@@ -43,24 +54,31 @@ public:
 public:
 	std::function<void(const glm::vec2&, const glm::vec2&, const glm::vec4&, int)> OnDraw{ nullptr };
 
-	explicit FlowPanelV(glm::vec2 position, glm::vec2 size = glm::vec2(-1));
+	explicit Panel(glm::vec2 position, glm::vec2 size = glm::vec2(-1));
 
 	void Draw(float dt) override;
 
-	virtual void Reflow();
+	virtual void Reflow() {};
 };
 
-class FlowPanelH : public FlowPanelV
+class FlowPanelV : public Panel
 {
 public:
-	explicit FlowPanelH(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : FlowPanelV(position, size) {};
-	void Reflow() override;
+	explicit FlowPanelV(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Panel(position, size) {};
+	void Reflow();
+};
+
+class FlowPanelH : public Panel
+{
+public:
+	explicit FlowPanelH(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Panel(position, size) {};
+	void Reflow();
 };
 
 class TrackBar : public UIControl
 {
 private:
-	bool vertical;
+	bool vertical{ false };
 public:
 	int Value, Min, Max, Step;
 	const int Thickness{ 24 };
@@ -73,6 +91,7 @@ public:
 
 	bool Tick(float dt) override;
 	void Draw(float) override;
+	bool Scancode(unsigned int sc) override;
 };
 
 class CheckBox : public UIControl
@@ -94,3 +113,5 @@ public:
 	void Draw(float) override;
 	bool Scancode(unsigned int sc) override;
 };
+
+extern void SetupNavTargets(Tickable* root);
