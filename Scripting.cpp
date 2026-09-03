@@ -69,7 +69,7 @@ void Scriptable::Bind(const std::string& file)
 		ScriptID = fmt::format("SCR_{:x}", Random::GetInt(0x10000, 0x20000));
 	(*Scripting::Sol)[ScriptID] = (*Scripting::Sol).do_string(VFS::ReadString(file));
 }
-	
+
 void Scriptable::Execute(const std::string& entryPoint, bool* mutex)
 {
 	if (ScriptID.empty())
@@ -91,6 +91,7 @@ void Scriptable::Call()
 {
 	//auto dlgBox = root.GetChild<DialogueBox>();
 	//dlgBox->Mutex = Mutex;
+	(*Scripting::Sol)["this"] = (*Scripting::Sol)[ScriptID];
 	currentCoro->call();
 }
 

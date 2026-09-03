@@ -66,14 +66,14 @@ class FlowPanelV : public Panel
 {
 public:
 	explicit FlowPanelV(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Panel(position, size) {};
-	void Reflow();
+	void Reflow() override;
 };
 
 class FlowPanelH : public Panel
 {
 public:
 	explicit FlowPanelH(glm::vec2 position, glm::vec2 size = glm::vec2(-1)) : Panel(position, size) {};
-	void Reflow();
+	void Reflow() override;
 };
 
 class TrackBar : public UIControl
