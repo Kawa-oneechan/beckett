@@ -10,29 +10,28 @@
 
 namespace Scripting
 {
-	sol::state* __sol{ nullptr };
-	SolProxy Sol;
+	sol::state* Sol{ nullptr };
 
 	static void CCmdLua(const jsonArray& args);
 
 	void Setup()
 	{
-		__sol = new sol::state();
+		Sol = new sol::state();
 
-		Sol["print"] = [&](sol::variadic_args va) { console->Print(0, va[0]); };
+		(*Sol)["print"] = [&](sol::variadic_args va) { console->Print(0, va[0]); };
 		console->RegisterCCmd("lua", CCmdLua, true);
 	}
 
 	bool Conditional(const std::string& expression)
 	{
-		return __sol->script(fmt::format("return ({})", expression));
+		return Sol->script(fmt::format("return ({})", expression));
 	}
 
 	std::string BJTS(const std::string& code, const std::vector<std::string>& args)
 	{
-		Sol["bjts"] = args;
-		auto ret = Sol.script(code).get<std::string>();
-		Sol["bjts"] = nullptr;
+		(*Sol)["bjts"] = args;
+		auto ret = Sol->script(code).get<std::string>();
+		(*Sol)["bjts"] = nullptr;
 		return ret;
 	}
 
@@ -40,7 +39,7 @@ namespace Scripting
 	{
 		try
 		{
-			Sol.script(args[0].as_string());
+			(*Sol).script(args[0].as_string());
 		}
 		catch (sol::error& e)
 		{
@@ -61,14 +60,14 @@ Scriptable::~Scriptable()
 	//delete currentCoro;
 	currentCoro.reset();
 	if (!ScriptID.empty())
-		Scripting::Sol[ScriptID] = nullptr;
+		(*Scripting::Sol)[ScriptID] = nullptr;
 }
 
 void Scriptable::Bind(const std::string& file)
 {
 	if (ScriptID.empty())
 		ScriptID = fmt::format("SCR_{:x}", Random::GetInt(0x10000, 0x20000));
-	Scripting::Sol[ScriptID] = Scripting::Sol.do_string(VFS::ReadString(file));
+	(*Scripting::Sol)[ScriptID] = (*Scripting::Sol).do_string(VFS::ReadString(file));
 }
 	
 void Scriptable::Execute(const std::string& entryPoint, bool* mutex)
@@ -80,7 +79,7 @@ void Scriptable::Execute(const std::string& entryPoint, bool* mutex)
 	}
 
 	Mutex = mutex;
-	currentCoro = std::make_shared<sol::coroutine>(Scripting::Sol[ScriptID][entryPoint]);
+	currentCoro = std::make_shared<sol::coroutine>((*Scripting::Sol)[ScriptID][entryPoint]);
 }
 
 bool Scriptable::CanRun() const
