@@ -31,6 +31,7 @@ extern void RecalcProjections();
 static void CCmdPrint(const jsonArray& args);
 static void CCmdWait(const jsonArray& args);
 static void CCmdAlias(const jsonArray& args);
+static void CCmdHelp(const jsonArray& args);
 static void CCmdVersion(const jsonArray& args);
 static void CCmdCVarList(const jsonArray& args);
 static void CCmdCmdList(const jsonArray& args);
@@ -142,6 +143,37 @@ static std::string quake2json(const std::string& input)
 	return "[ " + out + " ]";
 }
 
+static bool checkSplat(const std::string& pattern, const std::string& text)
+{
+	if (pattern.empty() || text.empty())
+		return true;
+	std::function<bool(const char*, const char*)> splat;
+	splat = [&](const char* p, const char* t) -> bool
+	{
+		while (*p)
+		{
+			if (*p == '*')
+			{
+				char s = *++p;
+				while (*t && *t != s) t++;
+				if (*t && *t == s)
+				{
+					if (splat(p, t++)) return true;
+					p--;
+				}
+			}
+			else if (*p == '?' || *p == *t)
+			{
+				p++; t++;
+			}
+			else
+				return false;
+		}
+		return (*p | *t) == 0;
+	};
+	return splat(pattern.c_str(), text.c_str());
+}
+
 Console::Console() : hardcopy(std::ofstream("console.log", std::ios::trunc))
 {
 	visible = false;
@@ -161,21 +193,22 @@ Console::Console() : hardcopy(std::ofstream("console.log", std::ios::trunc))
 	timer = 0.0f;
 	appearState = 0;
 
-	RegisterCCmd("print", CCmdPrint);
-	RegisterCCmd("wait", CCmdWait);
-	RegisterCCmd("clear", [&](const jsonArray&) { buffer.clear(); scrollCursor = 0; });
-	RegisterCCmd("alias", CCmdAlias);
-	RegisterCCmd("version", CCmdVersion);
-	RegisterCCmd("cvarlist", CCmdCVarList);
-	RegisterCCmd("cmdlist", CCmdCmdList);
-	RegisterCCmd("crc32", CCmdCRC32);
-	RegisterCVar("sv_cheats", CVar::Type::Bool, &cheatsEnabled);
-	RegisterCVar("in_deadzone", CVar::Type::Float, &Inputs.Deadzone);
-	RegisterCVar("in_runthreshold", CVar::Type::Float, &Inputs.RunThreshold);
-	RegisterCVar("timescale", CVar::Type::Float, &timeScale, true);
-	RegisterCVar("r_fov", CVar::Type::Float, &fieldOfView, false, 10, 160, recalcProj);
-	RegisterCVar("r_nearz", CVar::Type::Float, &nearPlane, false, -1, 10, recalcProj);
-	RegisterCVar("r_farz", CVar::Type::Float, &farPlane, false, 1, 1000, recalcProj);
+	RegisterCCmd("print", CCmdPrint, false, "Prints a text string, optionally preceded by a color number.");
+	RegisterCCmd("wait", CCmdWait, false, "Delays execution of console input.");
+	RegisterCCmd("clear", [&](const jsonArray&) { buffer.clear(); scrollCursor = 0; }, false, "Clears the console buffer.");
+	RegisterCCmd("alias", CCmdAlias, false, "Binds a console input to a shorter name.");
+	RegisterCCmd("help", CCmdHelp, false, "You just used it.");
+	RegisterCCmd("version", CCmdVersion, false, "Displays version and build information.");
+	RegisterCCmd("cvarlist", CCmdCVarList, false, "Lists all console variables.");
+	RegisterCCmd("cmdlist", CCmdCmdList, false, "Lists all console commands.");
+	RegisterCCmd("crc32", CCmdCRC32, true, "Calculates a hash.");
+	RegisterCVar("sv_cheats", CVar::Type::Bool, &cheatsEnabled, false, -1, -1, nullptr, "Enables cheats.");
+	RegisterCVar("in_deadzone", CVar::Type::Float, &Inputs.Deadzone, false, -1, -1, nullptr, "The deadzone for analog sticks.");
+	RegisterCVar("in_runthreshold", CVar::Type::Float, &Inputs.RunThreshold, false, -1, -1, nullptr, "How far the analog stick has to go to count as running.");
+	RegisterCVar("timescale", CVar::Type::Float, &timeScale, true, -1, -1, nullptr, "How fast time should go.");
+	RegisterCVar("r_fov", CVar::Type::Float, &fieldOfView, false, 10, 160, recalcProj, "Field of view in degrees.");
+	RegisterCVar("r_nearz", CVar::Type::Float, &nearPlane, false, -1, 10, recalcProj, "Near clipping plane.");
+	RegisterCVar("r_farz", CVar::Type::Float, &farPlane, false, 1, 1000, recalcProj, "Far clipping plane.");
 }
 
 void Console::Print(int color, const std::string& str)
@@ -220,7 +253,7 @@ bool Console::Execute(const std::string& str)
 	while (!first.empty() && first[0] == ' ')
 		first = first.substr(1);
 	auto second = std::string("[]");
-	//auto fullSec = std::string("");
+	auto fullSec = std::string("");
 	auto haveArgs = false;
 	{
 		auto space = first.find(' ');
@@ -228,7 +261,7 @@ bool Console::Execute(const std::string& str)
 		{
 			first = first.substr(0, space);
 			//second = str.substr(space + 1);
-			//fullSec = str.substr(space + 1);
+			fullSec = str.substr(space + 1);
 			//while (!second.empty() && second[0] == ' ')
 			//	second = second.substr(1);
 			second = quake2json(str.substr(space + 1));
@@ -287,18 +320,15 @@ bool Console::Execute(const std::string& str)
 	{
 		if (cc.name == first)
 		{
-			/*
 			if (cc.takesString)
 			{
 				auto a = json5pp::array({ fullSec });
 				cc.act(a.as_array());
 				return true;
 			}
-			*/
 
 			try
 			{
-				//cc.act(json5pp::parse5(fmt::format("[ {} ]", second)).as_array());
 				cc.act(json5pp::parse5(second).as_array());
 				return true;
 			}
@@ -504,7 +534,7 @@ void Console::Draw(float dt)
 	inputLine->Draw(dt);
 }
 
-void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat, int min, int max, CVarCallback onChange)
+void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat, int min, int max, CVarCallback onChange, const std::string& description)
 {
 	auto it = std::find_if(cvars.begin(), cvars.end(), [name](const auto& e)
 	{
@@ -516,6 +546,7 @@ void Console::RegisterCVar(const std::string& name, CVar::Type type, void* targe
 		it->asVoid = target;
 		it->cheat = cheat;
 		it->onChange = onChange;
+		it->description = description;
 		return;
 	}
 	CVar cv;
@@ -526,10 +557,11 @@ void Console::RegisterCVar(const std::string& name, CVar::Type type, void* targe
 	cv.min = min;
 	cv.max = max;
 	cv.onChange = onChange;
+	cv.description = description;
 	cvars.push_back(cv);
 }
 
-void Console::RegisterCCmd(const std::string& name, std::function<void(const jsonArray& args)> act, bool takesString)
+void Console::RegisterCCmd(const std::string& name, std::function<void(const jsonArray& args)> act, bool takesString, const std::string& description)
 {
 	auto it = std::find_if(ccmds.begin(), ccmds.end(), [name](const auto& e)
 	{
@@ -538,44 +570,16 @@ void Console::RegisterCCmd(const std::string& name, std::function<void(const jso
 	if (it != ccmds.end())
 	{
 		it->act = act;
+		it->takesString = takesString;
+		it->description = description;
 		return;
 	}
 	CCmd cc;
 	cc.name = name;
 	cc.act = act;
 	cc.takesString = takesString;
+	cc.description = description;
 	ccmds.push_back(cc);
-}
-
-bool Console::CheckSplat(const std::string& pattern, const std::string& text)
-{
-	if (pattern.empty() || text.empty())
-		return true;
-	std::function<bool(const char*, const char*)> splat;
-	splat = [&](const char* p, const char* t) -> bool
-	{
-		while (*p)
-		{
-			if (*p == '*')
-			{
-				char s = *++p;
-				while (*t && *t != s) t++;
-				if (*t && *t == s)
-				{
-					if (splat(p, t++)) return true;
-					p--;
-				}
-			}
-			else if (*p == '?' || *p == *t)
-			{
-				p++; t++;
-			}
-			else
-				return false;
-		}
-		return (*p | *t) == 0;
-	};
-	return splat(pattern.c_str(), text.c_str());
 }
 
 bool CVar::Set(const std::string& value)
@@ -730,6 +734,40 @@ static void CCmdAlias(const jsonArray& args)
 	console->calis[key] = args[1].as_string();
 }
 
+static void CCmdHelp(const jsonArray& args)
+{
+	if (args.size() < 1 || !args[0].is_string())
+	{
+		conprint(0, "Input value must be a string.");
+		return;
+	}
+	auto target = args[0].as_string();
+	for (const auto& cv : console->cvars)
+	{
+		if (cv.name == target)
+		{
+			if (cv.description.empty())
+				conprint(0, "No help available.");
+			else
+				conprint(0, cv.description);
+			//TODO: give more information.
+			if (cv.cheat) conprint(1, "(This is a cheat.)");
+			return;
+		}
+	}
+	for (const auto& cc : console->ccmds)
+	{
+		if (cc.name == target)
+		{
+			if (cc.description.empty())
+				conprint(0, "No help available.");
+			else
+				conprint(0, cc.description);
+			return;
+		}
+	}
+}
+
 static void CCmdVersion(const jsonArray& args)
 {
 	(void)(args);
@@ -760,7 +798,7 @@ static void CCmdVersion(const jsonArray& args)
 
 static void CCmdCVarList(const jsonArray& args)
 {
-	if (args.size() != 0 && !args[0].is_string())
+	if (args.size() != 0 || !args[0].is_string())
 	{
 		conprint(0, "Pattern must be a string.");
 		return;
@@ -769,7 +807,7 @@ static void CCmdCVarList(const jsonArray& args)
 
 	for (const auto& cv : console->cvars)
 	{
-		if (args.size() == 0 || Console::CheckSplat(args[0].as_string(), cv.name))
+		if (args.size() == 0 || checkSplat(args[0].as_string(), cv.name))
 		{
 			switch (cv.type)
 			{
@@ -790,7 +828,7 @@ static void CCmdCVarList(const jsonArray& args)
 
 static void CCmdCmdList(const jsonArray& args)
 {
-	if (args.size() != 0 && !args[0].is_string())
+	if (args.size() != 0 || !args[0].is_string())
 	{
 		conprint(0, "Pattern must be a string.");
 		return;
@@ -798,7 +836,7 @@ static void CCmdCmdList(const jsonArray& args)
 	size_t results = 0;
 	for (const auto& cc : console->ccmds)
 	{
-		if (args.size() == 0 || Console::CheckSplat(args[0].as_string(), cc.name))
+		if (args.size() == 0 || checkSplat(args[0].as_string(), cc.name))
 		{
 			conprint(0, "{}", cc.name);
 			results++;

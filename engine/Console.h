@@ -111,11 +111,9 @@ public:
 	bool Tick(float dt) override;
 	void Draw(float dt) override;
 	//Registers a console variable, mapping it by name to an arbitrary variable in the game.
-	void RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat = false, int min = -1, int max = -1, CVarCallback onChange = nullptr);
+	void RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat = false, int min = -1, int max = -1, CVarCallback onChange = nullptr, const std::string& description = "");
 	//Registers a console command, mapping it by name to a void(jsonArray&) function.
-	void RegisterCCmd(const std::string& name, std::function<void(const jsonArray& args)> act, bool takesString = false);
-
-	static bool CheckSplat(const std::string& pattern, const std::string& text);
+	void RegisterCCmd(const std::string& name, std::function<void(const jsonArray& args)> act, bool takesString = false, const std::string& description = "");
 
 	Console(const Console &x) = delete;
 	Console &operator=(const Console &x) = delete;

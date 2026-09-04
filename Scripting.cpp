@@ -19,7 +19,7 @@ namespace Scripting
 		Sol = new sol::state();
 
 		(*Sol)["print"] = [&](sol::variadic_args va) { console->Print(0, va[0]); };
-		console->RegisterCCmd("lua", CCmdLua, true);
+		console->RegisterCCmd("lua", CCmdLua, true, "Runs a block of arbitrary Lua code.");
 	}
 
 	bool Conditional(const std::string& expression)
