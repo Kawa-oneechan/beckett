@@ -66,6 +66,82 @@ static void recalcProj(CVar*)
 	RecalcProjections();
 }
 
+static std::string quake2json(const std::string& input)
+{
+	size_t cursor = 0;
+	bool quote = false;
+	std::string token{};
+	std::string out{};
+	std::string in{ input + " " };
+	
+	//not using "for (auto ch : testInput)" not because we'll need Beckett's UTF8 parser
+	//but because we need the ability to look ahead for \".
+	while (cursor < in.length())
+	{
+		auto ch = in[cursor];
+		if (ch == '\\' && in[cursor + 1] == '"')
+		{
+			token += "\\\"";
+			cursor += 2;
+			continue;
+		}
+		if (ch == '"')
+		{
+			quote = !quote;
+			cursor++;
+			continue;
+		}
+		if (ch == '[')
+		{
+			out += "[ ";
+			cursor++;
+			continue;
+		}
+		if ((ch == ' ' || ch == ',' || ch == ']') && !quote)
+		{
+			if (ch == ']' && token.empty())
+			{
+				if (out.length() > 2)
+				{
+					//strip off final ", "
+					out.erase(out.end() - 1);
+					out.erase(out.end() - 1);
+				}
+				out += " ], ";
+				cursor++;
+				continue;
+			}
+			if (!token.empty())
+			{
+				//decide on type
+				bool needsQuotes = true;
+				if (token == "true" || token == "false")
+					needsQuotes = false; //keywords
+				else if (token.length() > 2 && token[0] == '0' && token[1] == 'x')
+					needsQuotes = std::any_of(token.cbegin() + 2, token.cend(), [](auto c) { return !isxdigit(c); });
+				else
+					needsQuotes = std::any_of(token.cbegin(), token.cend(), [](auto c) { return !isdigit(c); });
+
+				if (needsQuotes)
+					token = "\"" + token + "\"";
+				if (ch == ']')
+					token += ']';
+				out += token + ", ";
+				token.clear();
+			}
+			cursor++;
+			continue;
+		}
+		token += ch;
+		cursor++;
+	}
+
+	//strip off final ", "
+	out.erase(out.end() - 1);
+	out.erase(out.end() - 1);
+	return "[ " + out + " ]";
+}
+
 Console::Console() : hardcopy(std::ofstream("console.log", std::ios::trunc))
 {
 	visible = false;
@@ -143,18 +219,19 @@ bool Console::Execute(const std::string& str)
 	auto first = std::string(str);
 	while (!first.empty() && first[0] == ' ')
 		first = first.substr(1);
-	auto second = std::string("");
-	auto fullSec = std::string("");
+	auto second = std::string("[]");
+	//auto fullSec = std::string("");
 	auto haveArgs = false;
 	{
 		auto space = first.find(' ');
 		if (space != std::string::npos)
 		{
 			first = first.substr(0, space);
-			second = str.substr(space + 1);
-			fullSec = str.substr(space + 1);
-			while (!second.empty() && second[0] == ' ')
-				second = second.substr(1);
+			//second = str.substr(space + 1);
+			//fullSec = str.substr(space + 1);
+			//while (!second.empty() && second[0] == ' ')
+			//	second = second.substr(1);
+			second = quake2json(str.substr(space + 1));
 			haveArgs = !second.empty();
 		}
 	}
@@ -175,15 +252,33 @@ bool Console::Execute(const std::string& str)
 					Print(1, fmt::format("Changing {} is considered a cheat.", cv.name));
 					return false;
 				}
-				if (cv.Set(second))
+				while (true)
 				{
-					Print(0, fmt::format("{} set to {}", cv.name, cv.ToString()));
-					return true;
-				}
-				else
-				{
-					Print(2, fmt::format("Could not set cvar {} to {}", cv.name, second));
-					return false;
+					try
+					{
+						if (cv.Set(second))
+						{
+							Print(0, fmt::format("{} set to {}", cv.name, cv.ToString()));
+							return true;
+						}
+						else
+						{
+							Print(1, fmt::format("Could not set cvar {} to {}", cv.name, second));
+							return false;
+						}
+					}
+					catch (std::runtime_error& x)
+					{
+						std::string what = x.what();
+						if (what.find(" given array") != -1 && what.find(" entries, not ") != -1 && second.substr(0, 3) == "[ [")
+						{
+							//try again without the surrounding []
+							second = second.substr(2, second.length() - 4);
+							continue;
+						}
+						Print(1, what);
+						return false;
+					}
 				}
 			}
 		}
@@ -192,16 +287,19 @@ bool Console::Execute(const std::string& str)
 	{
 		if (cc.name == first)
 		{
+			/*
 			if (cc.takesString)
 			{
 				auto a = json5pp::array({ fullSec });
 				cc.act(a.as_array());
 				return true;
 			}
+			*/
 
 			try
 			{
-				cc.act(json5pp::parse5(fmt::format("[ {} ]", second)).as_array());
+				//cc.act(json5pp::parse5(fmt::format("[ {} ]", second)).as_array());
+				cc.act(json5pp::parse5(second).as_array());
 				return true;
 			}
 			catch (json5pp::syntax_error& x)
