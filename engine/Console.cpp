@@ -193,22 +193,22 @@ Console::Console() : hardcopy(std::ofstream("console.log", std::ios::trunc))
 	timer = 0.0f;
 	appearState = 0;
 
-	RegisterCCmd("print", CCmdPrint, false, "Prints a text string, optionally preceded by a color number.");
-	RegisterCCmd("wait", CCmdWait, false, "Delays execution of console input.");
-	RegisterCCmd("clear", [&](const jsonArray&) { buffer.clear(); scrollCursor = 0; }, false, "Clears the console buffer.");
-	RegisterCCmd("alias", CCmdAlias, false, "Binds a console input to a shorter name.");
-	RegisterCCmd("help", CCmdHelp, false, "You just used it.");
-	RegisterCCmd("version", CCmdVersion, false, "Displays version and build information.");
-	RegisterCCmd("cvarlist", CCmdCVarList, false, "Lists all console variables.");
-	RegisterCCmd("cmdlist", CCmdCmdList, false, "Lists all console commands.");
+	RegisterCCmd("print", CCmdPrint, "Prints a text string, optionally preceded by a color number.");
+	RegisterCCmd("wait", CCmdWait, "Delays execution of console input.");
+	RegisterCCmd("clear", [&](const jsonArray&) { buffer.clear(); scrollCursor = 0; }, "Clears the console buffer.");
+	RegisterCCmd("alias", CCmdAlias, "Binds a console input to a shorter name.");
+	RegisterCCmd("help", CCmdHelp, "You just used it.");
+	RegisterCCmd("version", CCmdVersion, "Displays version and build information.");
+	RegisterCCmd("cvarlist", CCmdCVarList, "Lists all console variables.");
+	RegisterCCmd("cmdlist", CCmdCmdList, "Lists all console commands.");
 	RegisterCCmd("crc32", CCmdCRC32, true, "Calculates a hash.");
-	RegisterCVar("sv_cheats", CVar::Type::Bool, &cheatsEnabled, false, -1, -1, nullptr, "Enables cheats.");
-	RegisterCVar("in_deadzone", CVar::Type::Float, &Inputs.Deadzone, false, -1, -1, nullptr, "The deadzone for analog sticks.");
-	RegisterCVar("in_runthreshold", CVar::Type::Float, &Inputs.RunThreshold, false, -1, -1, nullptr, "How far the analog stick has to go to count as running.");
-	RegisterCVar("timescale", CVar::Type::Float, &timeScale, true, -1, -1, nullptr, "How fast time should go.");
-	RegisterCVar("r_fov", CVar::Type::Float, &fieldOfView, false, 10, 160, recalcProj, "Field of view in degrees.");
-	RegisterCVar("r_nearz", CVar::Type::Float, &nearPlane, false, -1, 10, recalcProj, "Near clipping plane.");
-	RegisterCVar("r_farz", CVar::Type::Float, &farPlane, false, 1, 1000, recalcProj, "Far clipping plane.");
+	RegisterCVar("sv_cheats", CVar::Type::Bool, &cheatsEnabled, "Enables cheats.");
+	RegisterCVar("in_deadzone", CVar::Type::Float, &Inputs.Deadzone, "The deadzone for analog sticks.");
+	RegisterCVar("in_runthreshold", CVar::Type::Float, &Inputs.RunThreshold, "How far the analog stick has to go to count as running.");
+	RegisterCVar("timescale", CVar::Type::Float, &timeScale, CVar::Flags::Cheat, "How fast time should go.");
+	RegisterCVar("r_fov", CVar::Type::Float, &fieldOfView, CVar::Flags::Normal, 10, 160, recalcProj, "Field of view in degrees.");
+	RegisterCVar("r_nearz", CVar::Type::Float, &nearPlane, CVar::Flags::Normal, -1, 10, recalcProj, "Near clipping plane.");
+	RegisterCVar("r_farz", CVar::Type::Float, &farPlane, CVar::Flags::Normal, 1, 1000, recalcProj, "Far clipping plane.");
 }
 
 void Console::Print(int color, const std::string& str)
@@ -280,7 +280,7 @@ bool Console::Execute(const std::string& str)
 			}
 			else
 			{
-				if (cv.cheat && !cheatsEnabled)
+				if ((cv.flags & CVar::Flags::Cheat) == CVar::Flags::Cheat && !cheatsEnabled)
 				{
 					Print(1, fmt::format("Changing {} is considered a cheat.", cv.name));
 					return false;
@@ -534,7 +534,7 @@ void Console::Draw(float dt)
 	inputLine->Draw(dt);
 }
 
-void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, bool cheat, int min, int max, CVarCallback onChange, const std::string& description)
+void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, CVar::Flags flags, int min, int max, CVarCallback onChange, const std::string& description)
 {
 	auto it = std::find_if(cvars.begin(), cvars.end(), [name](const auto& e)
 	{
@@ -544,7 +544,7 @@ void Console::RegisterCVar(const std::string& name, CVar::Type type, void* targe
 	{
 		it->type = type;
 		it->asVoid = target;
-		it->cheat = cheat;
+		it->flags = flags;
 		it->onChange = onChange;
 		it->description = description;
 		return;
@@ -553,12 +553,22 @@ void Console::RegisterCVar(const std::string& name, CVar::Type type, void* targe
 	cv.name = name;
 	cv.type = type;
 	cv.asVoid = target;
-	cv.cheat = cheat;
+	cv.flags = flags;
 	cv.min = min;
 	cv.max = max;
 	cv.onChange = onChange;
 	cv.description = description;
 	cvars.push_back(cv);
+}
+
+void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, CVar::Flags flags, const std::string& description)
+{
+	RegisterCVar(name, type, target, flags, -1, -1, nullptr, description);
+}
+
+void Console::RegisterCVar(const std::string& name, CVar::Type type, void* target, const std::string& description)
+{
+	RegisterCVar(name, type, target, CVar::Flags::Normal, -1, -1, nullptr, description);
 }
 
 void Console::RegisterCCmd(const std::string& name, std::function<void(const jsonArray& args)> act, bool takesString, const std::string& description)
@@ -582,13 +592,42 @@ void Console::RegisterCCmd(const std::string& name, std::function<void(const jso
 	ccmds.push_back(cc);
 }
 
+void Console::LoadPersistentCVars(jsonObject& sets)
+{
+	for (auto& cv : cvars)
+	{
+		if ((cv.flags & CVar::Flags::Persistent) != CVar::Flags::Persistent)
+			continue;
+		if (sets[cv.name].is_null())
+			continue;
+		cv.Set(sets[cv.name].stringify());
+	}
+}
+
+void Console::SavePersistentCVars(jsonObject& sets)
+{
+	for (auto& cv : cvars)
+	{
+		if ((cv.flags & CVar::Flags::Persistent) != CVar::Flags::Persistent)
+			continue;
+		switch (cv.type)
+		{
+		case CVar::Type::Bool: sets[cv.name] = *cv.asBool; break;
+		case CVar::Type::Int: sets[cv.name] = *cv.asInt; break;
+		case CVar::Type::Float: sets[cv.name] = *cv.asFloat; break;
+		case CVar::Type::String: sets[cv.name] = *cv.asString; break;
+		//case CVar::Type::Vec2: sets[cv.name] = *cv.asVec2; break;
+		}
+	}
+}
+
 bool CVar::Set(const std::string& value)
 {
 	if (value.empty())
 		return false;
 
-	if (type == Type::String && value[0] != '\"')
-		return Set(fmt::format("\"{}\"", value));
+	//if (type == Type::String && value[0] != '\"')
+	//	return Set(fmt::format("\"{}\"", value));
 	//if ((type == Type::Vec2 || type == Type::Vec3 || type == Type::Vec4) && value[0] != '[')
 	//	return Set(fmt::format("[{}]", value));
 	if (type == Type::Color)
@@ -748,45 +787,47 @@ static void CCmdHelp(const jsonArray& args)
 		return;
 	}
 	auto target = args[0].as_string();
-	for (const auto& cv : console->cvars)
+	auto cv = std::find_if(console->cvars.begin(), console->cvars.end(), [target](const auto& e)
 	{
-		if (cv.name == target)
+		return e.name == target;
+	});
+	if (cv != console->cvars.end())
+	{
+		if (cv->description.empty())
+			conprint(0, "No help available.");
+		else
+			conprint(0, cv->description);
+		//TODO: give more information.
+		switch (cv->type)
 		{
-			if (cv.description.empty())
-				conprint(0, "No help available.");
-			else
-				conprint(0, cv.description);
-			//TODO: give more information.
-			switch (cv.type)
-			{
-			case CVar::Type::Int:
-			case CVar::Type::Float:
-				conprint(0, "* {}", cv.type == CVar::Type::Int ? "Integer" : "Float");
-				if (!(cv.min == -1 && cv.max == -1))
-					conprint(0, "* Range: {} to {}", cv.min, cv.max);
-				break;
-			case CVar::Type::String: conprint(0, "* String"); break;
-			case CVar::Type::Vec2: conprint(0, "* Vector (X, Y)"); break;
-			case CVar::Type::Vec3: conprint(0, "* Vector (X, Y, Z)"); break;
-			case CVar::Type::Vec4: conprint(0, "* Vector (X, Y, Z, W)"); break;
-			case CVar::Type::Color: conprint(0, "* Color"); break;
-			case CVar::Type::Bool: conprint(0, "* Boolean"); break;
-			}
-			if (cv.onChange) conprint(0, "* Has callback");
-			if (cv.cheat) conprint(1, "* This is a cheat.)");
-			return;
+		case CVar::Type::Int:
+		case CVar::Type::Float:
+			conprint(0, "* {}", cv->type == CVar::Type::Int ? "Integer" : "Float");
+			if (!(cv->min == -1 && cv->max == -1))
+				conprint(0, "* Range: {} to {}", cv->min, cv->max);
+			break;
+		case CVar::Type::String: conprint(0, "* String"); break;
+		case CVar::Type::Vec2: conprint(0, "* Vector (X, Y)"); break;
+		case CVar::Type::Vec3: conprint(0, "* Vector (X, Y, Z)"); break;
+		case CVar::Type::Vec4: conprint(0, "* Vector (X, Y, Z, W)"); break;
+		case CVar::Type::Color: conprint(0, "* Color"); break;
+		case CVar::Type::Bool: conprint(0, "* Boolean"); break;
 		}
+		if (cv->onChange) conprint(0, "* Has callback");
+		if ((cv->flags & 1) == 1) conprint(1, "* This is a cheat");
+		if ((cv->flags & 2) == 2) conprint(1, "* Persistent");
+		return;
 	}
-	for (const auto& cc : console->ccmds)
+	auto cc = std::find_if(console->ccmds.begin(), console->ccmds.end(), [target](const auto& e)
 	{
-		if (cc.name == target)
-		{
-			if (cc.description.empty())
-				conprint(0, "No help available.");
-			else
-				conprint(0, cc.description);
-			return;
-		}
+		return e.name == target;
+	});
+	if (cc != console->ccmds.end())
+	{
+		if (cc->description.empty())
+			conprint(0, "No help available.");
+		else
+			conprint(0, cc->description);
 	}
 }
 
