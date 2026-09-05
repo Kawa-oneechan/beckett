@@ -59,14 +59,14 @@ void Game::RegisterConsole(Console* console)
 	//RV("r_drumexp", CVar::Type::Float, &);
 	//RV("r_farz", CVar::Type::float, &, yes);
 
-	RV("teststr", CVar::Type::String, &testString);
-	RV("testvec", CVar::Type::Vec2, &testVector);
-	RV("testcol", CVar::Type::Color, &testColor);
-	RV("callback", CVar::Type::String, &testString, false, -1, -1, [](CVar* c) { StringToUpper(*c->asString); });
-	RV("panels", CVar::Type::Bool, &debugPanelLayoutPolygons);
-	RV("fresnel", CVar::Type::Bool, &commonUniforms.Fresnel);
-	RV("fresnelpower", CVar::Type::Float, &commonUniforms.FresnelPower);
-	RV("debugmode", CVar::Type::Int, &commonUniforms.DebugMode, false, 0, 4);
+	RV("teststr", CVar::Type::String, &testString, false, -1, -1, nullptr, "Dummy cvar for demonstration purposes.");
+	RV("testvec", CVar::Type::Vec2, &testVector, false, -1, -1, nullptr, "Dummy cvar for demonstration purposes.");
+	RV("testcol", CVar::Type::Color, &testColor, false, -1, -1, nullptr, "Dummy cvar for demonstration purposes.");
+	RV("callback", CVar::Type::String, &testString, false, -1, -1, [](CVar* c) { StringToUpper(*c->asString); }, "Dummy cvar that uses a callback to always be UPPERCASE.");
+	RV("panels", CVar::Type::Bool, &debugPanelLayoutPolygons, false, -1, -1, nullptr, "Shows outlines for clickable panel layout panels");
+	RV("fresnel", CVar::Type::Bool, &commonUniforms.Fresnel, false, -1, -1, nullptr, "Enables fresnel effect on 3D models");
+	RV("fresnelpower", CVar::Type::Float, &commonUniforms.FresnelPower, false, 0, 6, nullptr, "Strength of fresnel effect");
+	RV("debugmode", CVar::Type::Int, &commonUniforms.DebugMode, false, 0, 4, nullptr, "Debug render views:\n0 - regular, 1 - normals, 2 - albedo, 3 - light, 4 - fresnel");
 
 #undef RV
 

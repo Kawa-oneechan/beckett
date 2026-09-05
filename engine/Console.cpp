@@ -121,7 +121,7 @@ static std::string quake2json(const std::string& input)
 				else if (token.length() > 2 && token[0] == '0' && token[1] == 'x')
 					needsQuotes = std::any_of(token.cbegin() + 2, token.cend(), [](auto c) { return !isxdigit(c); });
 				else
-					needsQuotes = std::any_of(token.cbegin(), token.cend(), [](auto c) { return !isdigit(c); });
+					needsQuotes = std::any_of(token.cbegin(), token.cend(), [](auto c) { return !(isdigit(c) || c == '.'); });
 
 				if (needsQuotes)
 					token = "\"" + token + "\"";
@@ -589,8 +589,8 @@ bool CVar::Set(const std::string& value)
 
 	if (type == Type::String && value[0] != '\"')
 		return Set(fmt::format("\"{}\"", value));
-	if ((type == Type::Vec2 || type == Type::Vec3 || type == Type::Vec4) && value[0] != '[')
-		return Set(fmt::format("[{}]", value));
+	//if ((type == Type::Vec2 || type == Type::Vec3 || type == Type::Vec4) && value[0] != '[')
+	//	return Set(fmt::format("[{}]", value));
 	if (type == Type::Color)
 	{
 		if (value[0] == '#')
@@ -600,6 +600,12 @@ bool CVar::Set(const std::string& value)
 	}
 
 	auto json = json5pp::parse5(value);
+	if (json.is_array())
+	{
+		auto oop = json.as_array()[0];
+		json = json5pp::parse5(oop.stringify());
+	}
+
 	switch (type)
 	{
 	case Type::Bool:
@@ -751,7 +757,23 @@ static void CCmdHelp(const jsonArray& args)
 			else
 				conprint(0, cv.description);
 			//TODO: give more information.
-			if (cv.cheat) conprint(1, "(This is a cheat.)");
+			switch (cv.type)
+			{
+			case CVar::Type::Int:
+			case CVar::Type::Float:
+				conprint(0, "* {}", cv.type == CVar::Type::Int ? "Integer" : "Float");
+				if (!(cv.min == -1 && cv.max == -1))
+					conprint(0, "* Range: {} to {}", cv.min, cv.max);
+				break;
+			case CVar::Type::String: conprint(0, "* String"); break;
+			case CVar::Type::Vec2: conprint(0, "* Vector (X, Y)"); break;
+			case CVar::Type::Vec3: conprint(0, "* Vector (X, Y, Z)"); break;
+			case CVar::Type::Vec4: conprint(0, "* Vector (X, Y, Z, W)"); break;
+			case CVar::Type::Color: conprint(0, "* Color"); break;
+			case CVar::Type::Bool: conprint(0, "* Boolean"); break;
+			}
+			if (cv.onChange) conprint(0, "* Has callback");
+			if (cv.cheat) conprint(1, "* This is a cheat.)");
 			return;
 		}
 	}
@@ -798,7 +820,7 @@ static void CCmdVersion(const jsonArray& args)
 
 static void CCmdCVarList(const jsonArray& args)
 {
-	if (args.size() != 0 || !args[0].is_string())
+	if (args.size() != 0 && !args[0].is_string())
 	{
 		conprint(0, "Pattern must be a string.");
 		return;
@@ -828,7 +850,7 @@ static void CCmdCVarList(const jsonArray& args)
 
 static void CCmdCmdList(const jsonArray& args)
 {
-	if (args.size() != 0 || !args[0].is_string())
+	if (args.size() != 0 && !args[0].is_string())
 	{
 		conprint(0, "Pattern must be a string.");
 		return;
