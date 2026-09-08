@@ -231,10 +231,14 @@ TrackBar::TrackBar(int value, int min, int max, int step, glm::vec2 position, fl
 
 bool TrackBar::Tick(float dt)
 {
-	if (IsHovered())
+	if (trapped == this || (!trapped && IsHovered()))
 	{
 		if (!Inputs.MouseHoldLeft)
+		{
+			trapped = nullptr;
 			return true;
+		}
+		trapped = this;
 		SetFocus();
 
 		auto oldVal = Value;
