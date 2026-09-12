@@ -9,11 +9,14 @@ extern void RecalcProjections();
 
 static bool hdr = false;
 
+TextureP skyImage;
+
 ThreeDDemo::ThreeDDemo()
 {
 	ID = "3D Demo Scene";
 
 	model.SetVisibility("Collision", false);
+	skyImage = VFS::GetTexture("skybox.png");
 
 	if (model.Lights.empty())
 	{
@@ -115,12 +118,21 @@ void ThreeDDemo::Draw(float dt)
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
+	Sprite::DrawSprite(Shaders["sky"], *skyImage, glm::vec2(0), glm::vec2(width, height));
+	Sprite::FlushBatch();
+
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
+	//MeshBucket::DrawAllWithDepth(dt, [&, dt] { model.Draw(glm::vec3(0)); });
+
 	model.Draw(glm::vec3(0));
-	//teapot.Draw(glm::vec3(0));
+	////teapot.Draw(glm::vec3(0));
 	MeshBucket::Flush();
+
+	
+	glEnable(GL_DEPTH_TEST);
+	
 
 	glDisable(GL_DEPTH_TEST);
 
