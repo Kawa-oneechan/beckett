@@ -4,6 +4,7 @@
 //involve Godot, or is all about Minecraft title screens.
 
 #define PI 3.14159265359
+#define TAU 6.28318530717
 #define SCALE 3.0
 
 out vec4 fragColor;
@@ -13,6 +14,11 @@ out vec4 fragColor;
 layout(binding=0) uniform sampler2D image;
 
 const vec4 projection = vec4(0.0, 1.0, 0.0, 1.5);
+
+float atan2(float y, float x)
+{
+	return mod(atan(y, x) + PI, TAU);
+}
 
 void main()
 {
@@ -24,9 +30,9 @@ void main()
 		1.0
 	));
 
-	vec2 panoCoords = vec2(atan(cube.x, -cube.z), acos(cube.y));
-	//if (panoCoords.x < 0.0) panoCoords.x += PI * 2.0;
-	panoCoords /= vec2(PI * 2.0, PI);
+	vec2 panoCoords = vec2(atan2(cube.x, -cube.z), acos(cube.y));
+	//if (panoCoords.x < 0.0) panoCoords.x += TAU;
+	panoCoords /= vec2(TAU, PI);
 	
 	fragColor = texture(image, panoCoords);
 }
