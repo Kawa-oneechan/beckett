@@ -15,7 +15,7 @@ ThreeDDemo::ThreeDDemo()
 {
 	ID = "3D Demo Scene";
 
-	model.SetVisibility("Collision", false);
+	//model.SetVisibility("Collision", false);
 	skyImage = VFS::GetTexture("skybox.png");
 
 	if (model.Lights.empty())

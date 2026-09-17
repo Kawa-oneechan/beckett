@@ -1,6 +1,7 @@
 {
 	"mStuff": {
-		"albedo": "scene_albedo.png",
-		"normal": "scene_normal.png"
-	}
+//		"albedo": "scene_albedo.png",
+//		"normal": "scene_normal.png"
+	},
+	"*": { "shader": "warm_unlit" }
 }
