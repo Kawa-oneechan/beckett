@@ -323,5 +323,5 @@ std::string ResolvePath(const std::string& maybeRelative)
 			i = 0;
 		}
 	}
-	return StringJoin(parts.begin(), parts.end(), "/");
+	return StringJoin(parts, "/");
 }

@@ -66,3 +66,9 @@ std::string StringJoin(InputIt begin, InputIt end, const std::string& separator 
 	ret += concluder;
 	return ret;
 }
+
+template<typename T>
+std::string StringJoin(T range, const std::string& separator = ", ", const std::string& concluder = "")
+{
+	return StringJoin(range.cbegin(), range.cend(), separator, concluder);
+}
