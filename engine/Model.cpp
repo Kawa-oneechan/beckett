@@ -100,6 +100,9 @@ static void applyMatProps(Model::Mesh& mesh, const std::string& basePath, std::m
 	if (props["billboard"].is_boolean())
 		mesh.Billboard = props["billboard"].as_boolean();
 
+	if (props["pass"].is_integer())
+		mesh.Pass = props["pass"].as_integer();
+
 	if (props["nearest"].is_boolean() && props["nearest"].as_boolean())
 	{
 		mesh.Textures[0]->SetFilter(GL_NEAREST);
